@@ -1,0 +1,55 @@
+﻿@using IBhayiPharmacyManagementSystem.Utiliser
+@model PaginatedList<object>
+
+<nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+            <a class="page-link"
+               asp-action="@ViewContext.RouteData.Values["action"]"
+               asp-route-sortOrder="@ViewData["CurrentSort"]"
+               asp-route-pageNumber="1"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+        </li>
+        <li class="page-item @(!Model.HasPreviousPage ? "disabled" : "")">
+            <a class="page-link"
+               asp-action="@ViewContext.RouteData.Values["action"]"
+               asp-route-sortOrder="@ViewData["CurrentSort"]"
+               asp-route-pageNumber="@(Model.PageIndex - 1)"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        </li>
+
+        @for (var i = 1; i <= Model.TotalPages; i++)
+        {
+            <li class="page-item @(i == Model.PageIndex ? "active" : "")">
+                <a class="page-link"
+                   asp-action="@ViewContext.RouteData.Values["action"]"
+                   asp-route-sortOrder="@ViewData["CurrentSort"]"
+                   asp-route-pageNumber="@i"
+                   asp-route-currentFilter="@ViewData["CurrentFilter"]">@i</a>
+            </li>
+        }
+
+        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+            <a class="page-link"
+               asp-action="@ViewContext.RouteData.Values["action"]"
+               asp-route-sortOrder="@ViewData["CurrentSort"]"
+               asp-route-pageNumber="@(Model.PageIndex + 1)"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                <i class="fas fa-angle-right"></i>
+            </a>
+        </li>
+        <li class="page-item @(!Model.HasNextPage ? "disabled" : "")">
+            <a class="page-link"
+               asp-action="@ViewContext.RouteData.Values["action"]"
+               asp-route-sortOrder="@ViewData["CurrentSort"]"
+               asp-route-pageNumber="@Model.TotalPages"
+               asp-route-currentFilter="@ViewData["CurrentFilter"]">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        </li>
+    </ul>
+</nav>

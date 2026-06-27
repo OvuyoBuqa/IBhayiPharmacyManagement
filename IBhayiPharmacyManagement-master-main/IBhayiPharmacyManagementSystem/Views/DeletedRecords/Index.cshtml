@@ -1,0 +1,151 @@
+@model List<IBhayiPharmacyManagementSystem.Controllers.DeletedRecordViewModel>
+
+@{
+    ViewData["Title"] = "Deleted Records Management";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="content-wrapper">
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Deleted Records Management</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Deleted Records</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="content">
+        <div class="container-fluid">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Success!</strong> @TempData["SuccessMessage"]
+                    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <strong>Error!</strong> @TempData["ErrorMessage"]
+                    <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Manage Deleted Records</h3>
+                            <div class="card-tools">
+                                <form method="get" class="d-flex gap-2">
+                                    <select name="entityType" class="form-control form-control-sm" onchange="this.form.submit()">
+                                        <option value="All" selected="@((ViewBag.EntityType ?? "All") == "All")">All Records</option>
+                                        <option value="Medications" selected="@((ViewBag.EntityType ?? "") == "Medications")">Medications</option>
+                                        <option value="Suppliers" selected="@((ViewBag.EntityType ?? "") == "Suppliers")">Suppliers</option>
+                                        <option value="Pharmacists" selected="@((ViewBag.EntityType ?? "") == "Pharmacists")">Pharmacists</option>
+                                        <option value="PharmacyManagers" selected="@((ViewBag.EntityType ?? "") == "PharmacyManagers")">Pharmacy Managers</option>
+                                        <option value="Pharmacies" selected="@((ViewBag.EntityType ?? "") == "Pharmacies")">Pharmacies</option>
+                                        <option value="Doctors" selected="@((ViewBag.EntityType ?? "") == "Doctors")">Doctors</option>
+                                        <option value="Customers" selected="@((ViewBag.EntityType ?? "") == "Customers")">Customers</option>
+                                        <option value="Orders" selected="@((ViewBag.EntityType ?? "") == "Orders")">Orders</option>
+                                        <option value="ActiveIngredients" selected="@((ViewBag.EntityType ?? "") == "ActiveIngredients")">Active Ingredients</option>
+                                        <option value="DosageForms" selected="@((ViewBag.EntityType ?? "") == "DosageForms")">Dosage Forms</option>
+                                    </select>
+                                    <input type="text" name="searchTerm" class="form-control form-control-sm" placeholder="Search..." value="@ViewBag.SearchTerm" />
+                                    <button type="submit" class="btn btn-sm btn-primary">Search</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table table-hover text-nowrap">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name/Title</th>
+                                        <th>Type</th>
+                                        <th>Description</th>
+                                        <th>Deleted At</th>
+                                        <th>Deleted By</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model != null && Model.Any())
+                                    {
+                                        @foreach (var record in Model)
+                                        {
+                                            <tr>
+                                                <td>@record.Id</td>
+                                                <td>@record.Name</td>
+                                                <td><span class="badge badge-info">@record.EntityType</span></td>
+                                                <td>@record.Description</td>
+                                                <td>@record.DeletedAt.ToString("yyyy-MM-dd HH:mm")</td>
+                                                <td>@(record.DeletedBy ?? "System")</td>
+                                                <td>
+                                                    <form asp-action="Restore" method="post" style="display: inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@record.Id" />
+                                                        <input type="hidden" name="entityType" value="@record.EntityType" />
+                                                        <button type="submit" class="btn btn-sm btn-success" title="Restore" onclick="return confirm('Are you sure you want to restore this record?');">
+                                                            <i class="fas fa-undo"></i> Restore
+                                                        </button>
+                                                    </form>
+                                                    <form asp-action="PermanentlyDelete" method="post" style="display: inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@record.Id" />
+                                                        <input type="hidden" name="entityType" value="@record.EntityType" />
+                                                        <button type="submit" class="btn btn-sm btn-danger" title="Permanently Delete" onclick="return confirm('Are you sure you want to permanently delete this record? This action cannot be undone!');">
+                                                            <i class="fas fa-trash"></i> Delete Permanently
+                                                        </button>
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="7" class="text-center">
+                                                <p class="text-muted">No deleted records found.</p>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="card-footer">
+                            @if (ViewBag.TotalPages > 1)
+                            {
+                                <nav>
+                                    <ul class="pagination">
+                                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                                        {
+                                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                                <a class="page-link" href="?page=@i&entityType=@ViewBag.EntityType&searchTerm=@ViewBag.SearchTerm">@i</a>
+                                            </li>
+                                        }
+                                    </ul>
+                                </nav>
+                            }
+                            <p class="text-muted mt-2">Total: @ViewBag.TotalItems records</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+

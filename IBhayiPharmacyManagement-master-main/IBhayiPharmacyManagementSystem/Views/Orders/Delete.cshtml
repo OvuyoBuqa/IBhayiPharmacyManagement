@@ -1,0 +1,213 @@
+﻿@using IBhayiPharmacyManagementSystem.Enums
+<!-- Delete View -->
+@model IBhayiPharmacyManagementSystem.Models.Order
+@{
+    ViewData["Title"] = "Delete Order";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-danger text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">@ViewData["Title"] - #@Model.OrderId</h3>
+                <a asp-action="Index" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <h4 class="text-danger">Are you sure you want to delete this order?</h4>
+            <hr />
+
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Order Information</h5>
+                    <dl class="row">
+                        <dt class="col-sm-4">Order Date:</dt>
+                        <dd class="col-sm-8">@Model.OrderDate.ToString("g")</dd>
+
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @GetStatusBadgeClass(Model.OrderStatus)">
+                                @Model.OrderStatus
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Total Amount:</dt>
+                        <dd class="col-sm-8">@($"R{Model.TotalAmount:F2}")</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h5>Order Items</h5>
+                    <ul class="list-group">
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                @item.Medication?.Name
+                                <span class="badge bg-primary rounded-pill">@item.QuantityOrdered</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.OrderNotes))
+            {
+                <h5>Order Notes</h5>
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        @Model.OrderNotes
+                    </div>
+                </div>
+            }
+
+            <form asp-action="Delete" class="mt-4">
+                <input type="hidden" asp-for="OrderId" />
+                <div class="d-flex justify-content-between">
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-1"></i> Confirm Delete
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(OrderStatusEnum status)
+    {
+        return status switch
+        {
+            OrderStatusEnum.Pending => "bg-secondary",
+            OrderStatusEnum.Processing => "bg-info",
+            OrderStatusEnum.Ready => "bg-success",
+            OrderStatusEnum.Cancelled => "bg-danger",
+            _ => "bg-secondary",
+        };
+    }
+}
+
+<!-- CSS Styling -->
+<style>
+    /* Order-specific styles */
+    .order-status-badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+    }
+
+    /* Table enhancements */
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+    }
+
+    .table th {
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        background-color: #f8f9fa;
+    }
+
+    /* Card enhancements */
+    .card {
+        border: none;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .card-header {
+        padding: 1rem 1.25rem;
+    }
+
+    /* Form enhancements */
+    .form-control, .form-select {
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.375rem;
+        border: 1px solid #ced4da;
+    }
+
+    .form-label {
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    /* Button enhancements */
+    .btn {
+        font-weight: 500;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-lg {
+        padding: 0.75rem 1.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    /* Badge enhancements */
+    .badge {
+        font-weight: 500;
+        padding: 0.35em 0.65em;
+        font-size: 0.85em;
+        letter-spacing: 0.5px;
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .card-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .card-header .btn {
+            margin-top: 0.5rem;
+            width: 100%;
+        }
+    }
+</style>
+
+<!-- JavaScript Enhancements -->
+<script>
+    // Order page enhancements
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-dismiss alerts after 5 seconds
+        setTimeout(function() {
+            const alerts = document.querySelectorAll('.alert');
+            alerts.forEach(alert => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+
+        // Tooltip initialization
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Confirm before delete
+        const deleteForms = document.querySelectorAll('form[action*="Delete"]');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                if (!confirm('Are you sure you want to delete this order? This action cannot be undone.')) {
+                    e.preventDefault();
+                }
+            });
+        });
+    });
+</script>

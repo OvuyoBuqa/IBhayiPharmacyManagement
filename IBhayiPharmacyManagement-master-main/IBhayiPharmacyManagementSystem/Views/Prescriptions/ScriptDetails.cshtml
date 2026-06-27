@@ -1,0 +1,163 @@
+@model IBhayiPharmacyManagementSystem.Models.UnprocessedScript
+@{
+    ViewData["Title"] = "Prescription Details";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid px-4 py-3">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom-0 py-3 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="h4 mb-1">
+                    <i class="fas fa-eye text-primary me-2"></i>Prescription Details #@Model.UnploadId
+                </h1>
+                <p class="text-muted mb-0">Full details of the submitted prescription</p>
+            </div>
+            <div>
+                <a asp-action="PendingScripts" asp-route-status="Completed" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Completed
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-12 col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <strong>Patient</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2"><strong>Name:</strong> @Model.Customer?.Name @Model.Customer?.Surname</div>
+                            <div class="mb-2"><strong>ID Number:</strong> @Model.Customer?.IDNumber</div>
+                            <div class="mb-2"><strong>Email:</strong> @Model.Customer?.Email</div>
+                            <div class="mb-2"><strong>Phone:</strong> @Model.Customer?.CellPhoneNumber</div>
+                            @if (Model.Customer?.Allergies?.Any() == true)
+                            {
+                                <div class="mt-3">
+                                    <strong>Allergies</strong>
+                                    <ul class="mb-0">
+                                        @foreach (var allergy in Model.Customer.Allergies)
+                                        {
+                                            <li>@allergy.ActiveIngredient?.Name - @allergy.Severity (@allergy.Description)</li>
+                                        }
+                                    </ul>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12 col-lg-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <strong>Submission</strong>
+                        </div>
+                        <div class="card-body">
+                            <div class="mb-2"><strong>Status:</strong> <span class="badge bg-success">@Model.Status</span></div>
+                            <div class="mb-2"><strong>Uploaded:</strong> @Model.UploadDate.ToString("MMM dd, yyyy")</div>
+                            @if (Model.ProcessedDate.HasValue)
+                            {
+                                <div class="mb-2"><strong>Processed:</strong> @Model.ProcessedDate.Value.ToString("MMM dd, yyyy HH:mm")</div>
+                            }
+                            @if (Model.ProcessedBy != null)
+                            {
+                                <div class="mb-2"><strong>Processed By:</strong> @Model.ProcessedBy.FullName</div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.ScriptImagePath))
+                            {
+                                <div class="mt-3">
+                                    <a asp-action="DownloadPrescription" asp-route-id="@Model.UnploadId" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-download me-1"></i> Download Uploaded File
+                                    </a>
+                                </div>
+                            }
+                            @if (!string.IsNullOrEmpty(Model.ProcessingNotes))
+                            {
+                                <div class="mt-3">
+                                    <strong>Notes</strong>
+                                    <div class="border rounded p-2">@Model.ProcessingNotes</div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                            <strong>Prescription Items</strong>
+                            @if (Model.Prescription != null && Model.Prescription.Doctor != null)
+                            {
+                                <span class="text-muted">Doctor: Dr. @Model.Prescription.Doctor.Name @Model.Prescription.Doctor.Surname</span>
+                            }
+                            else if (Model.Prescription != null && Model.Prescription.DoctorId == null)
+                            {
+                                @if (string.IsNullOrEmpty(Model.ScriptImagePath))
+                                {
+                                    <span class="text-muted">Direct Walk-in Prescription</span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">Walk-in Customer Prescription</span>
+                                }
+                            }
+                        </div>
+                        <div class="card-body p-0">
+                            @if (Model.Prescription?.PrescriptionLines?.Any() == true)
+                            {
+                                <div class="table-responsive">
+                                    <table class="table mb-0 align-middle">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Medication</th>
+                                                <th class="text-center">Qty</th>
+                                                <th>Instructions</th>
+                                                <th>Frequency</th>
+                                                <th class="text-center">Repeats</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var line in Model.Prescription.PrescriptionLines)
+                                            {
+                                                <tr>
+                                                    <td>@line.Medication?.Name</td>
+                                                    <td class="text-center">@line.Quantity</td>
+                                                    <td>@line.Instructions</td>
+                                                    <td>@line.Frequency</td>
+                                                    <td class="text-center">@line.TotalRepeats</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="p-3 text-muted">
+                                    No items captured.
+                                    <br><small class="text-muted">
+                                        Debug: Prescription=@(Model.Prescription != null ? "Yes" : "No"), 
+                                        Lines=@(Model.Prescription?.PrescriptionLines?.Count ?? 0),
+                                        UploadId=@Model.UnploadId
+                                        @if (ViewBag.DebugInfo != null)
+                                        {
+                                            <br />@ViewBag.DebugInfo
+                                        }
+                                    </small>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card-header strong { font-weight: 600; }
+    </style>
+}
+

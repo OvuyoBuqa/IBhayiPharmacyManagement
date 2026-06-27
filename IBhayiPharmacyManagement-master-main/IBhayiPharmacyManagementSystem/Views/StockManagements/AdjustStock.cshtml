@@ -1,0 +1,110 @@
+@model IBhayiPharmacyManagementSystem.ViewModels.AdjustStockViewModel
+
+@{
+    ViewData["Title"] = "Adjust Stock";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<div class="container-fluid">
+    <h1 class="h2 mb-4">Adjust Stock for @Model.MedicationName</h1>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <form id="adjustStockForm" asp-action="AdjustStock" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="MedicationId" />
+
+                <div class="form-floating mb-3">
+                    <input asp-for="MedicationName" class="form-control form-control-lg" readonly placeholder="Medication Name" />
+                    <label asp-for="MedicationName">Medication Name</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="CurrentQuantity" class="form-control form-control-lg" readonly placeholder="Current Quantity" />
+                    <label asp-for="CurrentQuantity">Current Quantity</label>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <select asp-for="AdjustmentType" class="form-select form-select-lg">
+                        <option value="Increment">Increment Stock</option>
+                        <option value="Set">Set Stock to New Quantity</option>
+                        <option value="Decrement">Decrement Stock</option>
+                    </select>
+                    <label asp-for="AdjustmentType">Adjustment Type</label>
+                    <span asp-validation-for="AdjustmentType" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="AdjustmentQuantity" class="form-control form-control-lg" type="number" placeholder="Adjustment Quantity" />
+                    <label asp-for="AdjustmentQuantity">Adjustment Quantity</label>
+                    <span asp-validation-for="AdjustmentQuantity" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <textarea asp-for="Reason" class="form-control" placeholder="Reason for Adjustment" style="height: 100px"></textarea>
+                    <label asp-for="Reason">Reason for Adjustment</label>
+                    <span asp-validation-for="Reason" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                    <a asp-action="Index" asp-controller="StockManagements" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Back to Stock</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        // Clean AJAX submit for Adjust Stock (production)
+        $(function () {
+            console.log('AdjustStock - AJAX submit enabled');
+
+            $('#adjustStockForm').on('submit', function (e) {
+                e.preventDefault();
+
+                var $form = $(this);
+
+                // Run jQuery validation if available
+                if (typeof $form.valid === 'function' && !$form.valid()) {
+                    return;
+                }
+
+                var url = $form.attr('action') || window.location.pathname;
+                var data = $form.serialize();
+
+                $.ajax({
+                    url: url,
+                    method: 'POST',
+                    data: data,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                    success: function (resp) {
+                        $('.card-body .alert').remove();
+                        if (resp && resp.success) {
+                            // Redirect back to stock index
+                            window.location.href = '@Url.Action("Index", "StockManagements")';
+                        } else if (resp && resp.errors) {
+                            var errHtml = '<div class="alert alert-danger mt-3">' + resp.errors.join('<br/>') + '</div>';
+                            $('.card-body').prepend(errHtml);
+                        } else {
+                            console.error('Unexpected response from server:', resp);
+                        }
+                    },
+                    error: function (xhr, status, err) {
+                        $('.card-body .alert').remove();
+                        var message = 'AJAX submit error: ' + status + ' ' + (err || '');
+                        if (xhr && xhr.responseText) {
+                            message += '<br/>' + $('<div/>').text(xhr.responseText).html();
+                        }
+                        var errHtml = '<div class="alert alert-danger mt-3">' + message + '</div>';
+                        $('.card-body').prepend(errHtml);
+                        console.error('AJAX submit error:', status, err, xhr.responseText);
+                    }
+                });
+            });
+        });
+    </script>
+}

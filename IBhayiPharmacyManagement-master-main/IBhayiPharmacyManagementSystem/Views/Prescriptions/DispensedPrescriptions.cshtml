@@ -1,0 +1,254 @@
+@model IEnumerable<IBhayiPharmacyManagementSystem.Models.DispensedPrescription>
+@{
+    ViewData["Title"] = "Dispensed Prescriptions";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">
+                    <a asp-controller="Home" asp-action="Customer" class="btn btn-outline-secondary btn-sm mr-2">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    <i class="fas fa-prescription-bottle-alt text-success mr-2"></i>Dispensed Prescriptions
+                </h1>
+            </div>
+            <div class="col-sm-6">
+                <div class="float-right">
+                    <a asp-controller="UnprocessedScripts" asp-action="ProcessedScripts" class="btn btn-info mr-2">
+                        <i class="fas fa-list"></i> View Processed Scripts
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h5><i class="icon fas fa-check"></i> Success!</h5>
+                @TempData["SuccessMessage"]
+            </div>
+        }
+
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show">
+                <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                <h5><i class="icon fas fa-ban"></i> Error!</h5>
+                @TempData["ErrorMessage"]
+            </div>
+        }
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-success shadow-lg">
+                    <div class="card-header bg-gradient-success">
+                        <h3 class="card-title text-white">
+                            <i class="fas fa-prescription-bottle-alt mr-2"></i>Ready for Collection & Payment
+                        </h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if (!Model.Any())
+                        {
+                            <div class="text-center py-5">
+                                <i class="fas fa-check-circle fa-4x text-success mb-3"></i>
+                                <h4 class="text-muted">No Dispensed Prescriptions</h4>
+                                <p class="text-muted">You don't have any prescriptions ready for collection at this time.</p>
+                                <a asp-controller="UnprocessedScripts" asp-action="Load" class="btn btn-primary mt-3">
+                                    <i class="fas fa-upload mr-2"></i>Upload a Prescription
+                                </a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="alert alert-info">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                <strong>Important:</strong> These medications have been dispensed and are ready for collection. 
+                                Please visit the pharmacy to collect and pay for your medications.
+                            </div>
+
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th>
+                                                <i class="fas fa-hashtag mr-1"></i>Prescription ID
+                                            </th>
+                                            <th>
+                                                <i class="fas fa-pills mr-1"></i>Medication
+                                            </th>
+                                            <th>
+                                                <i class="fas fa-user-md mr-1"></i>Doctor
+                                            </th>
+                                            <th>
+                                                <i class="fas fa-list-ol mr-1"></i>Quantity
+                                            </th>
+                                            <th>
+                                                <i class="fas fa-calendar mr-1"></i>Dispensed Date
+                                            </th>
+                                            <th class="text-right">
+                                                <i class="fas fa-money-bill-wave mr-1"></i>Amount Due
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-cogs mr-1"></i>Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <strong>#@(item.PrescriptionLine?.Prescription?.UploadId ?? item.PrescriptionLine?.Prescription?.PrescriptionId ?? 0)</strong>
+                                                </td>
+                                                <td>
+                                                    @if (item.Medication != null)
+                                                    {
+                                                        <div>
+                                                            <strong>@item.Medication.Name</strong>
+                                                            @if (!string.IsNullOrEmpty(item.PatientInstructions))
+                                                            {
+                                                                <br />
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-info-circle"></i> @item.PatientInstructions
+                                                                </small>
+                                                            }
+                                                        </div>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">Unknown Medication</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (item.Doctor != null)
+                                                    {
+                                                        @item.Doctor.Name
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">N/A</span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge badge-primary">@item.QuantityDispensed</span>
+                                                </td>
+                                                <td>
+                                                    @item.DispensedDate.ToString("MMM dd, yyyy")
+                                                </td>
+                                                <td class="text-right">
+                                                    <strong class="text-success" style="font-size: 1.2em;">R @item.AmountDue.ToString("F2")</strong>
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (item.IsPaid)
+                                                    {
+                                                        <span class="badge badge-success">
+                                                            <i class="fas fa-check-circle mr-1"></i>Paid
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-info">
+                                                            <i class="fas fa-check-square mr-1"></i>Ready for Collection
+                                                        </span>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                    <tfoot class="bg-light">
+                                        <tr>
+                                            <th colspan="5" class="text-right">
+                                                <strong>Total Amount Due:</strong>
+                                            </th>
+                                            <th class="text-right">
+                                                <strong class="text-success" style="font-size: 1.3em;">
+                                                    R @Model.Where(x => !x.IsPaid).Sum(x => x.AmountDue).ToString("F2")
+                                                </strong>
+                                            </th>
+                                            <th></th>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+
+                            <div class="alert alert-warning mt-3">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                <strong>Please Note:</strong> Payment can only be made at the pharmacy when you collect your medications. 
+                                This list shows only the dispensed items that are ready for collection. 
+                                You don't need to place an order - just visit the pharmacy to collect and pay.
+                            </div>
+                        }
+                    </div>
+                    <div class="card-footer bg-white">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-info-circle mr-1"></i>
+                                    Showing <strong>@Model.Where(x => !x.IsPaid).Count()</strong> unpaid dispensed prescription(s)
+                                </p>
+                            </div>
+                            <div class="col-md-6 text-right">
+                                <a asp-controller="UnprocessedScripts" asp-action="Load" class="btn btn-primary">
+                                    <i class="fas fa-upload mr-2"></i>Upload New Prescription
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Styles {
+    <style>
+        .table-responsive {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .thead-dark th {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .card-success .card-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .table tbody tr:hover {
+            background-color: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+
+        .badge {
+            padding: 6px 12px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .alert {
+            border-radius: 10px;
+        }
+    </style>
+}
+
+
+

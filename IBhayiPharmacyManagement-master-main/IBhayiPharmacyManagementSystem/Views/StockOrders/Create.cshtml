@@ -1,0 +1,1510 @@
+﻿@using IBhayiPharmacyManagementSystem.ViewModels
+@model IBhayiPharmacyManagementSystem.ViewModels.CreateStockOrderViewModel
+
+@{
+    ViewData["Title"] = "Request Quote";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    :root {
+        --primary-color: #b3d9ff; /* light blue */
+        --primary-dark: #99ccff; /* deeper light blue */
+        --secondary-color: #6c757d; /* grey */
+        --success-color: #27ae60; /* green */
+        --warning-color: #f39c12; /* orange */
+        --danger-color: #e74c3c;
+        --info-color: #3498db;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00; /* orange accent */
+        --brown-soft: #c4a484; /* soft brown */
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        border-top: 4px solid var(--orange-accent); /* orange accent */
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--info-color);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        border-left: 4px solid var(--brown-soft); /* subtle brown edge */
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey header */
+        color: var(--white);
+        padding: 20px 25px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .card-title i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, var(--secondary-color), #5a6268);
+        border: none;
+        color: var(--white);
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #5a6268, #495057);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        color: var(--white);
+        text-decoration: none;
+    }
+
+    .btn-secondary i {
+        margin-right: 8px;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--info-color), #2980b9);
+        border: none;
+        color: var(--white);
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #2980b9, #1f5f8b);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        color: var(--white);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-color), #229954);
+        border: none;
+        color: var(--white);
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-success:hover {
+        background: linear-gradient(135deg, #229954, #1e8449);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        color: var(--white);
+    }
+
+    .btn-info {
+        background: linear-gradient(135deg, var(--info-color), #2980b9);
+        border: none;
+        color: var(--white);
+        padding: 10px 20px;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-info:hover {
+        background: linear-gradient(135deg, #2980b9, #1f5f8b);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        color: var(--white);
+    }
+
+    .btn-outline-secondary {
+        background: transparent;
+        border: 2px solid var(--secondary-color);
+        color: var(--secondary-color);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background: var(--secondary-color);
+        color: var(--white);
+        transform: translateY(-2px);
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 15px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background-color: var(--white);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--info-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        background-color: var(--white);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 8px;
+    }
+
+    .form-check-label {
+        font-weight: 500;
+        color: var(--dark-text);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--info-color);
+        border-color: var(--info-color);
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--info-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--muted-text);
+        font-weight: 600;
+    }
+
+    .text-danger {
+        color: var(--danger-color) !important;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .border-bottom {
+        border-bottom: 2px solid #e9ecef !important;
+    }
+
+    /* Medications Table Styles */
+    #medicationsTable {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    #medicationsTable thead th {
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: var(--white);
+        font-weight: 600;
+        padding: 15px 12px;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    #medicationsTable tbody td {
+        padding: 12px;
+        vertical-align: middle;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    #medicationsTable tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+        transition: all 0.2s ease;
+    }
+
+
+    .stock-status {
+        padding: 4px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .stock-status.low {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .stock-status.adequate {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+
+    .stock-status.critical {
+        background-color: #f5c6cb;
+        color: #721c24;
+    }
+
+    .active-ingredients-list {
+        font-size: 0.8rem;
+        color: var(--muted-text);
+    }
+
+    .btn-add-single {
+        padding: 4px 8px;
+        font-size: 0.8rem;
+    }
+
+    /* Search and Pagination Styles */
+    #medicationSearchInput {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    #medicationSearchInput:focus {
+        border-color: var(--info-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    #clearSearchBtn {
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+
+    #clearSearchBtn:hover {
+        transform: translateY(-1px);
+    }
+
+    #searchResultsCount {
+        font-weight: 500;
+        color: var(--info-color);
+    }
+
+    .pagination .page-link {
+        border-radius: 8px;
+        margin: 0 2px;
+        border: 1px solid #dee2e6;
+        color: var(--info-color);
+        transition: all 0.3s ease;
+    }
+
+    .pagination .page-link:hover {
+        background-color: var(--info-color);
+        border-color: var(--info-color);
+        color: var(--white);
+        transform: translateY(-1px);
+    }
+
+    .pagination .page-link:disabled {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        color: #6c757d;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .pagination .page-link:disabled:hover {
+        background-color: #f8f9fa;
+        border-color: #dee2e6;
+        color: #6c757d;
+        transform: none;
+    }
+
+        
+        .btn-secondary, .btn-primary {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+
+        #medicationsTable {
+            font-size: 0.8rem;
+        }
+
+        #medicationsTable thead th,
+        #medicationsTable tbody td {
+            padding: 8px 6px;
+        }
+
+        .pagination {
+            font-size: 0.8rem;
+        }
+
+        .pagination .page-link {
+            padding: 0.375rem 0.5rem;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="page-title">
+                            <i class="fas fa-shopping-cart"></i>Request Quote from Supplier
+                        </h1>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Stock Orders
+                        </a>
+                    </div>
+                    <nav aria-label="breadcrumb" class="mt-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Action("PharmacyManager", "Home")">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index", "StockOrders")">Stock Orders</a></li>
+                            <li class="breadcrumb-item active">Request Quote</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Request Quote Form Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-shopping-cart"></i>Stock Order Request
+                        </h5>
+                    </div>
+                    <div class="card-body" style="padding: 25px;">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select asp-for="SupplierId" class="form-select form-select-lg" asp-items="Model.Suppliers">
+                                <option value="">-- Select Supplier --</option>
+                            </select>
+                            <label asp-for="SupplierId">Supplier</label>
+                            <span asp-validation-for="SupplierId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Medications Table Section -->
+                <div id="medicationsTableSection" style="display: none;">
+                    <h4 class="mb-3">
+                        <i class="fas fa-table"></i> Available Medications for Selected Supplier
+                    </h4>
+                    
+                    <!-- Search Bar -->
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input type="text" id="medicationSearchInput" class="form-control" placeholder="Search medications..." />
+                                <label for="medicationSearchInput">
+                                    <i class="fas fa-search me-2"></i>Search Medications
+                                </label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 d-flex align-items-end">
+                            <button type="button" id="clearSearchBtn" class="btn btn-outline-secondary me-2" style="display: none;">
+                                <i class="fas fa-times me-2"></i>Clear Search
+                            </button>
+                            <small class="text-muted" id="searchResultsCount"></small>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="medicationsTable">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Medication Name</th>
+                                    <th>Description</th>
+                                    <th>Schedule</th>
+                                    <th>Dosage Form</th>
+                                    <th>Current Stock</th>
+                                    <th>Min Stock Level</th>
+                                    <th>Active Ingredients</th>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="medicationsTableBody">
+                                <!-- Medications will be populated here via JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination Controls -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <div>
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-info-circle me-2"></i>Click "Add to Order" next to each medication you want to include in your stock order.
+                            </p>
+                        </div>
+                        <div id="paginationControls" style="display: none;">
+                            <nav aria-label="Medications pagination">
+                                <ul class="pagination pagination-sm mb-0">
+                                    <li class="page-item" id="prevPageBtn">
+                                        <button class="page-link" type="button" disabled>
+                                            <i class="fas fa-chevron-left"></i> Previous
+                                        </button>
+                                    </li>
+                                    <li class="page-item">
+                                        <span class="page-link" id="pageInfo">Page 1 of 1</span>
+                                    </li>
+                                    <li class="page-item" id="nextPageBtn">
+                                        <button class="page-link" type="button" disabled>
+                                            Next <i class="fas fa-chevron-right"></i>
+                                        </button>
+                                    </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <hr class="my-4" />
+                </div>
+
+          @*       <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="isNewMedicationSelected" asp-for="IsNewMedicationSelected">
+                    <label class="form-check-label" for="isNewMedicationSelected">Add New Medication</label>
+                </div>
+
+                <div id="newMedicationFields" style="display:none;">
+                    <h4>New Medication Details</h4>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <input asp-for="NewMedicationName" class="form-control" placeholder="Medication Name" />
+                                <label asp-for="NewMedicationName">Medication Name</label>
+                                <span asp-validation-for="NewMedicationName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                <input asp-for="NewMedicationSchedule" class="form-control" placeholder="Schedule" />
+                                <label asp-for="NewMedicationSchedule">Schedule</label>
+                                <span asp-validation-for="NewMedicationSchedule" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-floating">
+                                <select asp-for="NewMedicationDosageFormId" class="form-select" asp-items="Model.DosageForms">
+                                    <option value="">-- Select Dosage Form --</option>
+                                </select>
+                                <label asp-for="NewMedicationDosageFormId">Dosage Form</label>
+                                <span asp-validation-for="NewMedicationDosageFormId" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                <textarea asp-for="NewMedicationDescription" class="form-control" placeholder="Description" style="height: 100px;"></textarea>
+                                <label asp-for="NewMedicationDescription">Description</label>
+                                <span asp-validation-for="NewMedicationDescription" class="text-danger"></span>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-2">
+                            <div class="form-floating">
+                                <input asp-for="NewMedicationMinStockLevel" class="form-control" placeholder="Min Stock Level" />
+                                <label asp-for="NewMedicationMinStockLevel">Min Stock Level</label>
+                                <span asp-validation-for="NewMedicationMinStockLevel" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-floating">
+                                <input asp-for="NewMedicationQuantityInStock" class="form-control" placeholder="Initial Stock Quantity" />
+                                <label asp-for="NewMedicationQuantityInStock">Initial Stock Quantity</label>
+                                <span asp-validation-for="NewMedicationQuantityInStock" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Active Ingredients Section for New Medication -->
+                    <h5 class="mt-4">Active Ingredients</h5>
+                    <div id="newMedicationActiveIngredientsContainer">
+                        <!-- Dynamic active ingredient rows will be added here -->
+                    </div>
+                    <button type="button" class="btn btn-sm btn-outline-secondary mt-2" id="addActiveIngredientBtn">
+                        <i class="fas fa-plus-circle me-2"></i> Add Active Ingredient
+                    </button>
+
+                    <button type="button" class="btn btn-info mt-3" id="addNewMedicationBtn"><i class="fas fa-plus-circle me-2"></i> Add New Medication to Order</button>
+                    <hr class="my-4" />
+                </div> *@
+
+                <hr class="my-4" />
+
+                <h4 class="mb-3">
+                    <i class="fas fa-shopping-cart"></i> Order Items
+                </h4>
+                <div id="stockOrderItemsContainer">
+                    @if (Model.StockOrderItems != null && Model.StockOrderItems.Any())
+                    {
+                        for (int i = 0; i < Model.StockOrderItems.Count; i++)
+                        {
+                            <partial name="_StockOrderItemRow" model="new Tuple<CreateStockOrderItemViewModel, List<SelectListItem>, int>(Model.StockOrderItems[i], Model.Medications, i)" />
+                        }
+                    }
+                    @if (Model.StockOrderItems == null || !Model.StockOrderItems.Any())
+                    {
+                        <div class="text-center text-muted py-4" id="noItemsMessage">
+                            <i class="fas fa-info-circle me-2"></i>No medications added to order yet. Select medications from the table above or add new medications.
+                        </div>
+                    }
+                </div>
+
+                <!-- Add Existing Medication button removed - now using table selection -->
+
+                <hr class="my-4" />
+
+                
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-paper-plane me-2"></i>Request Quote
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quantity Picker Modal -->
+<div class="modal fade" id="quantityPickerModal" tabindex="-1" aria-labelledby="quantityPickerLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="quantityPickerLabel"><i class="fas fa-sort-numeric-up-alt me-2"></i>Select Quantity</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-2 text-muted" id="quantityPickerMedName"></div>
+                <div class="form-floating">
+                    <input type="number" id="quantityPickerInput" class="form-control" min="1" value="1" />
+                    <label for="quantityPickerInput">Quantity</label>
+                </div>
+                <small class="text-muted d-block mt-2" id="quantityPickerHint"></small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="quantityPickerConfirm"><i class="fas fa-check me-2"></i>Add Item</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        // Attach a light-weight submit logger to help debug submission issues
+        $(document).on('submit', 'form', function () {
+            console.log('Stock Order form submitting...');
+            
+            // Log all form data for debugging
+            const formData = new FormData(this);
+            console.log('Form data:');
+            for (let [key, value] of formData.entries()) {
+                console.log(`${key}: ${value}`);
+            }
+            
+            // Log stock order items specifically
+            const stockOrderItems = [];
+            let itemIndex = 0;
+            while (formData.has(`StockOrderItems[${itemIndex}].MedicationId`)) {
+                const item = {
+                    MedicationId: formData.get(`StockOrderItems[${itemIndex}].MedicationId`),
+                    IsNewMedication: formData.get(`StockOrderItems[${itemIndex}].IsNewMedication`),
+                    Name: formData.get(`StockOrderItems[${itemIndex}].Name`),
+                    QuantityOrdered: formData.get(`StockOrderItems[${itemIndex}].QuantityOrdered`),
+                    Schedule: formData.get(`StockOrderItems[${itemIndex}].Schedule`),
+                    Description: formData.get(`StockOrderItems[${itemIndex}].Description`),
+                    MinStockLevel: formData.get(`StockOrderItems[${itemIndex}].MinStockLevel`),
+                    QuantityInStock: formData.get(`StockOrderItems[${itemIndex}].QuantityInStock`),
+                    DosageFormId: formData.get(`StockOrderItems[${itemIndex}].DosageFormId`)
+                };
+                stockOrderItems.push(item);
+                itemIndex++;
+            }
+            console.log('Stock Order Items found:', stockOrderItems.length);
+            console.log('Stock Order Items:', stockOrderItems);
+            
+            // Also log the current rowIndex
+            console.log('Current rowIndex at form submission:', rowIndex);
+            
+            // Log the actual form elements to see what's being submitted
+            console.log('Form elements with StockOrderItems:');
+            $('input[name*="StockOrderItems"]').each(function() {
+                console.log('Input:', $(this).attr('name'), 'Value:', $(this).val());
+            });
+        });
+        let rowIndex = @(Model.StockOrderItems?.Count ?? 0);
+        let medications = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Medications ?? new List<SelectListItem>()));
+        console.log("Medications data:", medications); // Add this line to inspect the data
+
+        // Search and pagination variables
+        let allMedications = []; // Store all medications from server
+        let filteredMedications = []; // Store filtered medications after search
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let currentSearchTerm = '';
+
+        $(document).ready(function () {
+            // totals removed for quote-based system
+
+            // Event listener for Supplier dropdown change
+            $('#SupplierId').on('change', function () {
+                const supplierId = $(this).val();
+                if (supplierId) {
+                    loadMedicationsForSupplier(supplierId);
+                    loadMedicationsTable(supplierId);
+                } else {
+                    // Clear medications if no supplier is selected
+                    medications = [];
+                    $('.medication-select').html('<option value="">-- Select Medication --</option>');
+                    $('#medicationsTableSection').hide();
+                    $('#medicationsTableBody').empty();
+                }
+            });
+
+            // Add Order Item button removed - now using table selection
+
+            // Event delegation for dynamically added rows
+            $('#stockOrderItemsContainer').on('change', 'select[name$="MedicationId"]', function () {
+                // no unit price calculation needed
+                updateMedicationDropdowns(); // Prevent duplicate selections
+            });
+
+            // Prevent duplicate medication selections
+            function updateMedicationDropdowns() {
+                const selectedMedications = [];
+                
+                // Collect all currently selected medication IDs
+                $('.medication-select').each(function() {
+                    const selectedValue = $(this).val();
+                    if (selectedValue && selectedValue !== '') {
+                        selectedMedications.push(selectedValue);
+                    }
+                });
+                
+                // Update all medication dropdowns to disable selected options
+                $('.medication-select').each(function() {
+                    const currentSelect = $(this);
+                    const currentValue = currentSelect.val();
+                    
+                    // Reset all options to enabled
+                    currentSelect.find('option').prop('disabled', false);
+                    
+                    // Disable selected options in other dropdowns
+                    selectedMedications.forEach(function(medId) {
+                        if (medId !== currentValue) {
+                            currentSelect.find(`option[value="${medId}"]`).prop('disabled', true);
+                        }
+                    });
+                });
+            }
+
+            // Call on page load
+            updateMedicationDropdowns();
+
+            // Search functionality
+            $('#medicationSearchInput').on('input', function() {
+                currentSearchTerm = $(this).val().toLowerCase().trim();
+                filterMedications();
+            });
+
+            // Clear search button
+            $('#clearSearchBtn').on('click', function() {
+                $('#medicationSearchInput').val('');
+                currentSearchTerm = '';
+                filterMedications();
+            });
+
+            // Pagination controls
+            $('#prevPageBtn button').on('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    displayMedications();
+                }
+            });
+
+            $('#nextPageBtn button').on('click', function() {
+                const totalPages = Math.ceil(filteredMedications.length / itemsPerPage);
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    displayMedications();
+                }
+            });
+
+            // no per-item total calculations
+
+            $('#stockOrderItemsContainer').on('click', '.remove-item-btn', function () {
+                const row = $(this).closest('.row.mb-3');
+                const medicationId = row.find('input[name$=".MedicationId"]').val();
+                
+                // Reset button state for removed medication
+                if (medicationId) {
+                    const button = $(`button[data-medication-id="${medicationId}"]`);
+                    if (button.length > 0) {
+                        button.removeClass('btn-success').addClass('btn-primary');
+                        button.html('<i class="fas fa-plus"></i> Add to Order');
+                        button.prop('disabled', false);
+                    }
+                }
+                
+                row.remove();
+                
+                // Show "no items" message if no items remain
+                if ($('#stockOrderItemsContainer .row.mb-3').length === 0) {
+                    $('#noItemsMessage').show();
+                }
+            });
+
+            // Toggle new medication fields visibility
+            $('#isNewMedicationSelected').on('change', function () {
+                if ($(this).is(':checked')) {
+                    $('#newMedicationFields').show();
+                    // Add a default active ingredient row if none exist
+                    if ($('#newMedicationActiveIngredientsContainer .active-ingredient-row').length === 0) {
+                        addActiveIngredientRow();
+                    }
+                    // Clear selected medication in existing items
+                } else {
+                    $('#newMedicationFields').hide();
+                    // Clear new medication fields and their validation messages
+                    $('#newMedicationFields input, #newMedicationFields textarea, #newMedicationFields select').val('');
+                    $('#newMedicationFields').find('.text-danger').text('');
+                    $('#newMedicationActiveIngredientsContainer').empty(); // Clear active ingredients
+                    // Add existing medication functionality now handled by table
+                }
+            });
+
+            // Add new medication to order
+            $('#addNewMedicationBtn').on('click', function () {
+                if (!validateNewMedicationFields()) {
+                    showToast('Please fix the validation errors before adding the medication.', 'error');
+                    return;
+                }
+
+                // Add the new medication as a stock order item
+                const newMedicationName = $('#NewMedicationName').val();
+                const newMedicationQuantity = parseInt($('#NewMedicationQuantityInStock').val());
+
+                const activeIngredients = [];
+                $('#newMedicationActiveIngredientsContainer .active-ingredient-row').each(function () {
+                    const activeIngredientId = parseInt($(this).find('.active-ingredient-select').val());
+                    const strength = $(this).find('.active-ingredient-strength').val();
+                    if (activeIngredientId > 0 && strength.trim() !== '') {
+                        activeIngredients.push({
+                            ActiveIngredientId: activeIngredientId,
+                            Strength: strength.trim()
+                        });
+                    }
+                });
+
+                const newMedicationItem = {
+                    MedicationId: 0, // Will be set to 0 for new medications
+                    IsNewMedication: true,
+                    Name: newMedicationName,
+                    QuantityOrdered: newMedicationQuantity,
+                    // Other new medication details to be sent to server
+                    Schedule: parseInt($('#NewMedicationSchedule').val()),
+                    Description: $('#NewMedicationDescription').val(),
+                    MinStockLevel: parseInt($('#NewMedicationMinStockLevel').val()),
+                    QuantityInStock: newMedicationQuantity, // Set initial stock
+                    DosageFormId: parseInt($('#NewMedicationDosageFormId').val()),
+                    ActiveIngredients: activeIngredients // Include active ingredients here
+                };
+                
+                // Log the medication item for debugging
+                console.log('New medication item to be added:', newMedicationItem);
+                console.log('Current rowIndex before adding:', rowIndex);
+
+                addMedicationItemRow(newMedicationItem);
+                
+                console.log('Row added, current rowIndex after adding:', rowIndex);
+
+                // Show success message
+                showToast(`New medication "${newMedicationName}" added to order successfully!`, 'success');
+
+                // Clear new medication fields after adding to order
+                $('#newMedicationFields input, #newMedicationFields textarea, #newMedicationFields select').val('');
+                $('#newMedicationActiveIngredientsContainer').empty(); // Clear active ingredients too
+                $('#isNewMedicationSelected').prop('checked', false).trigger('change'); // Uncheck and hide new medication fields
+                
+                // Re-parse form validation
+                $('form').data('validator', null);
+                $.validator.unobtrusive.parse($('form'));
+                
+                // Scroll to the order items section to show the added item
+                $('html, body').animate({
+                    scrollTop: $('#stockOrderItemsContainer').offset().top - 100
+                }, 500);
+            });
+        });
+
+            // Function to add a new active ingredient row
+        function addActiveIngredientRow() {
+            let activeIngredientIndex = $('#newMedicationActiveIngredientsContainer .active-ingredient-row').length;
+            const activeIngredientOptions = availableActiveIngredients.map(ai => `<option value="${ai.id}">${ai.name}</option>`).join('');
+
+            let newActiveIngredientHtml = `
+                <div class="row mb-2 active-ingredient-row">
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <select name="NewMedicationActiveIngredients[${activeIngredientIndex}].ActiveIngredientId" class="form-select form-select-sm active-ingredient-select">
+                                <option value="">-- Select Active Ingredient --</option>
+                                ${activeIngredientOptions}
+                            </select>
+                            <label>Active Ingredient</label>
+                        </div>
+                    </div>
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <input type="text" name="NewMedicationActiveIngredients[${activeIngredientIndex}].Strength" class="form-control form-control-sm active-ingredient-strength" placeholder="Strength" />
+                            <label>Strength</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2 d-flex align-items-center">
+                        <button type="button" class="btn btn-danger btn-sm remove-active-ingredient-btn"><i class="fas fa-times"></i></button>
+                    </div>
+                </div>
+            `;
+            $('#newMedicationActiveIngredientsContainer').append(newActiveIngredientHtml);
+
+            // Re-parse unobtrusive validation for newly added row (if applicable)
+            $.validator.unobtrusive.parse($('#newMedicationActiveIngredientsContainer').children().last());
+        }
+
+        // Event listener for "Add Active Ingredient" button
+        $('#addActiveIngredientBtn').on('click', function () {
+            addActiveIngredientRow();
+        });
+
+        // Event delegation for removing active ingredient rows
+        $('#newMedicationActiveIngredientsContainer').on('click', '.remove-active-ingredient-btn', function () {
+            $(this).closest('.active-ingredient-row').remove();
+        });
+
+        // Validation function for new medication fields
+        function validateNewMedicationFields() {
+            let isValid = true;
+            
+            // Clear previous validation messages
+            $('#newMedicationFields .text-danger').text('');
+            
+            // Validate medication name
+            const name = $('#NewMedicationName').val().trim();
+            if (!name) {
+                $('#NewMedicationName').next('.text-danger').text('Medication name is required.');
+                isValid = false;
+            }
+            
+            // Validate schedule
+            const schedule = $('#NewMedicationSchedule').val();
+            if (!schedule || isNaN(schedule) || parseInt(schedule) < 0) {
+                $('#NewMedicationSchedule').next('.text-danger').text('Schedule is required and must be a non-negative number.');
+                isValid = false;
+            }
+            
+            // Validate dosage form
+            const dosageFormId = $('#NewMedicationDosageFormId').val();
+            if (!dosageFormId) {
+                $('#NewMedicationDosageFormId').next('.text-danger').text('Dosage form is required.');
+                isValid = false;
+            }
+            
+            // Validate min stock level
+            const minStockLevel = $('#NewMedicationMinStockLevel').val();
+            if (!minStockLevel || isNaN(minStockLevel) || parseInt(minStockLevel) < 0) {
+                $('#NewMedicationMinStockLevel').next('.text-danger').text('Min stock level is required and must be a non-negative number.');
+                isValid = false;
+            }
+            
+            // Validate quantity in stock
+            const quantityInStock = $('#NewMedicationQuantityInStock').val();
+            if (!quantityInStock || isNaN(quantityInStock) || parseInt(quantityInStock) < 1) {
+                $('#NewMedicationQuantityInStock').next('.text-danger').text('Initial stock quantity is required and must be at least 1.');
+                isValid = false;
+            }
+            
+            // Validate at least one active ingredient
+            const activeIngredientRows = $('#newMedicationActiveIngredientsContainer .active-ingredient-row');
+            if (activeIngredientRows.length === 0) {
+                $('#newMedicationActiveIngredientsContainer').append('<div class="text-danger">At least one active ingredient is required.</div>');
+                isValid = false;
+            } else {
+                let hasValidIngredient = false;
+                activeIngredientRows.each(function() {
+                    const ingredientId = $(this).find('.active-ingredient-select').val();
+                    const strength = $(this).find('.active-ingredient-strength').val().trim();
+                    if (ingredientId && strength) {
+                        hasValidIngredient = true;
+                    }
+                });
+                if (!hasValidIngredient) {
+                    $('#newMedicationActiveIngredientsContainer').append('<div class="text-danger">At least one active ingredient with strength is required.</div>');
+                    isValid = false;
+                }
+            }
+            
+            // Log validation result for debugging
+            console.log('New medication validation result:', isValid);
+            
+            return isValid;
+        }
+
+        // Toast notification function
+        function showToast(message, type = 'info') {
+            let bgClass = 'info';
+            if (type === 'success') bgClass = 'success';
+            else if (type === 'error') bgClass = 'danger';
+            else if (type === 'warning') bgClass = 'warning';
+            
+            const toastHtml = `
+                <div class="toast align-items-center text-white bg-${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            // Create toast container if it doesn't exist
+            if ($('#toast-container').length === 0) {
+                $('body').append('<div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;"></div>');
+            }
+            
+            const $toast = $(toastHtml);
+            $('#toast-container').append($toast);
+            
+            const toast = new bootstrap.Toast($toast[0]);
+            toast.show();
+            
+            // Remove toast element after it's hidden
+            $toast.on('hidden.bs.toast', function() {
+                $(this).remove();
+            });
+        }
+
+        // Initial fetch of active ingredients when the page loads
+        let availableActiveIngredients = [];
+        $.ajax({
+            url: '@Url.Action("GetActiveIngredients", "StockOrders")',
+            type: 'GET',
+            success: function (data) {
+                availableActiveIngredients = data;
+                console.log("Available Active Ingredients:", availableActiveIngredients);
+            },
+            error: function (xhr, status, error) {
+                console.error("Failed to load active ingredients:", error);
+            }
+        });
+
+        // Helper to get medication details (assuming it's needed elsewhere)
+        function getMedicationDetails(medicationId) {
+            // Normalize medicationId to string to compare with serialized medication.value
+            const idStr = medicationId ? medicationId.toString() : '';
+            return medications.find(m => m.value === idStr) || null;
+        }
+
+            // addItemRow function removed - now using table selection
+
+            function addMedicationItemRow(medication) {
+            console.log('Creating medication item row for:', medication);
+            let medicationName = medication.Name || medication.name || medication.text;
+            let quantityOrdered = medication.QuantityOrdered || 1;
+
+            let newRowHtml = `
+                <div class="row mb-3 border-bottom pb-3">
+                    <div class="col-md-5">
+                        <div class="form-floating">
+                            <input type="hidden" name="StockOrderItems[${rowIndex}].MedicationId" value="${medication.MedicationId || medication.medicationId}" />
+                            <input type="hidden" name="StockOrderItems[${rowIndex}].IsNewMedication" value="${medication.IsNewMedication || false}" />
+                            <input type="hidden" name="StockOrderItems[${rowIndex}].Name" value="${medicationName}" />
+                            <input type="hidden" name="StockOrderItems[${rowIndex}].Schedule" value="${medication.Schedule || medication.schedule || 1}" />
+                            <input type="hidden" name="StockOrderItems[${rowIndex}].Description" value="${medication.Description || medication.description || ''}" />
+                            <input type="hidden" name="StockOrderItems[${rowIndex}].MinStockLevel" value="${medication.MinStockLevel || medication.minStockLevel || 1}" />
+                            <input type="hidden" name="StockOrderItems[${rowIndex}].QuantityInStock" value="${Math.max(1, medication.QuantityInStock || medication.currentStock || 1)}" />
+                            <input type="hidden" name="StockOrderItems[${rowIndex}].DosageFormId" value="${medication.DosageFormId || medication.dosageFormId || 1}" />
+
+                            <input type="text" class="form-control" value="${medicationName}" readonly />
+                            <label>Medication</label>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="form-floating">
+                            <input type="number" name="StockOrderItems[${rowIndex}].QuantityOrdered" value="${quantityOrdered}" min="1" class="form-control quantity-input" placeholder="Quantity" />
+                            <label>Quantity</label>
+                            <span data-valmsg-for="StockOrderItems[${rowIndex}].QuantityOrdered" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-floating">
+                            <input type="text" name="StockOrderItems[${rowIndex}].Notes" class="form-control" placeholder="Optional notes" />
+                            <label>Notes</label>
+                        </div>
+                    </div>
+                    <div class="col-md-1 d-flex align-items-end">
+                        <button type="button" class="btn btn-danger remove-item-btn"><i class="fas fa-times-circle"></i></button>
+                    </div>
+                </div>
+            `;
+            console.log('Appending row HTML:', newRowHtml);
+            $('#stockOrderItemsContainer').append(newRowHtml);
+            console.log('Row appended successfully. Container now has', $('#stockOrderItemsContainer').children().length, 'items');
+            
+            // Hide the "no items" message if it exists
+            $('#noItemsMessage').hide();
+
+            // If this medication object contains active ingredients (from new med), add hidden inputs for them so model binder receives them
+            if (medication.ActiveIngredients && medication.ActiveIngredients.length > 0) {
+                for (let ai = 0; ai < medication.ActiveIngredients.length; ai++) {
+                    const ingr = medication.ActiveIngredients[ai];
+                    const hiddenInputId = `StockOrderItems[${rowIndex}].ActiveIngredients[${ai}].ActiveIngredientId`;
+                    const hiddenInputStrength = `StockOrderItems[${rowIndex}].ActiveIngredients[${ai}].Strength`;
+                    $('#stockOrderItemsContainer').children().last().append(`<input type="hidden" name="${hiddenInputId}" value="${ingr.ActiveIngredientId || ingr.id || ''}" />`);
+                    $('#stockOrderItemsContainer').children().last().append(`<input type="hidden" name="${hiddenInputStrength}" value="${(ingr.Strength || ingr.strength || '').replace(/"/g, '&quot;')}" />`);
+                }
+            }
+
+            $.validator.unobtrusive.parse($('#stockOrderItemsContainer').children().last());
+            rowIndex++;
+            console.log('Row index incremented to:', rowIndex);
+        }
+
+        // no unit price updates
+
+        
+
+        
+
+        // Function to load medications table
+        function loadMedicationsTable(supplierId) {
+            console.log('Loading medications table for supplier ID:', supplierId);
+            
+            // Show loading state
+            $('#medicationsTableBody').html('<tr><td colspan="9" class="text-center py-4"><i class="fas fa-spinner fa-spin me-2"></i>Loading medications...</td></tr>');
+            $('#medicationsTableSection').show();
+            
+            // Disable all existing add buttons while loading
+            $('.btn-add-single').prop('disabled', true);
+            
+            $.ajax({
+                url: '@Url.Action("GetMedicationsBySupplier", "StockOrders")',
+                type: 'GET',
+                data: { supplierId: supplierId },
+                success: function (data) {
+                    console.log('Medications loaded successfully:', data);
+                    populateMedicationsTable(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to load medications table:", error);
+                    $('#medicationsTableBody').html('<tr><td colspan="9" class="text-center text-danger py-4"><i class="fas fa-exclamation-triangle me-2"></i>Failed to load medications</td></tr>');
+                    showToast('Failed to load medications table', 'error');
+                }
+            });
+        }
+
+        // Function to populate the medications table
+        function populateMedicationsTable(medications) {
+            console.log('Populating medications table with:', medications);
+            
+            // Store all medications for search and pagination
+            allMedications = medications || [];
+            currentPage = 1; // Reset to first page
+            currentSearchTerm = ''; // Reset search
+            
+            // Clear search input
+            $('#medicationSearchInput').val('');
+            $('#clearSearchBtn').hide();
+            $('#searchResultsCount').text('');
+            
+            // Filter and display medications
+            filterMedications();
+        }
+
+        // Function to filter medications based on search term
+        function filterMedications() {
+            if (!currentSearchTerm) {
+                filteredMedications = [...allMedications];
+            } else {
+                filteredMedications = allMedications.filter(function(med) {
+                    const searchableText = [
+                        med.name || '',
+                        med.description || '',
+                        med.dosageForm || '',
+                        med.activeIngredients ? med.activeIngredients.map(ai => `${ai.name} ${ai.strength}`).join(' ') : ''
+                    ].join(' ').toLowerCase();
+                    
+                    return searchableText.includes(currentSearchTerm);
+                });
+            }
+            
+            // Update search UI
+            if (currentSearchTerm) {
+                $('#clearSearchBtn').show();
+                $('#searchResultsCount').text(`Found ${filteredMedications.length} medication(s)`);
+            } else {
+                $('#clearSearchBtn').hide();
+                $('#searchResultsCount').text('');
+            }
+            
+            // Reset to first page and display
+            currentPage = 1;
+            displayMedications();
+        }
+
+        // Function to display medications with pagination
+        function displayMedications() {
+            const tbody = $('#medicationsTableBody');
+            tbody.empty();
+
+            if (!filteredMedications || filteredMedications.length === 0) {
+                const message = currentSearchTerm 
+                    ? `<i class="fas fa-search me-2"></i>No medications found matching "${currentSearchTerm}"`
+                    : '<i class="fas fa-info-circle me-2"></i>No medications found for this supplier';
+                tbody.append(`<tr><td colspan="9" class="text-center text-muted py-4">${message}</td></tr>`);
+                $('#paginationControls').hide();
+                return;
+            }
+
+            // Calculate pagination
+            const totalPages = Math.ceil(filteredMedications.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, filteredMedications.length);
+            const pageMedications = filteredMedications.slice(startIndex, endIndex);
+
+            // Display medications for current page
+            pageMedications.forEach(function(med) {
+                const activeIngredientsText = med.activeIngredients && med.activeIngredients.length > 0 
+                    ? med.activeIngredients.map(ai => `${ai.name} ${ai.strength}`).join(', ')
+                    : 'None';
+
+                const stockStatus = getStockStatus(med.currentStock, med.minStockLevel);
+                const statusClass = stockStatus.class;
+                const statusText = stockStatus.text;
+
+                const row = $(`
+                    <tr data-medication-id="${med.medicationId}">
+                        <td><strong>${med.name}</strong></td>
+                        <td>${med.description || 'N/A'}</td>
+                        <td>${med.schedule}</td>
+                        <td>${med.dosageForm}</td>
+                        <td>${med.currentStock}</td>
+                        <td>${med.minStockLevel}</td>
+                        <td class="active-ingredients-list">${activeIngredientsText}</td>
+                        <td><span class="stock-status ${statusClass}">${statusText}</span></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-primary btn-add-single" 
+                                    data-medication-id="${med.medicationId}">
+                                <i class="fas fa-plus"></i> Add to Order
+                            </button>
+                        </td>
+                    </tr>
+                `);
+                tbody.append(row);
+            });
+
+            // Update pagination controls
+            updatePaginationControls(totalPages);
+        }
+
+        // Function to update pagination controls
+        function updatePaginationControls(totalPages) {
+            if (totalPages <= 1) {
+                $('#paginationControls').hide();
+                return;
+            }
+
+            $('#paginationControls').show();
+            
+            // Update page info
+            $('#pageInfo').text(`Page ${currentPage} of ${totalPages}`);
+            
+            // Update Previous button
+            const prevBtn = $('#prevPageBtn button');
+            if (currentPage <= 1) {
+                prevBtn.prop('disabled', true);
+            } else {
+                prevBtn.prop('disabled', false);
+            }
+            
+            // Update Next button
+            const nextBtn = $('#nextPageBtn button');
+            if (currentPage >= totalPages) {
+                nextBtn.prop('disabled', true);
+            } else {
+                nextBtn.prop('disabled', false);
+            }
+        }
+
+        // Function to get stock status
+        function getStockStatus(currentStock, minStockLevel) {
+            if (currentStock <= minStockLevel) {
+                return { class: 'critical', text: 'Critical' };
+            } else if (currentStock <= minStockLevel + 10) {
+                return { class: 'low', text: 'Low' };
+            } else {
+                return { class: 'adequate', text: 'Adequate' };
+            }
+        }
+
+        // Event handlers for medications table
+        console.log('Setting up event handlers for medications table');
+
+        $(document).on('click', '.btn-add-single', function() {
+            console.log('Add to Order button clicked!');
+            const button = $(this);
+            const medicationId = button.data('medication-id');
+            
+            if (!medicationId) {
+                console.error('No medication ID found');
+                showToast('Error: No medication ID found', 'error');
+                return;
+            }
+
+            // Brief feedback while we fetch details, but do not permanently block further actions
+            const originalHtml = button.html();
+            button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Adding...');
+
+            // Make AJAX call to add medication to order
+            $.ajax({
+                url: '@Url.Action("AddMedicationToOrder", "StockOrders")',
+                type: 'POST',
+                headers: {
+                    'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                },
+                data: {
+                    medicationId: medicationId,
+                    quantity: 1,
+                    notes: ''
+                },
+                success: function(response) {
+                    console.log('AJAX response:', response);
+                    if (response.success) {
+                        addMedicationToOrderFromAjax(response.medication);
+                        showToast(`"${response.medication.Name}" added to order`, 'success');
+                        
+                        // Update button to show it was added
+                        button.removeClass('btn-primary').addClass('btn-success');
+                        button.html('<i class="fas fa-check"></i> Added');
+                        
+                        // Re-enable after 2 seconds
+                        setTimeout(function() {
+                            button.prop('disabled', false);
+                            button.removeClass('btn-success').addClass('btn-primary');
+                            button.html('<i class="fas fa-plus"></i> Add to Order');
+                        }, 2000);
+                    } else {
+                        showToast(response.message || 'Error adding medication to order', 'error');
+                        button.prop('disabled', false).html(originalHtml);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX error:', error);
+                    showToast('Error adding medication to order', 'error');
+                    button.prop('disabled', false).html(originalHtml);
+                }
+            });
+        });
+
+        // Function to add medication to order from AJAX response
+        function addMedicationToOrderFromAjax(medication) {
+            console.log('Adding medication to order from AJAX:', medication);
+
+            // Normalize property names to support both camelCase and PascalCase payloads
+            const medId = medication.MedicationId ?? medication.medicationId;
+            const medName = medication.Name ?? medication.name;
+            const description = medication.Description ?? medication.description ?? '';
+            const schedule = medication.Schedule ?? medication.schedule ?? 1;
+            const minStockLevel = medication.MinStockLevel ?? medication.minStockLevel ?? 1;
+            const currentStock = medication.CurrentStock ?? medication.currentStock ?? 1;
+            const dosageFormId = medication.DosageFormId ?? medication.dosageFormId ?? 1;
+            const activeIngredients = medication.ActiveIngredients ?? medication.activeIngredients ?? [];
+            const suggestedQty = Math.max(1, medication.SuggestedQuantity ?? medication.suggestedQuantity ?? 1);
+
+            // Check if medication is already in the order
+            const existingMedicationIds = [];
+            $('input[name$=".MedicationId"]').each(function() {
+                const value = $(this).val();
+                if (value && value !== '0') {
+                    existingMedicationIds.push(value);
+                }
+            });
+
+            if (medId && existingMedicationIds.includes(medId.toString())) {
+                showToast(`"${medName}" is already in the order`, 'warning');
+                return;
+            }
+
+            const medicationItem = {
+                MedicationId: medId,
+                IsNewMedication: false,
+                Name: medName,
+                QuantityOrdered: suggestedQty,
+                Description: description,
+                Schedule: schedule,
+                MinStockLevel: minStockLevel,
+                QuantityInStock: Math.max(1, currentStock),
+                DosageFormId: dosageFormId,
+                ActiveIngredients: activeIngredients
+            };
+
+            console.log('Medication item to add:', medicationItem);
+            addMedicationItemRow(medicationItem);
+            
+            // Hide the "no items" message
+            $('#noItemsMessage').hide();
+            
+            // Scroll to the order items section to show the added item
+            $('html, body').animate({
+                scrollTop: $('#stockOrderItemsContainer').offset().top - 100
+            }, 500);
+        }
+
+        // Function to add medication to order
+        function addMedicationToOrder(medication) {
+            console.log('Adding medication to order:', medication);
+            
+            // Check if medication is already in the order
+            const existingMedicationIds = [];
+            $('input[name$=".MedicationId"]').each(function() {
+                const value = $(this).val();
+                if (value && value !== '0') {
+                    existingMedicationIds.push(value);
+                }
+            });
+
+            if (existingMedicationIds.includes(medication.medicationId.toString())) {
+                showToast(`"${medication.name}" is already in the order`, 'warning');
+                return;
+            }
+
+            // Calculate suggested quantity based on stock levels
+            let suggestedQuantity = 1;
+            if (medication.currentStock <= medication.minStockLevel) {
+                // If stock is at or below minimum, suggest ordering enough to reach minimum + buffer
+                suggestedQuantity = Math.max(1, medication.minStockLevel + 10 - medication.currentStock);
+            } else if (medication.currentStock <= medication.minStockLevel + 10) {
+                // If stock is low, suggest ordering a small amount
+                suggestedQuantity = Math.max(1, medication.minStockLevel + 5 - medication.currentStock);
+            } else {
+                // If stock is adequate, suggest ordering 1 unit
+                suggestedQuantity = 1;
+            }
+
+            const medicationItem = {
+                MedicationId: medication.medicationId,
+                IsNewMedication: false,
+                Name: medication.name,
+                QuantityOrdered: suggestedQuantity,
+                Description: medication.description || '',
+                Schedule: medication.schedule || 1,
+                MinStockLevel: medication.minStockLevel || 1,
+                QuantityInStock: Math.max(1, medication.currentStock || 1), // Ensure it's at least 1
+                DosageFormId: medication.dosageFormId || 1, // Default to 1 if not provided
+                ActiveIngredients: medication.activeIngredients || []
+            };
+
+            console.log('Medication item to add:', medicationItem);
+            addMedicationItemRow(medicationItem);
+            
+            // Hide the "no items" message
+            $('#noItemsMessage').hide();
+            
+            // Scroll to the order items section to show the added item
+            $('html, body').animate({
+                scrollTop: $('#stockOrderItemsContainer').offset().top - 100
+            }, 500);
+        }
+
+        // Initial population if there are items from model (e.g., validation failed)
+        if (rowIndex > 0) {
+            
+        }
+
+        function loadMedicationsForSupplier(supplierId) {
+            $.ajax({
+                url: '@Url.Action("GetMedicationsBySupplier", "StockOrders")',
+                type: 'GET',
+                data: { supplierId: supplierId },
+                success: function (data) {
+                    medications = data; // Update the global medications array
+                    // Update all existing medication dropdowns
+                    $('.medication-select').each(function () {
+                        const currentMedicationId = $(this).val(); // Preserve selected value if possible
+                        $(this).html('<option value="">-- Select Medication --</option>' + medications.map(m => `<option value="${m.value}">${m.text}</option>`).join(''));
+                        $(this).val(currentMedicationId); // Attempt to re-select previous value
+                        // Trigger change to update unit price and totals if a medication was re-selected
+                        if (currentMedicationId) {
+                            $(this).trigger('change');
+                        }
+                    });
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to load medications for supplier:", error);
+                    medications = [];
+                    $('.medication-select').html('<option value="">-- Select Medication --</option>');
+                    
+                }
+            });
+        }
+    </script>
+}
+

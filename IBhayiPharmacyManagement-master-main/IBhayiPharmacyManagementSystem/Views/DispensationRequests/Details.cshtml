@@ -1,0 +1,193 @@
+@model IBhayiPharmacyManagementSystem.Models.DispensationRequest
+@{
+    ViewData["Title"] = "Dispensation Request Details";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-white border-0 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-info-circle text-deep-blue mr-2"></i>
+                            Dispensation Request <span class="text-muted">#@Model.DispensationRequestId</span>
+                        </h3>
+                        <small class="text-muted">Requested on @Model.RequestDate.ToString("dd MMM yyyy, HH:mm")</small>
+                    </div>
+                    <div class="card-tools">
+                        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-arrow-left mr-1"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-lg-6">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0"><i class="fas fa-user me-2 text-primary"></i>Customer</h5>
+                                    </div>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4 text-muted">Name</dt>
+                                        <dd class="col-sm-8">@(Model.Customer?.FullName ?? "N/A")</dd>
+                                        <dt class="col-sm-4 text-muted">ID Number</dt>
+                                        <dd class="col-sm-8">@(Model.Customer?.IDNumber ?? "N/A")</dd>
+                                        <dt class="col-sm-4 text-muted">Email</dt>
+                                        <dd class="col-sm-8">@(Model.Customer?.Email ?? "N/A")</dd>
+                                        <dt class="col-sm-4 text-muted">Phone</dt>
+                                        <dd class="col-sm-8">@(Model.Customer?.CellPhoneNumber ?? "N/A")</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h5 class="mb-0"><i class="fas fa-receipt me-2 text-primary"></i>Request</h5>
+                                        <span class="badge @GetStatusBadge(Model.Status)">@Model.Status</span>
+                                    </div>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-4 text-muted">Request Date</dt>
+                                        <dd class="col-sm-8">@Model.RequestDate.ToString("dd/MM/yyyy HH:mm")</dd>
+                                        <dt class="col-sm-4 text-muted">Notes</dt>
+                                        <dd class="col-sm-8">@(!string.IsNullOrEmpty(Model?.Notes) ? Model.Notes : "No notes provided")</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mt-1">
+                        <div class="col-lg-6">
+                            <div class="card h-100 border-0">
+                                <div class="card-body">
+                                    <h5 class="mb-3"><i class="fas fa-pills me-2 text-primary"></i>Medication</h5>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-5 text-muted">Medication</dt>
+                                        <dd class="col-sm-7">@(Model.PrescriptionRepeat?.PrescriptionLine?.Medication?.Name ?? "N/A")</dd>
+                                        <dt class="col-sm-5 text-muted">Description</dt>
+                                        <dd class="col-sm-7">@(Model.PrescriptionRepeat?.PrescriptionLine?.Medication?.Description ?? "N/A")</dd>
+                                        <dt class="col-sm-5 text-muted">Instructions</dt>
+                                        <dd class="col-sm-7">@(Model.PrescriptionRepeat?.PrescriptionLine?.Instructions ?? "N/A")</dd>
+                                        <dt class="col-sm-5 text-muted">Frequency</dt>
+                                        <dd class="col-sm-7">@((Model.PrescriptionRepeat?.PrescriptionLine != null) ? Model.PrescriptionRepeat.PrescriptionLine.Frequency.ToString() : "N/A")</dd>
+                                        <dt class="col-sm-5 text-muted">Quantity to Dispense</dt>
+                                        <dd class="col-sm-7"><span class="badge bg-info">@(Model.PrescriptionRepeat?.QuantityPerRepeat ?? 0)</span></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="card h-100 border-0">
+                                <div class="card-body">
+                                    <h5 class="mb-3"><i class="fas fa-notes-medical me-2 text-primary"></i>Prescription</h5>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-5 text-muted">Prescription Date</dt>
+                                        <dd class="col-sm-7">@(Model.PrescriptionRepeat?.PrescriptionLine?.Prescription?.PrescriptionDate.ToString("dd/MM/yyyy") ?? "N/A")</dd>
+                                        <dt class="col-sm-5 text-muted">Doctor</dt>
+                                        <dd class="col-sm-7">
+                                            @(Model.PrescriptionRepeat?.PrescriptionLine?.Prescription?.Doctor != null
+                                                ? Model.PrescriptionRepeat.PrescriptionLine.Prescription.Doctor.FullName
+                                                : "Not specified")
+                                        </dd>
+                                        <dt class="col-sm-5 text-muted">Total Repeats</dt>
+                                        <dd class="col-sm-7"><span class="badge bg-secondary">@(Model.PrescriptionRepeat?.TotalRepeats ?? 0)</span></dd>
+                                        <dt class="col-sm-5 text-muted">Remaining Repeats</dt>
+                                        <dd class="col-sm-7"><span class="badge bg-success">@(Model.PrescriptionRepeat?.RemainingRepeats ?? 0)</span></dd>
+                                        <dt class="col-sm-5 text-muted">Dispensed Count</dt>
+                                        <dd class="col-sm-7"><span class="badge bg-warning text-dark">@(Model.PrescriptionRepeat?.DispensedCount ?? 0)</span></dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <hr class="my-4" />
+
+                    <div class="row g-3">
+                        <div class="col-lg-12">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <h5 class="mb-3"><i class="fas fa-cogs me-2 text-primary"></i>Processing Actions</h5>
+                                    @if (Model.Status == DispensationRequestStatus.Pending)
+                                    {
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <form asp-action="Process" asp-route-id="@Model.DispensationRequestId" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="status" value="Ready" />
+                                                    <div class="mb-2">
+                                                        <label for="processingNotes" class="form-label">Processing Notes (Optional)</label>
+                                                        <textarea name="processingNotes" id="processingNotes" class="form-control" rows="3" placeholder="Add any notes about the processing..."></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success">
+                                                        <i class="fas fa-check me-1"></i> Mark as Ready
+                                                    </button>
+                                                </form>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <form asp-action="Process" asp-route-id="@Model.DispensationRequestId" method="post">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="status" value="Dispensed" />
+                                                    <div class="mb-2">
+                                                        <label for="processingNotes2" class="form-label">Dispensing Notes (Optional)</label>
+                                                        <textarea name="processingNotes" id="processingNotes2" class="form-control" rows="3" placeholder="Add any notes about the dispensing..."></textarea>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">
+                                                        <i class="fas fa-pills me-1"></i> Mark as Dispensed
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-info mb-0">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            This request has already been processed. Status: <strong>@Model.Status</strong>
+                                            @if (Model.ProcessedDate.HasValue)
+                                            {
+                                                <span class="ms-2">Processed on @Model.ProcessedDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any specific JavaScript for this page if needed
+        });
+    </script>
+}
+
+@functions {
+    string GetStatusBadge(DispensationRequestStatus status)
+    {
+        return status switch
+        {
+            DispensationRequestStatus.Pending => "badge bg-warning text-dark",
+            DispensationRequestStatus.Ready => "badge bg-info text-dark",
+            DispensationRequestStatus.Dispensed => "badge bg-success",
+            _ => "badge bg-secondary"
+        };
+    }
+}
+
+@section Styles {
+    <style>
+        .text-deep-blue { color: #0b3d91 !important; }
+    </style>
+}

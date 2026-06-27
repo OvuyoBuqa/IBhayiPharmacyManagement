@@ -1,0 +1,841 @@
+@model IEnumerable<IBhayiPharmacyManagementSystem.Models.PrescriptionRepeat>
+@{
+    ViewData["Title"] = "Prescription Repeats";
+    Layout = "_LayoutCustomer";
+}
+
+<style>
+    :root {
+        --primary-beige: #d4b896;
+        --vibrant-beige: #b8a082;
+        --dark-beige-gray: #8b7355;
+        --orange-accent: #FF8C00;
+        --green-success: #28a745;
+        --gray-light: #6c757d;
+        --gray-dark: #495057;
+        --white: #ffffff;
+        --light-bg: #f8f9fa;
+        
+        /* Add missing CSS variables that are referenced in the code */
+        --primary-blue: #007bff;
+        --vibrant-blue: #0056b3;
+        --dark-blue-gray: #2c3e50;
+        --secondary-color: #2c3e50;
+        --accent-color: #FF8C00;
+        --primary-color: #007bff;
+        --dark-text: #2c3e50;
+        --danger-color: #dc3545;
+    }
+
+    /* Ensure table containers allow dropdown overflow */
+    .table-responsive {
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    .card-body {
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    .table {
+        overflow: visible !important;
+    }
+    
+    .table tbody {
+        overflow: visible !important;
+    }
+    
+    .table tbody tr {
+        overflow: visible !important;
+    }
+    
+    .table tbody tr td {
+        overflow: visible !important;
+    }
+    
+    /* Ensure dropdown button group has proper positioning and stacking */
+    .btn-group {
+        position: relative !important;
+        z-index: 10 !important;
+    }
+    
+    .btn-group.show {
+        z-index: 99999 !important;
+    }
+    
+    .btn-group .dropdown-toggle {
+        position: relative;
+        z-index: 99998 !important;
+    }
+    
+    .btn-group.show .dropdown-toggle {
+        z-index: 99998 !important;
+    }
+    
+    /* Ensure Actions column has proper overflow */
+    .table tbody tr td:last-child {
+        overflow: visible !important;
+        position: relative !important;
+        z-index: auto !important;
+    }
+    
+    .dropdown-menu {
+        position: absolute !important;
+        z-index: 99999 !important;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        top: 100% !important;
+        left: auto !important;
+        right: 100% !important;
+        min-width: 180px !important;
+        padding: 0.5rem 0 !important;
+        background: white !important;
+        margin-right: 10px !important;
+        margin-top: 5px !important;
+        display: none !important;
+    }
+
+    .btn-group .dropdown-menu.show {
+        display: block !important;
+    }
+
+    .btn-group.show .dropdown-menu {
+        display: block !important;
+    }
+    
+    /* Dropdown functionality is now handled by the layout */
+    
+
+
+    /* Orange button hover effect */
+    .btn[style*="--orange-accent"]:hover {
+        background: linear-gradient(135deg, #e67e00, #cc7a00) !important;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4) !important;
+    }
+
+    .main-container {
+        background: var(--light-bg);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--dark-blue-gray);
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .page-title i {
+        margin-right: 10px;
+        font-size: 1.5rem;
+    }
+
+
+    .btn-primary {
+        background: var(--primary-blue);
+        color: var(--white);
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary:hover {
+        background: var(--vibrant-blue);
+        transform: translateY(-2px);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        border: none;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: var(--primary-blue);
+        color: var(--white);
+        padding: 20px 25px;
+        border: none;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .card-title i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+
+    .table {
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table thead th {
+        background: var(--dark-blue-gray);
+        color: var(--white);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        padding: 15px 12px;
+        border: none;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f1f3f4;
+    }
+
+    .table tbody tr:hover {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .table tbody td {
+        padding: 15px 12px;
+        vertical-align: middle;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-info {
+        background: var(--primary-blue);
+        color: var(--white);
+    }
+
+    .badge-success {
+        background: var(--green-success);
+        color: var(--white);
+    }
+
+    .badge-secondary {
+        background: var(--gray-dark);
+        color: var(--white);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        margin: 20px 0;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--gray-light);
+        margin-bottom: 20px;
+    }
+
+    .empty-state h5 {
+        color: var(--gray-light);
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        color: var(--gray-light);
+        font-size: 0.95rem;
+    }
+
+    .alert {
+        border: none;
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border-left: 4px solid var(--green-success);
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+
+
+    .medication-name {
+        font-weight: 600;
+        color: var(--dark-blue-gray);
+        font-size: 1rem;
+    }
+
+    .medication-instructions {
+        color: var(--gray-light);
+        font-size: 0.85rem;
+        margin-top: 5px;
+        font-style: italic;
+    }
+
+    .doctor-name {
+        font-weight: 500;
+        color: var(--dark-blue-gray);
+    }
+
+    .prescription-date {
+        font-weight: 500;
+        color: var(--dark-blue-gray);
+    }
+
+    .last-dispensed {
+        font-weight: 500;
+    }
+
+    .last-dispensed.never {
+        color: var(--gray-light);
+        font-style: italic;
+    }
+
+    .btn-info {
+        background: var(--primary-blue);
+        color: var(--white);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-info:hover {
+        background: var(--vibrant-blue);
+        transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+        background: var(--gray-dark);
+        color: var(--white);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .btn-secondary:hover {
+        background: var(--gray-light);
+        transform: translateY(-2px);
+    }
+
+    /* Default: dropdown opens to the right */
+    .btn-group .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 100% !important;
+        margin-top: 5px !important;
+    }
+    
+    /* Last row: force dropdown to open upwards */
+    .btn-group.dropdown-up .dropdown-menu {
+        top: auto !important;
+        bottom: 100% !important;
+        margin-top: 0 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    /* Responsive fixes */
+    @@media (max-width: 768px) {
+        .page-header {
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+        }
+        
+        .table-responsive {
+            border-radius: 10px;
+            overflow: visible !important;
+        }
+        
+        .btn-group .dropdown-menu {
+            right: auto !important;
+            left: 0 !important;
+            min-width: 160px;
+        }
+        
+        .btn-group.dropdown-up .dropdown-menu {
+            bottom: 100% !important;
+            top: auto !important;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="page-title">
+                            <i class="fas fa-redo"></i>Prescription Repeats
+                        </h1>
+                        <a asp-action="History" class="btn" style="background: linear-gradient(135deg, var(--orange-accent), #e67e00); color: white; border: none; border-radius: 8px; padding: 10px 20px; font-weight: 500; transition: all 0.3s ease; box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);">
+                            <i class="fas fa-history mr-2"></i>Prescription Repeats History
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Main Content Card -->
+                <div class="content-card">
+                    <div class="card-body" style="padding: 0;">
+                        @if (TempData["SuccessMessage"] != null)
+                        {
+                            <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin: 20px;">
+                                <i class="fas fa-check-circle mr-2"></i>@TempData["SuccessMessage"]
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+
+                        @if (TempData["ErrorMessage"] != null)
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin: 20px;">
+                                <i class="fas fa-exclamation-circle mr-2"></i>@TempData["ErrorMessage"]
+                                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                        }
+
+                        @if (!Model.Any())
+                        {
+                            <div class="empty-state">
+                                <i class="fas fa-pills"></i>
+                                <h5>No Active Repeats</h5>
+                                <p>You don't have any active prescription repeats at the moment.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                <i class="fas fa-pills mr-1"></i>Medication
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-user-md mr-1"></i>Doctor
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-calendar mr-1"></i>Prescription Date
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-list-ol mr-1"></i>Total Repeats
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-clock mr-1"></i>Remaining
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-history mr-1"></i>Last Dispensed
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-cogs mr-1"></i>Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var repeat in Model)
+                                        {
+                                            <tr class="align-middle">
+                                                <td>
+                                                    <div class="medication-name">@repeat.PrescriptionLine.Medication.Name</div>
+                                                    <div class="medication-instructions">@repeat.PrescriptionLine.Instructions</div>
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (repeat.PrescriptionLine.Prescription.Doctor != null)
+                                                    {
+                                                        <span class="badge badge-info">
+                                                            <i class="fas fa-user-md mr-1"></i>@repeat.PrescriptionLine.Prescription.Doctor.FullName
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary">
+                                                            <i class="fas fa-question-circle mr-1"></i>Not Specified
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td class="text-center prescription-date">
+                                                    @repeat.PrescriptionLine.Prescription.PrescriptionDate.ToString("MMM dd, yyyy")
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge badge-info">@repeat.TotalRepeats</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge badge-success">@repeat.RemainingRepeats</span>
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (repeat.LastDispensedDate.HasValue)
+                                                    {
+                                                        <span class="last-dispensed">@repeat.LastDispensedDate.Value.ToString("MMM dd, yyyy")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="last-dispensed never">Never</span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" 
+                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fas fa-cog"></i> Actions
+                                                        </button>
+                                                        <div class="dropdown-menu shadow">
+                                                            <a asp-action="Details" asp-route-id="@repeat.PrescriptionRepeatId" 
+                                                               class="dropdown-item" title="View Details">
+                                                                <i class="fas fa-eye text-info mr-2"></i>View Details
+                                                            </a>
+                                                            <div class="dropdown-divider"></div>
+                                                            @if (repeat.RemainingRepeats > 0)
+                                                            {
+                                                                <form asp-action="RequestDispensation" asp-route-id="@repeat.PrescriptionRepeatId" 
+                                                                      method="post" style="display: inline;" class="dispensation-form">
+                                                                    @Html.AntiForgeryToken()
+                                                                    <button type="submit" class="dropdown-item" 
+                                                                            title="Request Dispensation">
+                                                                        <i class="fas fa-pills text-success mr-2"></i>Request Dispensation
+                                                                    </button>
+                                                                </form>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span class="dropdown-item text-muted" style="cursor: not-allowed;">
+                                                                    <i class="fas fa-times mr-2"></i>No Repeats Remaining
+                                                                </span>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        $(document).ready(function () {
+            // Enable tooltips
+            $('[title]').tooltip();
+            
+            // Align dropdown behavior with Orders page
+            $('.dropdown-toggle').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                var $this = $(this);
+                var $parent = $this.closest('.btn-group');
+                var $menu = $parent.find('.dropdown-menu');
+                var isOpen = $menu.hasClass('show');
+                $('.dropdown-menu').removeClass('show');
+                $('.btn-group').removeClass('show');
+                $('.dropdown-toggle').attr('aria-expanded', 'false');
+                if (!isOpen) {
+                    $menu.addClass('show');
+                    $parent.addClass('show');
+                    $this.attr('aria-expanded', 'true');
+                }
+                $menu.on('click', 'a, button', function(e) { e.stopPropagation(); });
+            });
+
+            $(document).off('click.dropdown').on('click.dropdown', function(e) {
+                if (!$(e.target).closest('.btn-group').length) {
+                    $('.dropdown-menu').removeClass('show');
+                    $('.btn-group').removeClass('show');
+                    $('.dropdown-toggle').attr('aria-expanded', 'false');
+                }
+            });
+            
+            // Add dropdown-up class to last two rows
+            function updateDropdownDirections() {
+                $('.btn-group').removeClass('dropdown-up');
+                // Get all btn-group elements
+                var $btnGroups = $('.btn-group');
+                // Add dropdown-up class to last two rows
+                $btnGroups.slice(-2).addClass('dropdown-up');
+            }
+            
+            // Initialize dropdown directions
+            updateDropdownDirections();
+            
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function () {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+
+            // Handle dispensation form submission with SweetAlert2 confirmation
+            $('.dispensation-form').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var button = form.find('button[type="submit"]');
+                var row = form.closest('tr');
+                var remainingBadge = row.find('.badge-success');
+                var totalBadge = row.find('.badge-info');
+                var actionButtons = row.find('.btn-group');
+                var medicationName = row.find('.medication-name').text().trim();
+                
+                // Show SweetAlert2 confirmation modal
+                Swal.fire({
+                    title: 'Request Dispensation?',
+                    html: `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p style="margin-bottom: 15px; font-size: 16px;">Are you sure you want to request dispensation for:</p>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff;">
+                                <strong style="color: #2c3e50; font-size: 18px;">${medicationName}</strong>
+                            </div>
+                            <p style="margin-top: 15px; color: #6c757d; font-size: 14px;">
+                                This will reduce your remaining repeats by 1.
+                            </p>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fas fa-pills mr-2"></i>Yes, Request Dispensation',
+                    cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                    reverseButtons: true,
+                    focusCancel: true,
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom',
+                        cancelButton: 'swal2-cancel-custom'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // User confirmed, proceed with AJAX request
+                        processDispensationRequest(form, button, row, remainingBadge, totalBadge, actionButtons);
+                    }
+                });
+            });
+        });
+
+        function processDispensationRequest(form, button, row, remainingBadge, totalBadge, actionButtons) {
+            // Disable button and show loading
+            button.prop('disabled', true);
+            button.html('<i class="fas fa-spinner fa-spin"></i> Processing...');
+            
+            $.ajax({
+                url: form.attr('action'),
+                type: 'POST',
+                data: form.serialize(),
+                success: function(response) {
+                    // Update the remaining count immediately
+                    var currentRemaining = parseInt(remainingBadge.text());
+                    var newRemaining = currentRemaining - 1;
+                    
+                    remainingBadge.text(newRemaining);
+                    
+                    // Update data attribute for search
+                    row.attr('data-remaining', newRemaining);
+                    
+                    // Update button state
+                    if (newRemaining <= 0) {
+                        actionButtons.html(`
+                            <button type="button" class="btn dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-cogs mr-1"></i>Actions
+                            </button>
+                            <div class="dropdown-menu">
+                                <a href="${form.attr('action').replace('RequestDispensation', 'Details')}" 
+                                   class="dropdown-item" title="View Details">
+                                    <i class="fas fa-eye"></i>View Details
+                                </a>
+                                <span class="dropdown-item text-muted" style="cursor: not-allowed;">
+                                    <i class="fas fa-times"></i>No Repeats Remaining
+                                </span>
+                            </div>
+                        `);
+                    } else {
+                        // Re-enable button and restore label for subsequent requests
+                        button.prop('disabled', false);
+                        button.html('<i class="fas fa-pills"></i>Request Dispensation');
+                    }
+                    
+                    // Show success message with SweetAlert2
+                    Swal.fire({
+                        title: 'Success!',
+                        html: `
+                            <div style="text-align: center; margin: 20px 0;">
+                                <i class="fas fa-check-circle" style="font-size: 48px; color: #28a745; margin-bottom: 15px;"></i>
+                                <p style="font-size: 16px; margin-bottom: 10px;">Dispensation request submitted successfully!</p>
+                                <p style="color: #6c757d; font-size: 14px;">${newRemaining} repeats remaining</p>
+                            </div>
+                        `,
+                        icon: 'success',
+                        confirmButtonColor: '#28a745',
+                        confirmButtonText: '<i class="fas fa-check mr-2"></i>OK',
+                        customClass: {
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            confirmButton: 'swal2-confirm-custom'
+                        }
+                    });
+                },
+                error: function(xhr) {
+                    // Re-enable button
+                    button.prop('disabled', false);
+                    button.html('<i class="fas fa-pills"></i>Request Dispensation');
+                    
+                    // Show error message with SweetAlert2
+                    Swal.fire({
+                        title: 'Error!',
+                        html: `
+                            <div style="text-align: center; margin: 20px 0;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                                <p style="font-size: 16px;">Error submitting request. Please try again.</p>
+                            </div>
+                        `,
+                        icon: 'error',
+                        confirmButtonColor: '#dc3545',
+                        confirmButtonText: '<i class="fas fa-times mr-2"></i>OK',
+                        customClass: {
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            confirmButton: 'swal2-confirm-custom'
+                        }
+                    });
+                }
+            });
+        }
+
+        function showAlert(type, message) {
+            var alertId = 'alert-' + Math.random().toString(36).substr(2, 9);
+            var alertHtml = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i> 
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            `;
+            
+            // Add the new alert at the top
+            $('.card-body').prepend(alertHtml);
+            
+            // Auto-close after 5 seconds
+            setTimeout(function() {
+                $('#' + alertId).fadeOut('slow', function() {
+                    $(this).remove();
+                });
+            }, 5000);
+        }
+    </script>
+    
+    <style>
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup-custom {
+            border-radius: 15px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            border: none !important;
+        }
+        
+        .swal2-title-custom {
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 24px !important;
+        }
+        
+        .swal2-confirm-custom {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-confirm-custom:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+        }
+        
+        .swal2-cancel-custom {
+            background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-cancel-custom:hover {
+            background: linear-gradient(135deg, #5a6268, #495057) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4) !important;
+        }
+        
+        .swal2-html-container {
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+        }
+    </style>
+}
+

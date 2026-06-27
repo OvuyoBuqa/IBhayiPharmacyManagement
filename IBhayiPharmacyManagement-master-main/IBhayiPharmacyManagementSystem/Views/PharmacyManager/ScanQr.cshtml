@@ -1,0 +1,654 @@
+@{
+    ViewData["Title"] = "QR Scanner";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    :root {
+        --primary-color: #b3d9ff;
+        --primary-dark: #99ccff;
+        --secondary-color: #6c757d;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --info-color: #3498db;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00;
+        --brown-soft: #c4a484;
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        border-top: 4px solid var(--orange-accent);
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--info-color);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        border-left: 4px solid var(--brown-soft);
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: var(--white);
+        padding: 20px 25px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .card-title i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .card-body {
+        padding: 25px;
+        min-height: 200px;
+        position: relative;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--info-color), #2980b9);
+        border: none;
+        color: var(--white);
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-color), #229954);
+        border: none;
+        color: var(--white);
+        padding: 12px 30px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--info-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .alert {
+        border-radius: 12px;
+        border: none;
+        padding: 15px 20px;
+    }
+
+    .section-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+    }
+
+    .section-title i {
+        margin-right: 10px;
+        color: var(--info-color);
+    }
+
+    .btn-outline-primary, .btn-outline-secondary {
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border-width: 2px;
+    }
+
+    .btn-outline-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-outline-secondary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .input-group .btn {
+        border-top-left-radius: 0;
+        border-bottom-left-radius: 0;
+        border-top-right-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">
+                <i class="fas fa-qrcode"></i>
+                QR Code Scanner
+            </h1>
+        </div>
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-12 col-md-8 col-lg-8">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-qrcode"></i>Scan QR Code</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i> 
+                                If camera access is blocked, allow permission or use the Upload option below.
+                            </small>
+                        </div>
+                        
+                        <!-- Camera Scanner -->
+                        <div class="mb-3">
+                            <h5 class="section-title"><i class="fas fa-camera"></i> Camera Scanner</h5>
+                            <div id="qr-reader" style="width:100%"></div>
+                            <div id="qr-reader-file" style="width:100%; height:200px; position:absolute; left:-9999px; top:-9999px;"></div>
+                            <div class="mt-2">
+                                <button id="retryCameraBtn" class="btn btn-primary btn-sm" style="display:none;">
+                                    <i class="fas fa-redo"></i> Retry Camera
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Results Display -->
+                        <div id="qr-result" class="mt-3 alert alert-info" style="display:none"></div>
+                        <div id="qr-error" class="mt-3 alert alert-danger" style="display:none"></div>
+
+                        <!-- Upload Section -->
+                        <div class="mt-4">
+                            <h5 class="section-title"><i class="fas fa-upload"></i> Upload QR Image</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Select QR Code Image</label>
+                                <input id="qrFile" type="file" accept="image/*" class="form-control" />
+                                <small class="form-text text-muted">Supported formats: JPG, PNG, GIF, WebP</small>
+                            </div>
+                            <div class="mb-3">
+                                <button id="uploadResolveBtn" class="btn btn-success" disabled>
+                                    <i class="fas fa-qrcode"></i> Resolve QR from Image
+                                </button>
+                                <button id="clearUploadBtn" class="btn btn-outline-secondary ml-2" disabled>
+                                    <i class="fas fa-times"></i> Clear
+                                </button>
+                                <button id="retryUploadBtn" class="btn btn-primary ml-2" style="display:none;">
+                                    <i class="fas fa-redo"></i> Retry
+                                </button>
+                            </div>
+                            <div id="uploadStatus" class="alert alert-info" style="display:none"></div>
+                        </div>
+
+                        <!-- Manual Entry -->
+                        <div class="mt-4">
+                            <h5 class="section-title"><i class="fas fa-keyboard"></i> Manual Entry</h5>
+                            <div class="mb-3">
+                                <label class="form-label">Enter QR Code Content</label>
+                                <div class="input-group">
+                                    <input id="manualCode" class="form-control" placeholder="Enter medication ID, name, or QR text" />
+                                    <button id="manualBtn" class="btn btn-primary">
+                                        <i class="fas fa-search"></i> Resolve
+                                    </button>
+                                </div>
+                                <small class="form-text text-muted">Enter medication ID (number) or medication name</small>
+                            </div>
+                        </div>
+
+                        <!-- Help Section -->
+                        <div class="mt-4">
+                            <div class="alert alert-light" style="background: linear-gradient(135deg, #f8f9fa, #e9ecef); border-left: 4px solid var(--info-color); border-radius: 12px;">
+                                <h6 class="font-weight-bold"><i class="fas fa-question-circle"></i> How to use:</h6>
+                                <ul class="mb-0" style="padding-left: 20px;">
+                                    <li><strong>Camera:</strong> Point your camera at a QR code to scan automatically</li>
+                                    <li><strong>Upload:</strong> Select an image file, then click "Resolve QR from Image" button</li>
+                                    <li><strong>Manual:</strong> Type a medication ID (e.g., "123") or medication name</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://unpkg.com/html5-qrcode@2.3.10/minified/html5-qrcode.min.js"></script>
+    <script>
+        (function(){
+            const resultBox = document.getElementById('qr-result');
+            const errorBox = document.getElementById('qr-error');
+
+            function clearResults() {
+                resultBox.style.display = 'none';
+                errorBox.style.display = 'none';
+            }
+
+            function showResult(text){
+                // Don't clear results here - it's already cleared by the caller
+                resultBox.style.display = 'block';
+                resultBox.textContent = 'Searching for: ' + text;
+
+                fetch(`/PharmacyManager/ResolveQr?code=${encodeURIComponent(text)}`)
+                    .then(r => {
+                        if (!r.ok) {
+                            throw new Error(`HTTP error! status: ${r.status}`);
+                        }
+                        return r.json();
+                    })
+                    .then(data => {
+                        if(data.success){
+                            resultBox.classList.remove('alert-danger');
+                            resultBox.classList.add('alert-success');
+                            
+                            if (data.type === 'Medication') {
+                                if (data.medication) {
+                                    // Single medication found
+                                    const med = data.medication;
+                                    resultBox.innerHTML = `
+                                        <h5><i class="fas fa-pills"></i> Medication Found</h5>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <strong>Name:</strong> ${med.name}<br/>
+                                                <strong>Description:</strong> ${med.description || 'N/A'}<br/>
+                                                <strong>Dosage Form:</strong> ${med.dosageFormDescription}<br/>
+                                                <strong>Strength:</strong> ${med.strength}<br/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Price:</strong> R${med.price.toFixed(2)}<br/>
+                                                <strong>Stock:</strong> ${med.quantityInStock} units<br/>
+                                                <strong>Min Level:</strong> ${med.minStockLevel} units<br/>
+                                                <strong>Supplier:</strong> ${med.supplier}<br/>
+                                            </div>
+                                        </div>
+                                    `;
+                                } else if (data.matches && data.matches.length > 0) {
+                                    // Multiple medications found
+                                    let matchesHtml = '<h5><i class="fas fa-pills"></i> Multiple Medications Found</h5>';
+                                    data.matches.forEach(med => {
+                                        matchesHtml += `
+                                            <div class="card mb-2">
+                                                <div class="card-body">
+                                                    <div class="row">
+                                                        <div class="col-md-8">
+                                                            <h6 class="card-title">${med.name}</h6>
+                                                            <p class="card-text">
+                                                                <strong>Description:</strong> ${med.description || 'N/A'}<br/>
+                                                                <strong>Dosage Form:</strong> ${med.dosageFormDescription}<br/>
+                                                                <strong>Strength:</strong> ${med.strength}<br/>
+                                                                <strong>Stock:</strong> ${med.quantityInStock} units
+                                                            </p>
+                                                        </div>
+                                                        <div class="col-md-4 text-right">
+                                                            <p class="card-text">
+                                                                <strong>Price:</strong> R${med.price.toFixed(2)}<br/>
+                                                                <strong>Supplier:</strong> ${med.supplier}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        `;
+                                    });
+                                    resultBox.innerHTML = matchesHtml;
+                                }
+                            } else {
+                                resultBox.innerHTML = `QR OK<br/><code>${JSON.stringify(data)}</code>`;
+                            }
+                        } else {
+                            resultBox.classList.remove('alert-success');
+                            resultBox.classList.add('alert-danger');
+                            resultBox.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${data.message || 'Unable to resolve QR.'}`;
+                        }
+                    })
+                    .catch(err => {
+                        resultBox.classList.remove('alert-success');
+                        resultBox.classList.add('alert-danger');
+                        resultBox.innerHTML = `<i class="fas fa-exclamation-triangle"></i> Error resolving QR: ${err.message || 'Unknown error'}`;
+                    });
+            }
+
+            function onScanSuccess(decodedText) {
+                html5QrcodeScanner.clear();
+                showResult(decodedText);
+            }
+            
+            function onScanFailure(error) {
+                // Throttle noisy errors - only show if it's a meaningful error
+                if (error && !error.includes('NotFoundException')) {
+                    console.log('QR Scan error:', error);
+                }
+            }
+
+            let html5QrcodeScanner = null;
+            
+            // Initialize camera scanner with better error handling
+            function initializeCamera() {
+                try {
+                    // Clear any existing scanner
+                    if (html5QrcodeScanner) {
+                        try {
+                            html5QrcodeScanner.clear();
+                        } catch (e) {
+                            console.log('Error clearing existing scanner:', e);
+                        }
+                    }
+
+                    // First try with basic configuration
+                    html5QrcodeScanner = new Html5QrcodeScanner(
+                        'qr-reader',
+                        { 
+                            fps: 10, 
+                            qrbox: 250, 
+                            rememberLastUsedCamera: true,
+                            aspectRatio: 1.0
+                        },
+                        false
+                    );
+                    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+                    console.log('Camera scanner initialized successfully');
+                    errorBox.style.display = 'none';
+                    document.getElementById('retryCameraBtn').style.display = 'none';
+                } catch (e) {
+                    console.error('Camera initialization failed:', e);
+                    // Only show camera error if no other errors are being displayed
+                    if (errorBox.style.display === 'none' || errorBox.innerHTML.includes('Camera')) {
+                        errorBox.style.display = 'block';
+                        errorBox.innerHTML = '<i class="fas fa-camera"></i> Camera is not available. Use the Upload option or enter code manually.';
+                        document.getElementById('retryCameraBtn').style.display = 'inline-block';
+                    }
+                }
+            }
+
+            // Initialize camera when page loads - with fallback for upload functionality
+            document.addEventListener('DOMContentLoaded', function() {
+                // Small delay to ensure DOM is ready
+                setTimeout(() => {
+                    try {
+                        initializeCamera();
+                    } catch (e) {
+                        console.log('Camera initialization failed, but upload functionality will still work');
+                        // Ensure upload functionality is not affected
+                        document.getElementById('uploadResolveBtn').disabled = false;
+                        document.getElementById('clearUploadBtn').disabled = false;
+                    }
+                }, 100);
+            });
+
+            // Retry camera button
+            document.getElementById('retryCameraBtn').addEventListener('click', function() {
+                this.style.display = 'none';
+                errorBox.style.display = 'none';
+                initializeCamera();
+            });
+
+            document.getElementById('manualBtn').addEventListener('click', function(){
+                const v = (document.getElementById('manualCode').value || '').trim();
+                if(!v){
+                    errorBox.style.display = 'block';
+                    errorBox.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please enter a medication ID or name.';
+                    return;
+                }
+                // Clear previous results and errors
+                clearResults();
+                // Show loading state
+                resultBox.style.display = 'block';
+                resultBox.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching for medication...';
+                resultBox.className = 'alert alert-info';
+                showResult(v);
+            });
+
+            // Handle Enter key in manual input
+            document.getElementById('manualCode').addEventListener('keypress', function(e){
+                if(e.key === 'Enter'){
+                    document.getElementById('manualBtn').click();
+                }
+            });
+
+            // File upload handling
+            const fileInput = document.getElementById('qrFile');
+            const uploadResolveBtn = document.getElementById('uploadResolveBtn');
+            const clearUploadBtn = document.getElementById('clearUploadBtn');
+            const retryUploadBtn = document.getElementById('retryUploadBtn');
+            const uploadStatus = document.getElementById('uploadStatus');
+            let selectedFile = null;
+
+            // Handle file selection
+            fileInput.addEventListener('change', function(ev){
+                clearResults();
+                selectedFile = ev.target.files && ev.target.files.length ? ev.target.files[0] : null;
+                
+                if(!selectedFile){ 
+                    uploadResolveBtn.disabled = true;
+                    clearUploadBtn.disabled = true;
+                    uploadStatus.style.display = 'none';
+                    return; 
+                }
+                
+                // Validate file type
+                if (!selectedFile.type.startsWith('image/')) {
+                    errorBox.style.display = 'block';
+                    errorBox.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please select a valid image file.';
+                    fileInput.value = '';
+                    selectedFile = null;
+                    uploadResolveBtn.disabled = true;
+                    clearUploadBtn.disabled = true;
+                    return;
+                }
+                
+                // Enable buttons and show status
+                uploadResolveBtn.disabled = false;
+                clearUploadBtn.disabled = false;
+                retryUploadBtn.style.display = 'none';
+                uploadStatus.style.display = 'block';
+                uploadStatus.innerHTML = `<i class="fas fa-check-circle"></i> File selected: ${selectedFile.name} (${(selectedFile.size / 1024).toFixed(1)} KB)`;
+                uploadStatus.className = 'alert alert-info';
+            });
+
+            // Handle resolve button click - completely isolated from camera functionality
+            uploadResolveBtn.addEventListener('click', function(){
+                if (!selectedFile) {
+                    // Use upload status instead of main error box to avoid conflicts
+                    uploadStatus.style.display = 'block';
+                    uploadStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Please select a file first.';
+                    uploadStatus.className = 'alert alert-danger';
+                    return;
+                }
+
+                // Clear any existing results and errors
+                clearResults();
+                uploadStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing QR code...';
+                uploadStatus.className = 'alert alert-warning';
+                uploadStatus.style.display = 'block';
+                uploadResolveBtn.disabled = true;
+
+                // Add timeout to prevent infinite processing
+                const timeoutId = setTimeout(() => {
+                    uploadStatus.style.display = 'block';
+                    uploadStatus.innerHTML = '<i class="fas fa-exclamation-triangle"></i> QR code processing timed out. Please try with a different image.';
+                    uploadStatus.className = 'alert alert-danger';
+                    uploadResolveBtn.disabled = false;
+                    retryUploadBtn.style.display = 'inline-block';
+                }, 10000); // 10 second timeout
+
+                try {
+                    console.log('Initializing QR reader for file:', selectedFile.name);
+                    
+                    // Ensure the target element exists and is accessible
+                    const targetElement = document.getElementById('qr-reader-file');
+                    if (!targetElement) {
+                        throw new Error('QR reader target element not found');
+                    }
+                    
+                    // Create a completely separate QR reader instance for file processing
+                    // Use a different approach to avoid conflicts with camera scanner
+                    const fileReaderQr = new Html5Qrcode('qr-reader-file');
+                    
+                    console.log('Starting QR scan...');
+                    fileReaderQr.scanFile(selectedFile, true)
+                        .then(text => {
+                            console.log('QR scan successful, text:', text);
+                            clearTimeout(timeoutId);
+                            uploadStatus.style.display = 'none';
+                            retryUploadBtn.style.display = 'none';
+                            showResult(text);
+                            return fileReaderQr.clear();
+                        })
+                        .catch(err => {
+                            console.error('QR scan failed:', err);
+                            clearTimeout(timeoutId);
+                            uploadStatus.style.display = 'block';
+                            
+                            let errorMessage = 'Unable to read QR from image';
+                            if (err && err.message) {
+                                if (err.message.includes('NotFoundException')) {
+                                    errorMessage = 'No QR code found in the image. Please ensure the image contains a valid QR code.';
+                                } else if (err.message.includes('NoMultiFormatReader')) {
+                                    errorMessage = 'QR code format not supported. Please try a different image.';
+                                } else if (err.message.includes('Failed to initialize')) {
+                                    errorMessage = 'QR code reader initialization failed. Please try with a different image format.';
+                                } else {
+                                    errorMessage = `QR scan error: ${err.message}`;
+                                }
+                            } else if (err && typeof err === 'string') {
+                                errorMessage = `QR scan error: ${err}`;
+                            }
+                            
+                            uploadStatus.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`;
+                            uploadStatus.className = 'alert alert-danger';
+                        })
+                        .finally(() => {
+                            try { 
+                                fileReaderQr.clear(); 
+                                console.log('QR reader cleared successfully');
+                            } catch(e) {
+                                console.log('Error clearing file reader:', e);
+                            }
+                            uploadResolveBtn.disabled = false;
+                        });
+                } catch (initError) {
+                    console.error('QR reader initialization failed:', initError);
+                    clearTimeout(timeoutId);
+                    uploadStatus.style.display = 'block';
+                    
+                    // Provide more specific error messages
+                    let errorMessage = 'Failed to initialize QR code reader.';
+                    if (initError && initError.message) {
+                        if (initError.message.includes('element not found')) {
+                            errorMessage = 'QR reader element not found. Please refresh the page and try again.';
+                        } else if (initError.message.includes('not supported')) {
+                            errorMessage = 'QR code scanning not supported in this browser. Please try a different browser.';
+                        } else {
+                            errorMessage = `QR reader error: ${initError.message}`;
+                        }
+                    }
+                    
+                    uploadStatus.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${errorMessage}`;
+                    uploadStatus.className = 'alert alert-danger';
+                    uploadResolveBtn.disabled = false;
+                    retryUploadBtn.style.display = 'inline-block';
+                }
+            });
+
+            // Handle clear button click
+            clearUploadBtn.addEventListener('click', function(){
+                fileInput.value = '';
+                selectedFile = null;
+                uploadResolveBtn.disabled = true;
+                clearUploadBtn.disabled = true;
+                retryUploadBtn.style.display = 'none';
+                uploadStatus.style.display = 'none';
+                clearResults();
+            });
+
+            // Handle retry button click
+            retryUploadBtn.addEventListener('click', function(){
+                this.style.display = 'none';
+                uploadStatus.style.display = 'none';
+                uploadResolveBtn.click();
+            });
+
+            // Ensure upload functionality is always available regardless of camera status
+            function ensureUploadFunctionality() {
+                // Make sure upload buttons are enabled when file is selected
+                fileInput.addEventListener('change', function(ev) {
+                    selectedFile = ev.target.files && ev.target.files.length ? ev.target.files[0] : null;
+                    if (selectedFile && selectedFile.type.startsWith('image/')) {
+                        uploadResolveBtn.disabled = false;
+                        clearUploadBtn.disabled = false;
+                    }
+                });
+            }
+
+            // Initialize upload functionality independently
+            ensureUploadFunctionality();
+        })();
+    </script>
+}
+
+

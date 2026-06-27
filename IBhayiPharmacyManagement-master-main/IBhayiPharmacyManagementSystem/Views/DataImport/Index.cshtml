@@ -1,0 +1,387 @@
+@model IBhayiPharmacyManagementSystem.ViewModels.DataImportDashboardViewModel
+@{
+    ViewData["Title"] = "Data Import Dashboard";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="content-wrapper">
+    <!-- Content Header -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Data Import Dashboard</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                        <li class="breadcrumb-item active">Data Import</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Welcome Message -->
+            <div class="row mb-3">
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <h5><i class="icon fas fa-info-circle"></i> Welcome to your Pharmacy Data Import System</h5>
+                        <p class="mb-0">Import your pharmacy data from PDF files and distribute it into the respective database tables.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- Import Section -->
+                <div class="col-md-8">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-file-upload mr-2"></i>
+                                Import Pharmacy Data from PDF
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UploadPdf" method="post" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label for="pdfFile">
+                                        <i class="fas fa-folder-open mr-1"></i>
+                                        Select PDF File
+                                    </label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="pdfFile" name="PdfFile" accept=".pdf" required>
+                                            <label class="custom-file-label" for="pdfFile">Choose PDF file</label>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Upload your Pharmacy Database PDF file containing medications, suppliers, doctors, and other data.
+                                    </small>
+                                    <span asp-validation-for="PdfFile" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="createDefaultUsers" checked>
+                                        <label class="custom-control-label" for="createDefaultUsers">
+                                            Create default users (admin, pharmacy manager)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-upload mr-2"></i>
+                                        Import Data
+                                    </button>
+                                    <button type="button" class="btn btn-info btn-lg ml-2" onclick="checkStatus()">
+                                        <i class="fas fa-list mr-2"></i>
+                                        Check Status
+                                    </button>
+                                    <button type="button" class="btn btn-warning btn-lg ml-2" onclick="debugPdf()">
+                                        <i class="fas fa-bug mr-2"></i>
+                                        Debug PDF
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Customer Import Section -->
+                    <div class="card card-success mt-3">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-users mr-2"></i>
+                                Import Customers from XLSX
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <form asp-action="UploadXlsx" method="post" enctype="multipart/form-data">
+                                <div class="form-group">
+                                    <label for="xlsxFile">
+                                        <i class="fas fa-file-excel mr-1"></i>
+                                        Select XLSX File
+                                    </label>
+                                    <div class="input-group">
+                                        <div class="custom-file">
+                                            <input type="file" class="custom-file-input" id="xlsxFile" name="xlsxFile" accept=".xlsx,.xls" required>
+                                            <label class="custom-file-label" for="xlsxFile">Choose XLSX file</label>
+                                        </div>
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        Upload your customer data Excel file. Passwords will be auto-generated (surname + 123!).
+                                    </small>
+                                </div>
+
+                                <div class="form-group">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        <i class="fas fa-upload mr-2"></i>
+                                        Import Customers
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Import Instructions -->
+                <div class="col-md-4">
+                    <div class="card card-info">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Import Instructions
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <ol class="mb-3">
+                                <li>Ensure your PDF file has the correct format</li>
+                                <li>Active ingredients should be listed with numbers</li>
+                                <li>Medications should include all required fields</li>
+                                <li>Suppliers should have contact information</li>
+                                <li>Click "Import Data" to start the process</li>
+                            </ol>
+                            
+                            <div class="alert alert-warning">
+                                <strong>Note:</strong> The import process may take a few minutes depending on the size of your data.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Database Status -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card card-success">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-database mr-2"></i>
+                                Database Status
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-primary">
+                                            <i class="fas fa-pills"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Active Ingredients</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.ActiveIngredientsCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-success">
+                                            <i class="fas fa-capsules"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Dosage Forms</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.DosageFormsCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-warning">
+                                            <i class="fas fa-truck"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Suppliers</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.SuppliersCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-danger">
+                                            <i class="fas fa-prescription-bottle-alt"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Medications</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.MedicationsCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-info">
+                                            <i class="fas fa-user-md"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Doctors</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.DoctorsCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-secondary">
+                                            <i class="fas fa-user-tie"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Pharmacy Managers</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.PharmacyManagersCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-dark">
+                                            <i class="fas fa-user-nurse"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Pharmacists</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.PharmacistsCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-success">
+                                            <i class="fas fa-user-friends"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Customers</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.CustomersCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-info">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Customer Orders</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.OrdersCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-primary">
+                                            <i class="fas fa-file-prescription"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Prescriptions</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.PrescriptionsCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-success">
+                                            <i class="fas fa-check-circle"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Processed Prescriptions</span>
+                                            <span class="info-box-number">@Model.DatabaseStats.DispensedPrescriptionsCount</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+
+@section Scripts {
+    <script>
+        // Update file input label when file is selected
+        document.getElementById('pdfFile').addEventListener('change', function(e) {
+            var fileName = e.target.files[0]?.name || 'Choose PDF file';
+            e.target.nextElementSibling.textContent = fileName;
+        });
+
+        // Update XLSX file input label when file is selected
+        document.getElementById('xlsxFile').addEventListener('change', function(e) {
+            var fileName = e.target.files[0]?.name || 'Choose XLSX file';
+            e.target.nextElementSibling.textContent = fileName;
+        });
+
+        function checkStatus() {
+            // Reload the page to refresh database stats
+            location.reload();
+        }
+
+        function debugPdf() {
+            var fileInput = document.getElementById('pdfFile');
+            if (!fileInput.files[0]) {
+                alert('Please select a PDF file first');
+                return;
+            }
+
+            var formData = new FormData();
+            formData.append('pdfFile', fileInput.files[0]);
+
+            fetch('@Url.Action("DebugPdf")', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Create a modal to show the full text
+                    var modal = document.createElement('div');
+                    modal.className = 'modal fade';
+                    modal.innerHTML = `
+                        <div class="modal-dialog modal-xl">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">PDF Debug Info - Full Text (Length: ${data.textLength})</h5>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body" style="max-height: 500px; overflow-y: auto;">
+                                    <pre style="white-space: pre-wrap; word-wrap: break-word; font-size: 12px;">${data.fullText}</pre>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    document.body.appendChild(modal);
+                    $(modal).modal('show');
+                    $(modal).on('hidden.bs.modal', function () {
+                        modal.remove();
+                    });
+                    
+                    console.log('Full PDF text:', data.fullText);
+                } else {
+                    alert('Error: ' + data.error);
+                }
+            })
+            .catch(error => {
+                alert('Error debugging PDF: ' + error.message);
+            });
+        }
+    </script>
+}

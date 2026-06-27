@@ -1,0 +1,502 @@
+@using IBhayiPharmacyManagementSystem.Enums
+@model IBhayiPharmacyManagementSystem.Controllers.OrderTrackingViewModel
+@{
+    ViewData["Title"] = "Order Tracking Dashboard";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #0a1f14 0%, #1b4332 100%);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-truck me-2"></i>Order Tracking Dashboard
+                        </h3>
+                        <a href="@Url.Action("Statistics", "OrderTracking")" class="btn btn-outline-light">
+                            <i class="fas fa-chart-bar me-1"></i> View Statistics
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Summary Cards -->
+                    <div class="row mb-4">
+                        <div class="col-md-3">
+                            <div class="card bg-warning text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-clock fa-2x mb-2"></i>
+                                    <h4>@Model.PendingOrders.Count</h4>
+                                    <p class="mb-0">Pending Orders</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-info text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-cogs fa-2x mb-2"></i>
+                                    <h4>@Model.ProcessingOrders.Count</h4>
+                                    <p class="mb-0">Processing</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-success text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                                    <h4>@Model.ReadyOrders.Count</h4>
+                                    <p class="mb-0">Ready for Collection</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="card bg-secondary text-white">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-hand-holding fa-2x mb-2"></i>
+                                    <h4>@Model.AllOrders.Count(o => o.OrderStatus == OrderStatusEnum.Collected)</h4>
+                                    <p class="mb-0">Collected</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ready for Collection Section -->
+                    @if (Model.ReadyOrders.Any())
+                    {
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-success text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-check-circle me-2"></i>Ready for Collection (@Model.ReadyOrders.Count)
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Customer</th>
+                                                <th>Order Date</th>
+                                                <th>Total Amount</th>
+                                                <th>Ready Since</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var order in Model.ReadyOrders)
+                                            {
+                                                <tr>
+                                                    <td><strong>#@order.OrderId</strong></td>
+                                                    <td>
+                                                        <div>
+                                                            <strong>@order.Customer?.Name</strong>
+                                                            <br><small class="text-muted">@order.Customer?.User?.Email</small>
+                                                        </div>
+                                                    </td>
+                                                    <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                                                    <td><strong>R@(order.TotalAmount.ToString("F2"))</strong></td>
+                                                    <td>
+                                                        @if (order.LastUpdated.HasValue)
+                                                        {
+                                                            <span class="text-success">@order.LastUpdated.Value.ToString("MMM dd, HH:mm")</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="text-muted">Unknown</span>
+                                                        }
+                                                    </td>
+                                                    <td>
+                                                        <div class="btn-group" role="group">
+                                                            <button type="button" class="btn btn-success btn-sm mark-collected-btn" 
+                                                                    data-order-id="@order.OrderId" 
+                                                                    data-customer-name="@order.Customer?.Name">
+                                                                <i class="fas fa-hand-holding me-1"></i>Mark Collected
+                                                            </button>
+                                                            <a href="@Url.Action("Details", "OrderTracking", new { id = order.OrderId })" 
+                                                               class="btn btn-outline-primary btn-sm">
+                                                                <i class="fas fa-eye me-1"></i>View
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Processing Orders Section -->
+                    @if (Model.ProcessingOrders.Any())
+                    {
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-info text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-cogs me-2"></i>Currently Processing (@Model.ProcessingOrders.Count)
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Customer</th>
+                                                <th>Pharmacist</th>
+                                                <th>Order Date</th>
+                                                <th>Total Amount</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var order in Model.ProcessingOrders)
+                                            {
+                                                <tr>
+                                                    <td><strong>#@order.OrderId</strong></td>
+                                                    <td>
+                                                        <div>
+                                                            <strong>@order.Customer?.Name</strong>
+                                                            <br><small class="text-muted">@order.Customer?.User?.Email</small>
+                                                        </div>
+                                                    </td>
+                                                    <td>@(order.Pharmacist?.Name ?? "Unassigned")</td>
+                                                    <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                                                    <td><strong>R@(order.TotalAmount.ToString("F2"))</strong></td>
+                                                    <td>
+                                                        <div class="btn-group" role="group">
+                                                            <button type="button" class="btn btn-success btn-sm mark-ready-btn" 
+                                                                    data-order-id="@order.OrderId">
+                                                                <i class="fas fa-check me-1"></i>Mark Ready
+                                                            </button>
+                                                            <a href="@Url.Action("Details", "OrderTracking", new { id = order.OrderId })" 
+                                                               class="btn btn-outline-primary btn-sm">
+                                                                <i class="fas fa-eye me-1"></i>View
+                                                            </a>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Pending Orders Section -->
+                    @if (Model.PendingOrders.Any())
+                    {
+                        <div class="card border-0 shadow-sm mb-4">
+                            <div class="card-header bg-warning text-white">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-clock me-2"></i>Pending Orders (@Model.PendingOrders.Count)
+                                </h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-hover mb-0">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Order ID</th>
+                                                <th>Customer</th>
+                                                <th>Order Date</th>
+                                                <th>Total Amount</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var order in Model.PendingOrders)
+                                            {
+                                                <tr>
+                                                    <td><strong>#@order.OrderId</strong></td>
+                                                    <td>
+                                                        <div>
+                                                            <strong>@order.Customer?.Name</strong>
+                                                            <br><small class="text-muted">@order.Customer?.User?.Email</small>
+                                                        </div>
+                                                    </td>
+                                                    <td>@order.OrderDate.ToString("MMM dd, yyyy")</td>
+                                                    <td><strong>R@(order.TotalAmount.ToString("F2"))</strong></td>
+                                                    <td>
+                                                        <a href="@Url.Action("Details", "OrderTracking", new { id = order.OrderId })" 
+                                                           class="btn btn-outline-primary btn-sm">
+                                                            <i class="fas fa-eye me-1"></i>View Details
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                    <!-- Quick Actions -->
+                    <div class="row mt-4">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-3">
+                                            <a href="@Url.Action("ReadyForCollection", "OrderTracking")" class="btn btn-success w-100">
+                                                <i class="fas fa-check-circle me-2"></i>View Ready Orders
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="@Url.Action("Collected", "OrderTracking")" class="btn btn-secondary w-100">
+                                                <i class="fas fa-hand-holding me-2"></i>View Collected Orders
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="@Url.Action("OrdersForCustomers", "Orders")" class="btn btn-primary w-100">
+                                                <i class="fas fa-list me-2"></i>All Orders
+                                            </a>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <a href="@Url.Action("Statistics", "OrderTracking")" class="btn btn-info w-100">
+                                                <i class="fas fa-chart-bar me-2"></i>Statistics
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        /* Enhanced button styling */
+        .mark-collected-btn, .mark-ready-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mark-collected-btn:hover, .mark-ready-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .mark-collected-btn:active, .mark-ready-btn:active {
+            transform: translateY(0);
+        }
+
+        .mark-collected-btn.btn-success, .mark-ready-btn.btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+        }
+
+        .mark-collected-btn.btn-success:hover, .mark-ready-btn.btn-success:hover {
+            background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+        }
+
+        .mark-collected-btn.btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            border: none;
+            cursor: default;
+        }
+
+        .mark-collected-btn.btn-secondary:hover {
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Loading state animation */
+        .mark-collected-btn.loading, .mark-ready-btn.loading {
+            pointer-events: none;
+        }
+
+        .mark-collected-btn.loading i.fa-spinner, .mark-ready-btn.loading i.fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success animation */
+        .mark-collected-btn.success, .mark-ready-btn.success {
+            animation: successPulse 0.6s ease-out;
+        }
+
+        @@keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Enhanced toast styling */
+        .toast {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .toast.bg-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+        }
+
+        .toast.bg-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Mark as Collected functionality
+            $('.mark-collected-btn').click(function() {
+                const orderId = $(this).data('order-id');
+                const customerName = $(this).data('customer-name');
+                const button = $(this);
+
+                Swal.fire({
+                    title: 'Mark as Collected?',
+                    html: `Mark Order #${orderId} for ${customerName} as collected?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'OK',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#0d6efd',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        button.prop('disabled', true)
+                              .addClass('loading')
+                              .html('<i class="fas fa-spinner fa-spin me-1"></i>Processing...');
+
+                        $.ajax({
+                            url: '@Url.Action("MarkAsCollected", "OrderTracking")',
+                            type: 'POST',
+                            data: { orderId: orderId },
+                            success: function(response) {
+                                if (response.success) {
+                                    showToast(response.message, 'success');
+                                    
+                                    // Add success animation
+                                    button.removeClass('loading').addClass('success');
+                                    
+                                    // Change button to "collected" state instead of reloading
+                                    setTimeout(function() {
+                                        button.removeClass('btn-success success').addClass('btn-secondary')
+                                              .html('<i class="fas fa-check-circle me-1"></i>Collected')
+                                              .prop('disabled', false);
+                                    }, 600);
+                                } else {
+                                    showToast(response.message, 'danger');
+                                    button.removeClass('loading').prop('disabled', false).html('<i class="fas fa-hand-holding me-1"></i>Mark Collected');
+                                }
+                            },
+                            error: function() {
+                                showToast('An error occurred while updating the order', 'danger');
+                                button.removeClass('loading').prop('disabled', false).html('<i class="fas fa-hand-holding me-1"></i>Mark Collected');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Mark as Ready functionality
+            $('.mark-ready-btn').click(function() {
+                const orderId = $(this).data('order-id');
+                const button = $(this);
+
+                Swal.fire({
+                    title: 'Mark as Ready?',
+                    html: `Mark Order #${orderId} as ready for collection?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'OK',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#0d6efd',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        button.prop('disabled', true)
+                              .addClass('loading')
+                              .html('<i class="fas fa-spinner fa-spin me-1"></i>Processing...');
+
+                        $.ajax({
+                            url: '@Url.Action("MarkAsReady", "OrderTracking")',
+                            type: 'POST',
+                            data: { orderId: orderId },
+                            success: function(response) {
+                                if (response.success) {
+                                    showToast(response.message, 'success');
+                                    
+                                    // Add success animation
+                                    button.removeClass('loading').addClass('success');
+                                    
+                                    // Change button to "ready" state
+                                    setTimeout(function() {
+                                        button.removeClass('btn-success success').addClass('btn-info')
+                                              .html('<i class="fas fa-check-circle me-1"></i>Ready')
+                                              .prop('disabled', false);
+                                    }, 600);
+                                    
+                                    // Reload after a short delay to update the order status
+                                    setTimeout(function() {
+                                        location.reload();
+                                    }, 2000);
+                                } else {
+                                    showToast(response.message, 'danger');
+                                    button.removeClass('loading').prop('disabled', false).html('<i class="fas fa-check me-1"></i>Mark Ready');
+                                }
+                            },
+                            error: function() {
+                                showToast('An error occurred while updating the order', 'danger');
+                                button.removeClass('loading').prop('disabled', false).html('<i class="fas fa-check me-1"></i>Mark Ready');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Toast notification function
+            function showToast(message, type) {
+                const toast = $(`
+                    <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                `);
+
+                const toastContainer = $('#toastContainer') || $('body').append('<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>');
+                $('#toastContainer').append(toast);
+
+                const bsToast = new bootstrap.Toast(toast[0]);
+                bsToast.show();
+
+                toast.on('hidden.bs.toast', function() {
+                    toast.remove();
+                });
+            }
+        });
+    </script>
+}

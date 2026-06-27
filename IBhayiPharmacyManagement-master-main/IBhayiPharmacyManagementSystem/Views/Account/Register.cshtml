@@ -1,0 +1,384 @@
+﻿@using IBhayiPharmacyManagementSystem.ViewModels;
+@model RegisterViewModel;
+
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+<div class="account-container">
+    <div class="account-box" style="max-width: 800px;">
+        <div class="tag-box">
+            <div class="tag">Create Your Account</div>
+        </div>
+
+        <form asp-action="Register" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+            <div class="form-section mb-4">
+                <h5 class="section-title mb-3"><i class="fas fa-user-circle me-2"></i>Personal Information</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Name" class="form-label"></label>
+                    <input asp-for="Name" class="form-control" placeholder="Enter your first name" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Surname" class="form-label"></label>
+                    <input asp-for="Surname" class="form-control" placeholder="Enter your last name" />
+                    <span asp-validation-for="Name" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="IDNumber" class="form-label"></label>
+                    <input asp-for="IDNumber" class="form-control" placeholder="Enter your ID number" />
+                    <span asp-validation-for="IDNumber" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CellPhoneNumber" class="form-label"></label>
+                    <input asp-for="CellPhoneNumber" class="form-control" placeholder="Enter your phone number" />
+                    <span asp-validation-for="CellPhoneNumber" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Email" class="form-label"></label>
+                    <input asp-for="Email" class="form-control" placeholder="Enter your email address" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section mb-4">
+            <h5 class="section-title mb-3"><i class="fas fa-home me-2"></i>Address Information</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Street" class="form-label"></label>
+                    <input asp-for="Street" class="form-control" placeholder="Enter your street address" />
+                    <span asp-validation-for="Street" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Suburb" class="form-label"></label>
+                    <input asp-for="Suburb" class="form-control" placeholder="Enter your suburb" />
+                    <span asp-validation-for="Suburb" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="City" class="form-label"></label>
+                    <input asp-for="City" class="form-control" placeholder="Enter your city" />
+                    <span asp-validation-for="City" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Province" class="form-label"></label>
+                    <input asp-for="Province" class="form-control" placeholder="Enter your province" />
+                    <span asp-validation-for="Province" class="text-danger small"></span>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Country" class="form-label"></label>
+                    <input asp-for="Country" class="form-control" placeholder="Enter your country" value="South Africa" />
+                    <span asp-validation-for="Country" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ZipCode" class="form-label"></label>
+                    <input asp-for="ZipCode" class="form-control" placeholder="Enter your postal code" />
+                    <span asp-validation-for="ZipCode" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Allergy Information Section -->
+        <div class="form-section mb-4">
+            <h5 class="section-title mb-3"><i class="fas fa-allergies me-2"></i>Medication Allergy Information</h5>
+            
+            <!-- Allergy Status Selection -->
+            <div class="form-group mb-3">
+                <label class="form-label">Allergy Status</label>
+                <div class="allergy-status-options">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="AllergyStatus" id="noAllergies" value="NoAllergies" required>
+                        <label class="form-check-label" for="noAllergies">
+                            <i class="fas fa-check-circle text-success me-2"></i>I have no known medication allergies
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="AllergyStatus" id="knownAllergies" value="KnownAllergies" required>
+                        <label class="form-check-label" for="knownAllergies">
+                            <i class="fas fa-exclamation-triangle text-warning me-2"></i>I have known medication allergies
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="AllergyStatus" id="unknownAllergies" value="UnknownAllergies" required>
+                        <label class="form-check-label" for="unknownAllergies">
+                            <i class="fas fa-question-circle text-info me-2"></i>I don't know if I have medication allergies
+                        </label>
+                    </div>
+                </div>
+                <span asp-validation-for="AllergyStatus" class="text-danger"></span>
+            </div>
+            
+            <!-- Known Allergies Section (shown when "Known Allergies" is selected) -->
+            <div id="knownAllergiesSection" class="allergy-details" style="display: none;">
+                <h4 class="subsection-title">
+                    <i class="fas fa-list me-2"></i>Known Allergies
+                </h4>
+                
+                <!-- Database Allergies -->
+                <div class="database-allergies mb-3">
+                    <h5 class="subtitle">Allergies from our database:</h5>
+                    <div id="database-allergies-container">
+                        <div class="allergy-entry row mb-2">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Allergen</label>
+                                    <select name="SelectedAllergyIds" class="form-control allergy-ingredient">
+                                        <option value="0">-- Select Allergen --</option>
+                                        @foreach (var ingredient in Model.AvailableActiveIngredients)
+                                        {
+                                            <option value="@ingredient.ActiveIngredientId">@ingredient.Name</option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Severity</label>
+                                    <select name="AllergySeverities" class="form-control">
+                                        <option value="">Select severity</option>
+                                        <option value="Mild">Mild</option>
+                                        <option value="Moderate">Moderate</option>
+                                        <option value="Severe">Severe</option>
+                                        <option value="Life-threatening">Life-threatening</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <input type="text" name="AllergyDescriptions" class="form-control" placeholder="Describe your reaction" />
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm remove-allergy" style="margin-top: 28px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-2">
+                        <button type="button" id="add-database-allergy" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-plus me-2"></i>Add Another Database Allergen
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Custom Allergies -->
+                <div class="custom-allergies mb-3">
+                    <h5 class="subtitle">Allergies not in our database:</h5>
+                    <div id="custom-allergies-container">
+                        <div class="allergy-entry row mb-2">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Allergen Name</label>
+                                    <input type="text" name="CustomAllergenNames" class="form-control" placeholder="Enter allergen name" />
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Severity</label>
+                                    <select name="CustomAllergySeverities" class="form-control">
+                                        <option value="">Select severity</option>
+                                        <option value="Mild">Mild</option>
+                                        <option value="Moderate">Moderate</option>
+                                        <option value="Severe">Severe</option>
+                                        <option value="Life-threatening">Life-threatening</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                    <label class="form-label">Description</label>
+                                    <input type="text" name="CustomAllergyDescriptions" class="form-control" placeholder="Describe your reaction" />
+                                </div>
+                            </div>
+                            <div class="col-md-1">
+                                <button type="button" class="btn btn-danger btn-sm remove-allergy" style="margin-top: 28px;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-2">
+                        <button type="button" id="add-custom-allergy" class="btn btn-outline-warning btn-sm">
+                            <i class="fas fa-plus me-2"></i>Add Another Custom Allergen
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Unknown Allergies Section (shown when "Unknown Allergies" is selected) -->
+            <div id="unknownAllergiesSection" class="allergy-details" style="display: none;">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Important:</strong> Since you're unsure about your allergies, we recommend consulting with a healthcare professional before taking any new medications. We'll create a note in your profile to ensure pharmacists are aware of this.
+                </div>
+            </div>
+            
+            <!-- No Allergies Section (shown when "No Allergies" is selected) -->
+            <div id="noAllergiesSection" class="allergy-details" style="display: none;">
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle me-2"></i>
+                    <strong>Great!</strong> You've indicated you have no known medication allergies. This information will be recorded in your profile.
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section mb-4">
+            <h5 class="section-title mb-3"><i class="fas fa-lock me-2"></i>Security Information</h5>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="Password" class="form-label"></label>
+                    <div class="input-group">
+                        <input asp-for="Password" type="password" class="form-control" placeholder="Create a password" id="passwordField" />
+                        <button class="btn btn-outline-secondary toggle-password" type="button">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="form-text small" style="color: #b8860b;">Use 8 or more characters with a mix of letters, numbers & symbols</div>
+                    <span asp-validation-for="Password" class="text-danger small"></span>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label"></label>
+                    <div class="input-group">
+                        <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm your password" id="confirmPasswordField" />
+                        <button class="btn btn-outline-secondary toggle-password" type="button">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-grid gap-2 mt-4">
+            <button type="submit" class="btn btn-success btn-lg py-3" id="registerButton">
+                <i class="fas fa-user-plus me-2"></i>Create Account
+            </button>
+        </div>
+
+        <div class="text-center mt-3">
+            <p class="mb-1">Already have an account? <a asp-controller="Account" asp-action="Login" class="text-decoration-none fw-bold">Sign In</a></p>
+            <a asp-controller="Home" asp-action="Index" class="text-decoration-none small"><i class="fas fa-arrow-left me-1"></i>Back to Home</a>
+        </div>
+    </form>
+</div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script>
+        $(document).ready(function() {
+            // Toggle password visibility
+            $('.toggle-password').click(function() {
+                const input = $(this).siblings('input');
+                const icon = $(this).find('i');
+                const type = input.attr('type') === 'password' ? 'text' : 'password';
+                input.attr('type', type);
+                icon.toggleClass('fa-eye fa-eye-slash');
+            });
+
+            // Handle allergy status radio button changes
+            $('input[name="AllergyStatus"]').change(function() {
+                // Hide all allergy detail sections first
+                $('.allergy-details').hide();
+                
+                // Show appropriate section based on selection
+                switch($(this).val()) {
+                    case 'NoAllergies':
+                        $('#noAllergiesSection').show();
+                        break;
+                    case 'KnownAllergies':
+                        $('#knownAllergiesSection').show();
+                        break;
+                    case 'UnknownAllergies':
+                        $('#unknownAllergiesSection').show();
+                        break;
+                }
+            });
+
+            // Allergy management - Add new database allergy entry
+            $('#add-database-allergy').click(function() {
+                const container = $('#database-allergies-container');
+                const newEntry = container.find('.allergy-entry').first().clone();
+                
+                // Clear the values
+                newEntry.find('input, select').each(function() {
+                    if ($(this).is('select')) {
+                        $(this).prop('selectedIndex', 0);
+                    } else {
+                        $(this).val('');
+                    }
+                });
+                
+                // Show remove button for new entries
+                newEntry.find('.remove-allergy').show();
+                
+                container.append(newEntry);
+            });
+            
+            // Allergy management - Add new custom allergy entry
+            $('#add-custom-allergy').click(function() {
+                const container = $('#custom-allergies-container');
+                const newEntry = container.find('.allergy-entry').first().clone();
+                
+                // Clear the values
+                newEntry.find('input, select').each(function() {
+                    if ($(this).is('select')) {
+                        $(this).prop('selectedIndex', 0);
+                    } else {
+                        $(this).val('');
+                    }
+                });
+                
+                // Show remove button for new entries
+                newEntry.find('.remove-allergy').show();
+                
+                container.append(newEntry);
+            });
+            
+            // Remove allergy entry
+            $(document).on('click', '.remove-allergy', function() {
+                const allergyEntry = $(this).closest('.allergy-entry');
+                const container = allergyEntry.closest('#database-allergies-container, #custom-allergies-container');
+                
+                // Don't allow removing the first entry
+                if (container.find('.allergy-entry').length > 1) {
+                    allergyEntry.remove();
+                }
+            });
+
+            // Hide remove buttons on first entries initially
+            $('.allergy-entry').first().find('.remove-allergy').hide();
+            $('#custom-allergies-container .allergy-entry').first().find('.remove-allergy').hide();
+
+            // Form submission handler
+            $('form').submit(function(e) {
+                // Show loading state on button
+                $('#registerButton').prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Processing...');
+                return true;
+            });
+        });
+    </script>
+}

@@ -1,0 +1,107 @@
+﻿@model IBhayiPharmacyManagementSystem.Models.ActiveIngredients
+
+@{
+    ViewData["Title"] = "Add Active Ingredient";
+    Layout = "_LayoutPharmacyManger";
+}
+
+
+
+<style>
+    .ai-main-container { background: linear-gradient(135deg, #f8f9fa, #e9ecef); min-height: 100vh; padding: 20px 0; }
+    .ai-page-header { background: #fff; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #e9ecef; border-top: 4px solid #c4a484; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .ai-page-title { font-size: 1.8rem; font-weight: 700; color: #2c3e50; margin: 0; display: flex; align-items: center; }
+    .ai-page-title i { margin-right: 10px; color: #3498db; }
+    .ai-card { background: #fff; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); border: 1px solid #e9ecef; border-left: 4px solid #c4a484; overflow: hidden; }
+    .ai-card-header { background: linear-gradient(135deg, #6c757d, #5a6268); color: #fff; padding: 18px 22px; border: none; }
+    .ai-card-title { font-size: 1.2rem; font-weight: 700; margin: 0; display: flex; align-items: center; }
+    .ai-card-title i { margin-right: 10px; color: #27ae60; }
+    .ai-form .form-control { border: 2px solid #e9ecef; border-radius: 10px; padding: 12px 16px; }
+    .ai-form .form-control:focus { border-color: #3498db; box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.2); }
+    .ai-actions .btn-primary { background: linear-gradient(135deg, #6c757d, #5a6268); border: 1px solid #5a6268; border-radius: 10px; padding: 10px 20px; }
+    .ai-actions .btn-outline-secondary { border-radius: 10px; }
+</style>
+
+<div class="ai-main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="ai-page-header">
+                    <h1 class="ai-page-title"><i class="fas fa-vial"></i>@ViewData["Title"]</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-10 col-lg-8">
+                <div class="ai-card">
+                    <div class="ai-card-header">
+                        <h5 class="ai-card-title"><i class="fas fa-flask"></i>Active Ingredient Details</h5>
+                    </div>
+                    <div class="card-body">
+                    <form asp-action="AddActiveIngredients" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Name" class="form-label">Ingredient Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter ingredient name" required />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                            <div class="invalid-feedback">
+                                Please provide a name for the ingredient.
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-3">
+                            <label asp-for="Strength" class="form-label">Strength</label>
+                            <input asp-for="Strength" class="form-control" placeholder="e.g. 500mg, 10mg/ml" required />
+                            <span asp-validation-for="Strength" class="text-danger"></span>
+                            <div class="invalid-feedback">
+                                Please provide the strength of the ingredient.
+                            </div>
+                        </div>
+                        
+                        <div class="form-group mb-4">
+                            <label asp-for="Description" class="form-label">Description</label>
+                            <textarea asp-for="Description" class="form-control" rows="4" placeholder="Enter description (optional)"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="ai-actions d-grid gap-2 d-md-flex justify-content-md-end">
+                            <a asp-action="ActiveIngredientsList" class="btn btn-outline-secondary me-md-2">
+                                <i class="fas fa-arrow-left"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Ingredient
+                            </button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        // Client-side validation
+        (function () {
+            'use strict'
+            
+            var forms = document.querySelectorAll('.needs-validation')
+            
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}

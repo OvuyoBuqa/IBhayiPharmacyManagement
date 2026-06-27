@@ -1,0 +1,101 @@
+@model IBhayiPharmacyManagementSystem.Views.StockManagements.StockTakeViewModel
+
+@{
+    ViewData["Title"] = "Stock Take Management";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-lg-12 mx-auto">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-pharmacy-primary text-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Initiate Stock Take Report</h5>
+                </div>
+                <div class="card-body">
+                    <form asp-action="GenerateStockReport" asp-controller="StockManagements" method="get" target="_blank">
+                        <div class="mb-3">
+                            <label for="groupBy" class="form-label">Group Report By:</label>
+                            <select class="form-control" id="groupBy" name="groupBy">
+                                @foreach (var option in Model.GroupByOptions)
+                                {
+                                    <option value="@option.Value" selected="@(Model.GroupBy == option.Value)">@option.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-pharmacy-secondary">
+                            <i class="fas fa-file-pdf me-2"></i>Generate PDF Report
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-pharmacy-info text-white">
+                    <h5 class="mb-0">Process Stock Take Adjustments</h5>
+                </div>
+                <div class="card-body">
+                    <p class="alert alert-info"><i class="fas fa-info-circle me-2"></i>After conducting your physical stock take using the generated report, enter the counted quantities below to update the system. Only update medications where the physical count differs from the system record.</p>
+
+                    <form asp-action="ProcessStockTake" asp-controller="StockManagements" method="post">
+                        <div class="table-responsive">
+                            <table class="table table-hover" id="stockTakeTable">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th>Medication Name</th>
+                                        <th>System Quantity</th>
+                                        <th>Counted Quantity</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model.Medications != null && Model.Medications.Any())
+                                    {
+                                        for (int i = 0; i < Model.Medications.Count; i++)
+                                        {
+                                            <tr>
+                                                <td>@Model.Medications[i].Name</td>
+                                                <td>@Model.Medications[i].QuantityInStock</td>
+                                                <td>
+                                                    <input type="hidden" name="items[@i].MedicationId" value="@Model.Medications[i].MedicationId" />
+                                                    <input type="number" name="items[@i].CountedQuantity" value="@Model.Medications[i].QuantityInStock" class="form-control form-control-sm" min="0" />
+                                                </td>
+                                            </tr>
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <tr>
+                                            <td colspan="3" class="text-center text-muted">No medications found to perform a stock take. Please add medications first.</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <button type="submit" class="btn btn-pharmacy-success mt-3">
+                            <i class="fas fa-save me-2"></i>Save Stock Take Adjustments
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize DataTable for better search/sort
+            if ($.fn.DataTable) {
+                $('#stockTakeTable').DataTable({
+                    "paging": true,
+                    "searching": true,
+                    "ordering": true,
+                    "info": true,
+                    "columnDefs": [
+                        { "orderable": false, "targets": 2 } // Disable sorting on the input column
+                    ]
+                });
+            }
+        });
+    </script>
+}

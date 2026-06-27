@@ -1,0 +1,218 @@
+﻿@model IEnumerable<IBhayiPharmacyManagementSystem.Models.Medication>
+
+@{
+    ViewData["Title"] = "Medication Inventory";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="display-6 fw-bold text-primary">
+                <i class="fas fa-pills me-2"></i>@ViewData["Title"]
+            </h1>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Home</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Medications</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>@TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 text-primary">
+                    <i class="fas fa-list me-2"></i>Medication List
+                </h5>
+                <div class="d-flex">
+                    <input type="text" id="searchInput" class="form-control form-control-sm me-2" placeholder="Search medications..." />
+                    <button class="btn btn-sm btn-outline-secondary" id="printBtn">
+                        <i class="fas fa-print me-1"></i>Print
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped mb-0" id="medicationTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th class="ps-4">
+                                <i class="fas fa-capsules me-1"></i>Name
+                            </th>
+    
+                            <th>Dosage Form</th>
+                            <th>Schedule</th>
+                            <th>Stock Level</th>
+                            <th>Price</th>
+                            <th>Ingredients</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var stockStatusClass = item.QuantityInStock < item.MinStockLevel ? "table-warning" : "";
+
+                            <tr class="@stockStatusClass">
+                                <td class="ps-4 fw-bold">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </td>
+
+                                <td>
+                                    <span class="badge bg-info text-dark">
+                                        @Html.DisplayFor(modelItem => item.DosageForm.Type)
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="badge bg-secondary">
+                                        Schedule @Html.DisplayFor(modelItem => item.Schedule)
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 6px;">
+                                            @{
+                                                var progressPercentage = Math.Min(100, (item.QuantityInStock * 100) / Math.Max(1, item.MinStockLevel));
+                                            }
+                                            <div class="progress-bar @(item.QuantityInStock < item.MinStockLevel ? "bg-warning" : "bg-success")"
+                                                 role="progressbar"
+                                                 style="width: @progressPercentage%"
+                                                 aria-valuenow="@item.QuantityInStock"
+                                                 aria-valuemin="0"
+                                                 aria-valuemax="@Math.Max(item.MinStockLevel * 2, item.QuantityInStock + 1)">
+                                            </div>
+                                        </div>
+                                        <small>
+                                            @Html.DisplayFor(modelItem => item.QuantityInStock)/@Html.DisplayFor(modelItem => item.MinStockLevel)
+                                        </small>
+                                    </div>
+                                </td>
+                                <td class="fw-bold text-success">
+                                    R @Html.DisplayFor(modelItem => item.Price)
+                                </td>
+
+                                <td>
+                                    @if (item.ActiveIngredients.Any())
+                                    {
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-primary dropdown-toggle py-0"
+                                                    type="button"
+                                                    id="ingredientsDropdown-@item.MedicationId"
+                                                    data-bs-toggle="dropdown"
+                                                    aria-expanded="false">
+                                                <!-- Fixed the typo here -->
+                                                @item.ActiveIngredients.Count ingredients
+                                            </button>
+                                            <ul class="dropdown-menu p-2" aria-labelledby="ingredientsDropdown-@item.MedicationId">
+                                                <li class="dropdown-header fw-bold small text-muted mb-1">ACTIVE INGREDIENTS</li>
+                                                @foreach (var ingredient in item.ActiveIngredients)
+                                                {
+                                                    <li>
+                                                        <span class="dropdown-item-text d-block px-2 py-1">
+                                                            <i class="fas fa-circle text-success me-2" style="font-size: 8px;"></i>
+                                                            <span class="fw-bold">@ingredient.ActiveIngredient.Name</span>
+                                                        </span>
+                                                    </li>
+                                                }
+                                            </ul>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-light text-muted">None</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="text-muted">Showing @Model.Count() medications</small>
+                <small class="text-muted">Last updated: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .table-hover tbody tr:hover {
+            background-color: #f8f9fa;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+        }
+
+        .progress {
+            min-width: 80px;
+            background-color: #e9ecef;
+        }
+
+        .badge {
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .card-header {
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            border-radius: 10px 10px 0 0 !important;
+        }
+
+        th {
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            color: #6c757d;
+            white-space: nowrap;
+        }
+
+        #searchInput {
+            max-width: 250px;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Initialize all dropdowns
+            var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'))
+            var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+                return new bootstrap.Dropdown(dropdownToggleEl)
+            });
+
+            // Search functionality
+            $("#searchInput").on("keyup", function() {
+                const value = $(this).val().toLowerCase();
+                $("#medicationTable tbody tr").filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+                });
+            });
+
+            // Print functionality
+            $("#printBtn").click(function() {
+                window.print();
+            });
+        });
+    </script>
+}

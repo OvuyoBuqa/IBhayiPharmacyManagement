@@ -1,0 +1,793 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pharmacy Management System</title>
+    <link rel="stylesheet" href="~/css/landing.css" />
+    <style>
+        /* Professional 2025 Design System */
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --accent-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --dark-bg: #0a0a0a;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8b8;
+            --text-muted: #888888;
+            --shadow-soft: 0 8px 32px rgba(0, 0, 0, 0.3);
+            --shadow-glow: 0 0 40px rgba(102, 126, 234, 0.15);
+        }
+
+        /* Base Styles */
+        html { scroll-behavior: smooth; }
+        .divider { height: 1px; background: rgba(0,0,0,0.08); margin: 24px 0; }
+        .features-section { padding: 56px 0; }
+        .services-heading { text-align: center; margin-bottom: 24px; }
+        .features { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
+        .feature-card { flex: 1 1 280px; max-width: 360px; padding: 16px; border-radius: 12px; background: rgba(255,255,255,0.9); box-shadow: 0 4px 18px rgba(0,0,0,0.06); color: #111; }
+        .feature-card .card-image { width: 100%; height: auto; border-radius: 10px; object-fit: cover; display: block; }
+        .feature-card .card-title { margin: 12px 0 8px 0; color: #2c3e50; }
+        .feature-card .card-description { margin: 0; color: #111; }
+        .content { position: relative; z-index: 2; }
+        .image-gradient, .layer-blur { max-width: 100%; height: auto; }
+        .buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+        section[id] { scroll-margin-top: 80px; }
+
+        /* Professional Section Styling */
+        .modern-section {
+            padding: 6rem 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modern-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.5), transparent);
+        }
+
+        .modern-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.3), transparent);
+        }
+        
+        .section-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .section-heading {
+            text-align: center;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 4rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            background-size: 300%;
+            animation: gradientFlow 4s ease-in-out infinite;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+            position: relative;
+        }
+
+        .section-heading::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary-gradient);
+            border-radius: 2px;
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        
+        @@keyframes gradientFlow {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        @@keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+            50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.8); }
+        }
+
+        /* 3D Card System */
+        .card-3d {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        .card-3d:hover {
+            transform: translateY(-12px) rotateX(5deg);
+            box-shadow: var(--shadow-soft), var(--shadow-glow);
+            border-color: rgba(102, 126, 234, 0.3);
+        }
+
+        /* About Grid with 3D Elements */
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .about-item {
+            text-align: center;
+            position: relative;
+        }
+
+        .about-item .card-3d {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .about-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 2rem;
+            background: var(--primary-gradient);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .about-icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            transition: all 0.6s ease;
+        }
+
+        .about-item:hover .about-icon::before {
+            animation: shimmer 0.8s ease-in-out;
+        }
+
+        @@keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .about-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+        }
+        
+        .about-description {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        /* Professional Testimonials */
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2.5rem;
+            margin-top: 4rem;
+        }
+        
+        .testimonial-item {
+            position: relative;
+        }
+
+        .testimonial-item .card-3d {
+            padding: 3rem 2.5rem;
+        }
+        
+        .quote-icon {
+            width: 60px;
+            height: 60px;
+            background: var(--accent-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-size: 1.5rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quote-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 2px;
+            opacity: 0.9;
+        }
+        
+        .testimonial-quote {
+            font-style: italic;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            position: relative;
+            padding: 0 1rem;
+        }
+
+        .testimonial-quote::before,
+        .testimonial-quote::after {
+            content: '"';
+            font-size: 3rem;
+            color: var(--text-muted);
+            position: absolute;
+            font-family: serif;
+        }
+
+        .testimonial-quote::before {
+            top: -10px;
+            left: -10px;
+        }
+
+        .testimonial-quote::after {
+            bottom: -20px;
+            right: -10px;
+        }
+        
+        .testimonial-author {
+            color: #667eea;
+            font-weight: 600;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+
+        /* Professional FAQ */
+        .faq-list {
+            max-width: 900px;
+            margin: 4rem auto 0;
+        }
+        
+        .faq-item {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .faq-item .card-3d {
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item:hover .card-3d {
+            transform: translateX(10px);
+        }
+        
+        .faq-question {
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .faq-question::before {
+            content: 'Q';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 24px;
+            height: 24px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: white;
+        }
+        
+        .faq-answer {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 1.1rem;
+            padding-left: 2rem;
+        }
+        
+        /* Professional CTA Section */
+        .cta-section {
+            background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border-radius: 32px;
+            padding: 4rem 3rem;
+            text-align: center;
+            margin-top: 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 30% 20%, rgba(102, 126, 234, 0.1) 0%, transparent 50%);
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-content h2 {
+            color: var(--text-primary);
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 800;
+        }
+        
+        .cta-description {
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            margin-bottom: 2.5rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 1.2rem 3rem;
+            background: var(--primary-gradient);
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .cta-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .cta-button:hover::before {
+            left: 100%;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4);
+        }
+
+        /* Professional Icons */
+        .icon-pharmacy {
+            background: var(--primary-gradient);
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4'/%3E%3C/svg%3E") no-repeat center;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M19 21V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v5m-4 0h4'/%3E%3C/svg%3E") no-repeat center;
+        }
+
+        .icon-shield {
+            background: var(--accent-gradient);
+            -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E") no-repeat center;
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'/%3E%3C/svg%3E") no-repeat center;
+        }
+        
+        /* Professional Scroll Indicator */
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            right: 3rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            z-index: 10;
+        }
+
+        .scroll-indicator:hover {
+            transform: translateY(-5px);
+        }
+
+        .scroll-line {
+            width: 3px;
+            height: 70px;
+            background: linear-gradient(to bottom, 
+                #667eea 0%, 
+                rgba(102, 126, 234, 0.9) 25%, 
+                rgba(102, 126, 234, 0.6) 50%, 
+                rgba(102, 126, 234, 0.3) 75%, 
+                rgba(102, 126, 234, 0.1) 100%);
+            position: relative;
+            animation: scrollLinePulse 2s ease-in-out infinite;
+            border-radius: 2px;
+        }
+
+        .scroll-dot {
+            width: 18px;
+            height: 18px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            margin-top: 15px;
+            position: relative;
+            animation: scrollDotBounce 2s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(102, 126, 234, 0.9), 0 0 60px rgba(102, 126, 234, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .scroll-dot::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(102, 126, 234, 0.7);
+            border-radius: 50%;
+            animation: scrollDotRing 2s ease-in-out infinite;
+        }
+
+        .scroll-indicator:hover .scroll-dot {
+            transform: scale(1.4);
+            box-shadow: 0 0 40px rgba(102, 126, 234, 1), 0 0 80px rgba(102, 126, 234, 0.7);
+        }
+
+        .scroll-indicator:hover .scroll-line {
+            background: linear-gradient(to bottom, 
+                #667eea 0%, 
+                rgba(102, 126, 234, 1) 25%, 
+                rgba(102, 126, 234, 0.9) 50%, 
+                rgba(102, 126, 234, 0.6) 75%, 
+                rgba(102, 126, 234, 0.4) 100%);
+        }
+
+        @@keyframes scrollLinePulse {
+            0%, 100% {
+                opacity: 0.6;
+                transform: scaleY(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scaleY(1.1);
+            }
+        }
+
+        @@keyframes scrollDotBounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @@keyframes scrollDotRing {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        /* Responsive Design */
+        @@media (max-width: 768px) {
+            .section-heading {
+                font-size: 2.5rem;
+            }
+            
+            .about-grid,
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .card-3d {
+                padding: 2rem 1.5rem;
+            }
+
+            .cta-section {
+                padding: 3rem 2rem;
+            }
+
+            .cta-content h2 {
+                font-size: 2rem;
+            }
+
+            .scroll-indicator {
+                bottom: 1.5rem;
+                right: 2rem;
+            }
+
+            .scroll-line {
+                height: 60px;
+                width: 3px;
+            }
+
+            .scroll-dot {
+                width: 16px;
+                height: 16px;
+                margin-top: 12px;
+            }
+
+            .scroll-dot::before {
+                width: 32px;
+                height: 32px;
+            }
+        }
+        
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+    <main>
+    <img class="image-gradient" src="~/gradient.png" alt="gradient" />
+    <div class="layer-blur"></div>
+
+
+    <div class="content">
+        <div class="tag-box">
+            <div class="tag">INTRODUCING &#124;</div>
+        </div>
+
+        <h1>PHARMACY <br> SYSTEM</h1>
+        <p class="description">
+           Welcome to the Pharmacy System — a complete solution to manage prescriptions, stock, and patient care efficiently. Simplifying processes for pharmacists and ensuring better healthcare for patients.
+        </p>
+
+        <div class="buttons">
+            <a href="#services-section" class="btn-get-started">Our Services &gt;</a>
+        </div>
+        
+        <!-- Professional Scroll Indicator -->
+        <div class="scroll-indicator">
+            <div class="scroll-line"></div>
+            <div class="scroll-dot"></div>
+        </div>
+    </div>
+    </main>
+    </div>
+    <!-- Horizontal divider -->
+    <div class="divider"></div>
+
+    <!-- Top 3 Services Section -->
+    <div class="features-section" id="services-section">
+        <h2 class="section-heading">Our Core Services</h2>
+        <div class="features">
+            <!-- Service 1 -->
+            <div class="feature-card">
+                <img src="~/InventoryControl.jpg" alt="Inventory Management" class="card-image">
+                <h3 class="card-title">Inventory Control</h3>
+                <p class="card-description">
+                    Real-time medication stock tracking levels with automated alerts for low inventory.
+                </p>
+            </div>
+
+            <!-- Service 2 -->
+            <div class="feature-card">
+                <img src="~/Pharmacies.png" alt="Dispensing" class="card-image">
+                <h3 class="card-title">Safe Dispensing</h3>
+                <p class="card-description">
+                    Allergy checks, dosage verification and pharmacist sign‑off to support safe dispensing.
+                </p>
+            </div>
+
+            <!-- Service 3 -->
+            <div class="feature-card">
+                <img src="~/CustomerProfile.jpg" alt="Patient Records" class="card-image">
+                <h3 class="card-title">Customer Profiles</h3>
+                <p class="card-description">
+                    Comprehensive patient records including medication history, allergies, and insurance information.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- About the System -->
+    <section class="modern-section" id="about">
+        <div class="section-content">
+            <h2 class="section-heading">About Ibhayi Pharmacy System</h2>
+            <div class="about-grid">
+                <div class="about-item">
+                    <div class="card-3d">
+                        <div class="about-icon icon-pharmacy"></div>
+                        <h3 class="about-title">Designed for Community Care</h3>
+                        <p class="about-description">
+                            A modern web system to streamline dispensing, repeats, and communication between patients,
+                            pharmacists, and prescribers while keeping data secure.
+                        </p>
+                    </div>
+                </div>
+                <div class="about-item">
+                    <div class="card-3d">
+                        <div class="about-icon icon-shield"></div>
+                        <h3 class="about-title">Reliable & Secure</h3>
+                        <p class="about-description">
+                            Built with role-based access and audit-friendly workflows to support safe medication
+                            handling from intake to pickup.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- Testimonials -->
+    <section class="modern-section" id="testimonials">
+        <div class="section-content">
+            <h2 class="section-heading">What People Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-item">
+                    <div class="card-3d">
+                        <div class="quote-icon"></div>
+                        <blockquote class="testimonial-quote">
+                            "The repeat alerts help our chronic patients avoid gaps in therapy."
+                        </blockquote>
+                        <cite class="testimonial-author">— Pharmacy Manager</cite>
+                    </div>
+                </div>
+                <div class="testimonial-item">
+                    <div class="card-3d">
+                        <div class="quote-icon"></div>
+                        <blockquote class="testimonial-quote">
+                            "Faster dispensing and fewer stockouts since moving to the system."
+                        </blockquote>
+                        <cite class="testimonial-author">— Pharmacist</cite>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="modern-section" id="faq">
+        <div class="section-content">
+            <h2 class="section-heading">Frequently Asked Questions</h2>
+            <div class="faq-list">
+                <div class="faq-item">
+                    <div class="card-3d">
+                        <h3 class="faq-question">Is my data protected?</h3>
+                        <p class="faq-answer">Yes. Access is role-based and sensitive files are stored securely.</p>
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="card-3d">
+                        <h3 class="faq-question">Can I upload prescriptions?</h3>
+                        <p class="faq-answer">Patients can securely upload PDFs/images and view their history.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section class="modern-section cta-section" id="get-started">
+        <div class="section-content">
+            <div class="cta-content">
+                <h2>Ready to get started?</h2>
+                <p class="cta-description">New here? Register during login to create your account.</p>
+                <a class="cta-button" href="@Url.Action("Login", "Account")">Login to System</a>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Smooth scroll enhancement for older browsers and custom offsets
+        (function() {
+            var links = document.querySelectorAll('a[href^="#"]');
+            links.forEach(function(link) {
+                link.addEventListener('click', function(e) {
+                    var targetId = this.getAttribute('href');
+                    if (targetId.length > 1) {
+                        var el = document.querySelector(targetId);
+                        if (el) {
+                            e.preventDefault();
+                            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                    }
+                });
+            });
+
+            // Scroll indicator functionality
+            var scrollIndicator = document.querySelector('.scroll-indicator');
+            if (scrollIndicator) {
+                scrollIndicator.addEventListener('click', function() {
+                    var servicesSection = document.querySelector('#services-section');
+                    if (servicesSection) {
+                        servicesSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                });
+            }
+
+            // Hide scroll indicator when user scrolls down
+            var lastScrollTop = 0;
+            window.addEventListener('scroll', function() {
+                var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                if (scrollIndicator) {
+                    if (scrollTop > 100) {
+                        scrollIndicator.style.opacity = '0';
+                        scrollIndicator.style.visibility = 'hidden';
+                    } else {
+                        scrollIndicator.style.opacity = '1';
+                        scrollIndicator.style.visibility = 'visible';
+                    }
+                }
+                lastScrollTop = scrollTop;
+            });
+        })();
+    </script>
+
+</body>
+</html>

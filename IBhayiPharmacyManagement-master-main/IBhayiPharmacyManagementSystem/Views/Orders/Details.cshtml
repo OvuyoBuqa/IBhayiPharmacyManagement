@@ -1,0 +1,361 @@
+﻿@using IBhayiPharmacyManagementSystem.Enums
+@model IBhayiPharmacyManagementSystem.Models.Order
+@{
+    ViewData["Title"] = "Order Details";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container mt-4">
+    <div id="alertContainer">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+    </div>
+
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">@ViewData["Title"] - #@Model.OrderId</h3>
+                <a asp-action="Index" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Customer Information</h5>
+                    <hr />
+                    <dl class="row">
+                        <dt class="col-sm-4">Customer Name:</dt>
+                        <dd class="col-sm-8">@Model.Customer?.Name</dd>
+
+                        <dt class="col-sm-4">Order Date:</dt>
+                        <dd class="col-sm-8">@Model.OrderDate.ToString("g")</dd>
+
+                        <dt class="col-sm-4">Last Updated:</dt>
+                        <dd class="col-sm-8">@(Model.LastUpdated?.ToString("g") ?? "N/A")</dd>
+                    </dl>
+                </div>
+                <div class="col-md-6">
+                    <h5>Order Summary</h5>
+                    <hr />
+                    <dl class="row">
+                        <dt class="col-sm-4">Status:</dt>
+                        <dd class="col-sm-8">
+                            <span class="badge @GetStatusBadgeClass(Model.OrderStatus)">
+                                @Model.OrderStatus
+                            </span>
+                        </dd>
+
+                        <dt class="col-sm-4">Payment Status:</dt>
+                        <dd class="col-sm-8">
+                            @if (Model.OrderStatus == OrderStatusEnum.Collected)
+                            {
+                                <span class="badge bg-success">Paid</span>
+                            }
+                            else if (Model.PaymentStatus)
+                            {
+                                <span class="badge bg-success">Paid</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-warning text-dark">Pending</span>
+                            }
+                        </dd>
+
+                        <dt class="col-sm-4">Total Amount:</dt>
+                        <dd class="col-sm-8">@($"R{Model.TotalAmount:F2}")</dd>
+
+                        @if (Model.Pharmacist != null)
+                        {
+                            <dt class="col-sm-4">Pharmacist:</dt>
+                            <dd class="col-sm-8">@Model.Pharmacist.Name</dd>
+                        }
+                    </dl>
+                </div>
+            </div>
+
+            <h5>Order Items</h5>
+            <hr />
+            <div class="table-responsive mb-4">
+                <table class="table table-striped">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Medication</th>
+                            <th>Quantity</th>
+                            <th>Unit Price</th>
+                            <th>Subtotal</th>
+                            <th>Status</th>
+                            @if (!User.IsInRole("Customer"))
+                            {
+                                <th class="text-end">Actions</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.OrderItems)
+                        {
+                            <tr>
+                                <td>@item.Medication?.Name</td>
+                                <td>@item.QuantityOrdered</td>
+                                <td>@($"R{item.UnitPrice:F2}")</td>
+                                <td>@($"R{(item.QuantityOrdered * item.UnitPrice):F2}")</td>
+                                <td>
+                                    <span class="badge @GetDispensingStatusBadgeClass(item.DispensingStatus)">
+                                        @item.DispensingStatus
+                                    </span>
+                                    @if (item.DispensingStatus == DispensingStatusEnum.OutOfStock)
+                                    {
+                                        <br><small class="text-danger">Out of Stock</small>
+                                    }
+                                </td>
+                                @if (!User.IsInRole("Customer"))
+                                {
+                                    <td class="text-end">
+                                        @if (item.DispensingStatus != DispensingStatusEnum.Filled)
+                                        {
+                                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal"
+                                                    data-bs-target="#dispenseModal-@item.OrderItemId">
+                                                <i class="fas fa-pills"></i> Dispense
+                                            </button>
+                                        }
+                                    </td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            @if (!string.IsNullOrEmpty(Model.OrderNotes))
+            {
+                <h5>Order Notes</h5>
+                <hr />
+                <div class="card bg-light mb-4">
+                    <div class="card-body">
+                        @Model.OrderNotes
+                    </div>
+                </div>
+            }
+
+            @if (User.IsInRole("Pharmacist") || User.IsInRole("Admin"))
+            {
+                <div class="d-flex justify-content-between">
+                    @if (Model.OrderStatus == OrderStatusEnum.Pending)
+                    {
+                        <form asp-action="Process" asp-route-id="@Model.OrderId" method="post">
+                            <button type="submit" class="btn btn-info">
+                                <i class="fas fa-cogs me-1"></i> Process Order
+                            </button>
+                        </form>
+                    }
+                    else if (Model.OrderStatus == OrderStatusEnum.Processing &&
+                    Model.OrderItems.All(oi => oi.DispensingStatus == DispensingStatusEnum.Filled))
+                    {
+                        <form asp-action="Complete" asp-route-id="@Model.OrderId" method="post">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-check-circle me-1"></i> Complete Order
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@foreach (var item in Model.OrderItems.Where(oi => oi.DispensingStatus != DispensingStatusEnum.Filled))
+{
+    <div class="modal fade" id="dispenseModal-@item.OrderItemId" tabindex="-1" aria-labelledby="dispenseModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="dispenseModalLabel">Dispense Medication</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-action="DispenseItem" asp-route-id="@item.OrderItemId" method="post">
+                    <input type="hidden" name="OrderItemId" value="@item.OrderItemId" />
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Medication</label>
+                            <input type="text" class="form-control" value="@item.Medication?.Name" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Quantity Ordered</label>
+                            <input type="text" class="form-control" value="@item.QuantityOrdered" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Dispensing Status</label>
+                            <select class="form-select" asp-for="@item.DispensingStatus" name="DispensingStatus">
+                                <option value="@DispensingStatusEnum.Pending">Pending</option>
+                                <option value="@DispensingStatusEnum.Filled">Filled</option>
+                                <option value="@DispensingStatusEnum.OutOfStock">Unavailable</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Notes</label>
+                            <textarea class="form-control" name="DispensingNotes" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<!-- Out of Stock Modal -->
+<div class="modal fade" id="outOfStockModal" tabindex="-1" aria-labelledby="outOfStockModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="outOfStockModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Medication Out of Stock
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger" role="alert">
+                    <h6 class="alert-heading">Stock Unavailable</h6>
+                    <p class="mb-0" id="outOfStockMessage"></p>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>Medication:</strong><br>
+                        <span id="outOfStockMedication"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Quantity Ordered:</strong><br>
+                        <span id="outOfStockQuantity"></span>
+                    </div>
+                </div>
+                <hr>
+                <p class="text-muted">Please choose an action below:</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>OK - Wait
+                </button>
+                <button type="button" class="btn btn-warning" id="notifyCustomerBtn">
+                    <i class="fas fa-bell me-1"></i>Notify Customer
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(OrderStatusEnum status)
+    {
+        return status switch
+        {
+            OrderStatusEnum.Pending => "bg-secondary",
+            OrderStatusEnum.Processing => "bg-info",
+            OrderStatusEnum.Ready => "bg-success",
+            OrderStatusEnum.Cancelled => "bg-danger",
+            _ => "bg-secondary",
+        };
+    }
+
+    public string GetDispensingStatusBadgeClass(DispensingStatusEnum status)
+    {
+        return status switch
+        {
+            DispensingStatusEnum.Pending => "bg-secondary",
+            DispensingStatusEnum.Filled => "bg-success",
+            DispensingStatusEnum.OutOfStock => "bg-danger",
+            _ => "bg-secondary",
+        };
+    }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle dispense form submissions
+            $('form[asp-action="DispenseItem"]').on('submit', function(e) {
+                e.preventDefault();
+                
+                var form = $(this);
+                var formData = form.serialize();
+                var orderItemId = form.find('input[name="OrderItemId"]').val();
+                
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            // Success - reload the page to show updated status
+                            location.reload();
+                        } else {
+                            // Check if it's an out of stock error
+                            if (response.isOutOfStock) {
+                                showOutOfStockModal(response, orderItemId);
+                            } else {
+                                // Show other errors
+                                alert('Error: ' + response.error);
+                            }
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while processing the request.');
+                    }
+                });
+            });
+
+            // Handle notify customer button click
+            $('#notifyCustomerBtn').on('click', function() {
+                var orderId = @Model.OrderId;
+                var orderItemId = $(this).data('order-item-id');
+                
+                $.ajax({
+                    url: '@Url.Action("NotifyCustomerOutOfStock", "Orders")',
+                    type: 'POST',
+                    data: {
+                        orderId: orderId,
+                        orderItemId: orderItemId,
+                        __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            $('#outOfStockModal').modal('hide');
+                            alert('Customer has been notified about the out of stock medication.');
+                            location.reload();
+                        } else {
+                            alert('Error: ' + response.error);
+                        }
+                    },
+                    error: function() {
+                        alert('An error occurred while notifying the customer.');
+                    }
+                });
+            });
+        });
+
+        function showOutOfStockModal(response, orderItemId) {
+            $('#outOfStockMessage').text('The medication "' + response.medicationName + '" is currently out of stock. Available quantity: ' + response.quantityInStock + ', Ordered: ' + response.quantityOrdered);
+            $('#outOfStockMedication').text(response.medicationName);
+            $('#outOfStockQuantity').text(response.quantityOrdered);
+            
+            // Set the order item ID for the notify button
+            $('#notifyCustomerBtn').data('order-item-id', orderItemId);
+            $('#outOfStockModal').modal('show');
+        }
+    </script>
+}

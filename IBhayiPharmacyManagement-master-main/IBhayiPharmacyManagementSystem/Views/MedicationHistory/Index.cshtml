@@ -1,0 +1,992 @@
+@model List<IBhayiPharmacyManagementSystem.Controllers.MedicationHistoryViewModel>
+
+@{
+    ViewData["Title"] = "Medication History";
+    Layout = "_LayoutCustomer";
+}
+
+<style>
+    .medication-history-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .page-header-custom {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+    
+    .page-title-custom {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    .page-title-custom i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--accent-color);
+    }
+    
+    .back-button {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        margin-bottom: 20px;
+    }
+    
+    .back-button:hover {
+        background: linear-gradient(135deg, #495057, #343a40);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    
+    .back-button i {
+        margin-right: 8px;
+    }
+    
+    .empty-state-enhanced {
+        background: white;
+        border-radius: 15px;
+        padding: 60px 40px;
+        text-align: center;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+        border: 2px solid #e9ecef;
+        margin: 40px 0;
+    }
+    
+    .empty-state-icon {
+        font-size: 4rem;
+        color: #6c757d;
+        margin-bottom: 25px;
+        opacity: 0.7;
+    }
+    
+    .empty-state-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 15px;
+    }
+    
+    .empty-state-text {
+        font-size: 1.1rem;
+        color: #6c757d;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+    
+    .upload-btn {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+        border: none;
+        padding: 15px 30px;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,123,255,0.3);
+    }
+    
+    .upload-btn:hover {
+        background: linear-gradient(135deg, #0056b3, #004085);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0,123,255,0.4);
+    }
+    
+    .upload-btn i {
+        margin-right: 10px;
+    }
+    
+    .history-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+    
+    .history-card-header {
+        background: linear-gradient(135deg, #3e2a1f, #1f0d07);
+        color: white;
+        padding: 20px 25px;
+        border-bottom: none;
+    }
+    
+    .history-card-title {
+        margin: 0;
+        font-size: 1.4rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+    }
+    
+    .history-card-title i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+    
+    .table-enhanced {
+        margin: 0;
+    }
+    
+    .table-enhanced thead th {
+        background: linear-gradient(135deg, #2c3e50, #34495e) !important;
+        color: white !important;
+        border: none !important;
+        font-weight: 600 !important;
+        padding: 15px 12px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        font-size: 0.85rem !important;
+    }
+    
+    .table-enhanced tbody td {
+        padding: 12px;
+        vertical-align: middle;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .table-enhanced tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .badge-custom {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+    
+    .badge-primary-custom {
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: white;
+    }
+    
+    .badge-success-custom {
+        background: linear-gradient(135deg, #28a745, #1e7e34);
+        color: white;
+    }
+    
+    .badge-info-custom {
+        background: linear-gradient(135deg, #17a2b8, #117a8b);
+        color: white;
+    }
+    
+    .badge-warning-custom {
+        background: linear-gradient(135deg, #ffc107, #e0a800);
+        color: #212529;
+    }
+    
+    .badge-danger-custom {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+    }
+    
+    .badge-secondary-custom {
+        background: linear-gradient(135deg, #6c757d, #545b62);
+        color: white;
+    }
+    
+    /* Fix checkbox visibility and styling - Enhanced */
+    .form-check-input {
+        width: 20px !important;
+        height: 20px !important;
+        margin: 0 !important;
+        cursor: pointer;
+        border: 2px solid #007bff !important;
+        border-radius: 4px !important;
+        background-color: white !important;
+        transition: all 0.3s ease;
+        position: relative !important;
+        z-index: 10 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+    }
+    
+    .form-check-input:checked {
+        background-color: #007bff !important;
+        border-color: #007bff !important;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='3' d='m6 10 3 3 6-6'/%3e%3c/svg%3e") !important;
+    }
+    
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25) !important;
+        border-color: #007bff !important;
+    }
+    
+    .form-check-input:hover {
+        border-color: #0056b3 !important;
+        transform: scale(1.1);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+    
+    /* Ensure checkbox column is properly sized and visible */
+    th:first-child, td:first-child {
+        width: 60px !important;
+        min-width: 60px !important;
+        text-align: center !important;
+        padding: 12px 8px !important;
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    /* Make sure checkbox is always visible */
+    #selectAll {
+        position: relative !important;
+        z-index: 10 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important;
+    }
+    
+    /* Make individual checkboxes visible */
+    .medication-checkbox {
+        position: relative !important;
+        z-index: 10 !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        display: block !important;
+        margin: 0 auto !important;
+    }
+    
+    /* Ensure checkbox column is visible */
+    th:first-child, td:first-child {
+        width: 60px !important;
+        min-width: 60px !important;
+        text-align: center !important;
+        padding: 12px 8px !important;
+        background-color: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+        overflow: visible !important;
+    }
+    
+    /* Ensure Actions column is always visible and properly styled */
+    th:last-child, td:last-child {
+        width: 150px !important;
+        min-width: 150px !important;
+        text-align: center !important;
+        padding: 8px !important;
+        display: table-cell !important;
+        visibility: visible !important;
+    }
+    
+    /* Fix DataTable spacing */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter {
+        margin-bottom: 0 !important;
+        padding-bottom: 0 !important;
+    }
+    
+    .dataTables_wrapper .dataTables_length {
+        float: left;
+        margin-right: 20px;
+    }
+    
+    .dataTables_wrapper .dataTables_filter {
+        float: right;
+        text-align: right;
+    }
+    
+    .dataTables_wrapper .dataTables_info {
+        clear: both;
+        float: left;
+        padding-top: 0.755em;
+    }
+    
+    .dataTables_wrapper .dataTables_paginate {
+        float: right;
+        text-align: right;
+        padding-top: 0.25em;
+    }
+    
+    /* Remove extra spacing */
+    .dataTables_wrapper .dataTables_length,
+    .dataTables_wrapper .dataTables_filter,
+    .dataTables_wrapper .dataTables_info,
+    .dataTables_wrapper .dataTables_paginate {
+        margin-bottom: 0 !important;
+    }
+    
+    /* Ensure table starts immediately after controls */
+    .dataTables_wrapper table {
+        margin-top: 0 !important;
+    }
+    
+    /* Fix table overflow for dropdowns */
+    .table-responsive {
+        overflow: visible !important;
+    }
+    
+    .card-body {
+        overflow: visible !important;
+    }
+    
+    /* Ensure Actions column has proper overflow */
+    #medicationHistoryTable {
+        overflow: visible !important;
+    }
+    
+    #medicationHistoryTable td:last-child {
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    /* Ensure dropdown button group has proper positioning and stacking */
+    .btn-group {
+        position: relative;
+        z-index: 10;
+    }
+    
+    .btn-group.show {
+        z-index: 99999 !important;
+    }
+    
+    .btn-group .dropdown-toggle {
+        position: relative;
+        z-index: 99998 !important;
+    }
+    
+    .btn-group.show .dropdown-toggle {
+        z-index: 99998 !important;
+    }
+    
+    /* Ensure table containers allow dropdown overflow */
+    .table-responsive {
+        overflow: visible !important;
+    }
+    
+    .card-body {
+        overflow: visible !important;
+    }
+    
+    .table {
+        overflow: visible !important;
+    }
+    
+    .table tbody {
+        overflow: visible !important;
+    }
+    
+    .table tbody tr {
+        overflow: visible !important;
+    }
+    
+    .table tbody tr td {
+        overflow: visible !important;
+    }
+    
+    .btn-group .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 100% !important;
+        z-index: 99999 !important;
+        border-radius: 8px;
+        border: 1px solid #e9ecef;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        min-width: 180px;
+        padding: 0.5rem 0;
+        background: white;
+        margin-right: 10px;
+        margin-top: 5px;
+    }
+    
+    .btn-group .dropdown-menu.show {
+        display: block !important;
+    }
+    
+    .btn-group.show .dropdown-menu {
+        display: block !important;
+    }
+    
+    .dropdown-item {
+        padding: 0.75rem 1.25rem;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        color: var(--dark-text);
+    }
+    
+    .dropdown-item:hover {
+        background-color: #f8f9fa;
+        color: var(--primary-color);
+        transform: translateX(3px);
+    }
+    
+    .dropdown-item i {
+        width: 20px;
+        text-align: center;
+    }
+    
+    /* Ensure dropdown always opens upwards and has proper spacing */
+    .btn-group {
+        position: relative !important;
+        z-index: 10 !important;
+    }
+    
+    .btn-group.show {
+        z-index: 99999 !important;
+    }
+    
+    /* Default: dropdown opens downwards */
+    .btn-group .dropdown-menu {
+        transform: translateY(0) !important;
+        top: 100% !important;
+        bottom: auto !important;
+    }
+    
+    /* Last row: force dropdown to open upwards */
+    .btn-group.dropdown-up .dropdown-menu {
+        top: auto !important;
+        bottom: 100% !important;
+        margin-top: 0 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    /* Ensure table cells don't clip the dropdown */
+    .table tbody tr td:last-child {
+        overflow: visible !important;
+        position: relative !important;
+        z-index: auto !important;
+    }
+    
+    /* Ensure the table container allows overflow */
+    .table-responsive {
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    /* Ensure card body allows overflow */
+    .card-body {
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    /* Responsive fixes */
+    @@media (max-width: 768px) {
+        .btn-group .dropdown-menu {
+            right: auto !important;
+            left: 0 !important;
+            min-width: 160px;
+        }
+        
+        .btn-group.dropdown-up .dropdown-menu {
+            bottom: 100% !important;
+            top: auto !important;
+        }
+    }
+</style>
+
+<div class="medication-history-container">
+    <div class="container-fluid">
+        <!-- Back Button -->
+        <a href="javascript:history.back()" class="back-button">
+            <i class="fas fa-arrow-left"></i>
+            Back
+        </a>
+        
+
+        <!-- Main Content -->
+        <div class="row">
+            <div class="col-12">
+                @if (Model != null && Model.Any())
+                {
+                    <div class="history-card">
+                        <div class="history-card-header">
+                            <h3 class="history-card-title">
+                                <i class="fas fa-history"></i>Your Complete Medication History
+                            </h3>
+                        </div>
+                        <div class="card-body" style="padding: 0;">
+                            <div class="table-responsive">
+                                <table class="table table-enhanced" id="medicationHistoryTable">
+                                    <thead>
+                                        <tr>
+                                            <th>
+                                                <input type="checkbox" id="selectAll" class="form-check-input">
+                                            </th>
+                                            <th>Medication</th>
+                                            <th>Dosage Form</th>
+                                            <th>Quantity</th>
+                                            <th>Instructions</th>
+                                            <th>Frequency</th>
+                                            <th>Doctor</th>
+                                            <th>Pharmacist</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Type</th>
+                                            <th>Amount</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" class="form-check-input medication-checkbox" value="@item.MedicationId">
+                                                </td>
+                                                <td>
+                                                    <strong style="color: #2c3e50;">@item.MedicationName</strong>
+                                                </td>
+                                                <td style="color: #6c757d;">@item.DosageForm</td>
+                                                <td>
+                                                    <span class="badge badge-info-custom">@item.Quantity</span>
+                                                </td>
+                                                <td style="color: #495057;">@item.Instructions</td>
+                                                <td style="color: #6c757d;">@item.Frequency</td>
+                                                <td style="color: #495057;">@(string.IsNullOrEmpty(item.DoctorName) ? "-" : item.DoctorName)</td>
+                                                <td style="color: #6c757d;">@(string.IsNullOrEmpty(item.PharmacistName) ? "-" : item.PharmacistName)</td>
+                                                <td style="color: #495057;">@item.Date.ToString("MMM dd, yyyy")</td>
+                                                <td>
+                                                    <span class="badge badge-custom badge-@GetStatusBadgeClass(item.Status)-custom">
+                                                        @item.Status
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="badge badge-custom badge-@GetTypeBadgeClass(item.Type)-custom">
+                                                        @item.Type
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    @if (item.AmountPaid.HasValue)
+                                                    {
+                                                        <span class="text-success font-weight-bold" style="font-size: 1.1rem;">
+                                                            R @item.AmountPaid.Value.ToString("F2")
+                                                        </span>
+                                                    }
+                                                    else if (item.Type == "Repeat" && item.RemainingRepeats.HasValue)
+                                                    {
+                                                        <span class="text-info font-weight-bold">
+                                                            @item.RemainingRepeats of @item.TotalRepeats repeats
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-muted">-</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" 
+                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fas fa-cog"></i> Actions
+                                                        </button>
+                                                        <div class="dropdown-menu shadow">
+                                                            <button class="dropdown-item view-medication" data-medication-id="@item.MedicationId">
+                                                                <i class="fas fa-eye text-info mr-2"></i>View Details
+                                                            </button>
+                                                            <div class="dropdown-divider"></div>
+                                                            <button class="dropdown-item text-danger delete-medication" data-medication-id="@item.MedicationId">
+                                                                <i class="fas fa-trash mr-2"></i>Delete
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <!-- Bulk Actions -->
+                        <div class="card-footer" id="bulkActions" style="display: none;">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <span class="text-muted">
+                                        <span id="selectedCount">0</span> medication(s) selected
+                                    </span>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                    <button type="button" class="btn btn-danger" id="bulkDeleteBtn">
+                                        <i class="fas fa-trash"></i> Delete Selected
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="empty-state-enhanced">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h3 class="empty-state-title">No Medication History Found</h3>
+                        <p class="empty-state-text">
+                            You haven't had any medications prescribed, ordered, or dispensed yet.<br>
+                            Start by uploading your first prescription to begin tracking your medication history.
+                        </p>
+                        <a asp-controller="UnprocessedScripts" asp-action="Load" class="upload-btn">
+                            <i class="fas fa-upload"></i>Upload Your First Prescription
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Initialize DataTable with proper column configuration
+            $('#medicationHistoryTable').DataTable({
+                "responsive": false, // Disable responsive to ensure all columns are always visible
+                "pageLength": 5,
+                "lengthMenu": [[5, 10, 15, -1], [5, 10, 15, "All"]],
+                "order": [[8, "desc"]], // Sort by date column (corrected index)
+                "columnDefs": [
+                    { "orderable": false, "targets": [0, 12] }, // Disable sorting on checkbox and actions columns
+                    { "className": "text-center", "targets": [0, 3, 8, 9, 10, 12] }, // Center align specific columns
+                    { "width": "60px", "targets": [0] }, // Checkbox column width
+                    { "width": "150px", "targets": [12] }, // Actions column width (increased)
+                    { "visible": true, "targets": [12] } // Ensure Actions column is always visible
+                ],
+                "autoWidth": false,
+                "scrollX": true, // Enable horizontal scrolling if needed
+                "dom": 'lfrtip', // Layout with length menu, filter, info, processing, table, pagination (removed buttons)
+                "lengthChange": true,
+                "searching": true,
+                "paging": true,
+                "info": true,
+                "processing": false
+            });
+
+            // Dropdown functionality is now handled by the layout
+
+            // Enhanced checkbox functionality - works immediately
+            function initializeCheckboxes() {
+                // Select All functionality
+                $('#selectAll').off('change').on('change', function() {
+                    var isChecked = this.checked;
+                    $('.medication-checkbox').prop('checked', isChecked);
+                    updateBulkActions();
+                });
+
+                // Individual checkbox change
+                $('.medication-checkbox').off('change').on('change', function() {
+                    updateBulkActions();
+                    updateSelectAllState();
+                });
+
+                // Update bulk actions visibility
+                function updateBulkActions() {
+                    var selectedCount = $('.medication-checkbox:checked').length;
+                    $('#selectedCount').text(selectedCount);
+                    
+                    if (selectedCount > 0) {
+                        $('#bulkActions').slideDown(300);
+                    } else {
+                        $('#bulkActions').slideUp(300);
+                    }
+                }
+
+                // Update select all checkbox state
+                function updateSelectAllState() {
+                    var totalCheckboxes = $('.medication-checkbox').length;
+                    var checkedCheckboxes = $('.medication-checkbox:checked').length;
+                    
+                    if (checkedCheckboxes === 0) {
+                        $('#selectAll').prop('indeterminate', false).prop('checked', false);
+                    } else if (checkedCheckboxes === totalCheckboxes) {
+                        $('#selectAll').prop('indeterminate', false).prop('checked', true);
+                    } else {
+                        $('#selectAll').prop('indeterminate', true);
+                    }
+                }
+
+                // Initialize state
+                updateBulkActions();
+                updateSelectAllState();
+            }
+
+            // Initialize checkboxes immediately
+            initializeCheckboxes();
+            
+            // Add dropdown-up class to last two rows
+            function updateDropdownDirections() {
+                $('.btn-group').removeClass('dropdown-up');
+                // Get all btn-group elements
+                var $btnGroups = $('.btn-group');
+                // Add dropdown-up class to last two rows
+                $btnGroups.slice(-2).addClass('dropdown-up');
+            }
+            
+            // Initialize dropdown directions
+            updateDropdownDirections();
+            
+            // Update dropdown directions after DataTable redraw
+            $('#medicationHistoryTable').on('draw.dt', function() {
+                updateDropdownDirections();
+            });
+
+            // Individual delete button
+            $(document).on('click', '.delete-medication', function() {
+                var medicationId = $(this).data('medication-id');
+                var medicationName = $(this).closest('tr').find('td:nth-child(2) strong').text();
+                
+                Swal.fire({
+                    title: 'Delete Medication History',
+                    html: `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p style="margin-bottom: 15px; font-size: 16px;">Are you sure you want to delete the history for:</p>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                                <strong style="color: #2c3e50; font-size: 18px;">"${medicationName}"</strong>
+                            </div>
+                            <p style="margin-top: 15px; color: #6c757d; font-size: 14px;">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                This action cannot be undone.
+                            </p>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, Delete',
+                    cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                    reverseButtons: true,
+                    focusCancel: true,
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom',
+                        cancelButton: 'swal2-cancel-custom'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Here you would make an AJAX call to delete the medication history
+                        Swal.fire(
+                            'Deleted!',
+                            'The medication history has been deleted.',
+                            'success'
+                        );
+                    }
+                });
+            });
+
+            // Bulk delete button
+            $('#bulkDeleteBtn').click(function() {
+                var selectedIds = [];
+                $('.medication-checkbox:checked').each(function() {
+                    selectedIds.push($(this).val());
+                });
+
+                if (selectedIds.length === 0) {
+                    Swal.fire('No Selection', 'Please select medications to delete.', 'warning');
+                    return;
+                }
+
+                Swal.fire({
+                    title: 'Delete Selected Medications',
+                    html: `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p style="margin-bottom: 15px; font-size: 16px;">Are you sure you want to delete ${selectedIds.length} medication history record(s)?</p>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                                <strong style="color: #2c3e50; font-size: 18px;">This action cannot be undone.</strong>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, Delete All',
+                    cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                    reverseButtons: true,
+                    focusCancel: true,
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom',
+                        cancelButton: 'swal2-cancel-custom'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Here you would make an AJAX call to delete multiple medication histories
+                        Swal.fire(
+                            'Deleted!',
+                            `${selectedIds.length} medication history record(s) have been deleted.`,
+                            'success'
+                        );
+                        
+                        // Reset selections
+                        $('.medication-checkbox').prop('checked', false);
+                        $('#selectAll').prop('checked', false);
+                        updateBulkActions();
+                    }
+                });
+            });
+
+            // View medication button
+            $(document).on('click', '.view-medication', function() {
+                var medicationId = $(this).data('medication-id');
+                var medicationName = $(this).closest('tr').find('td:nth-child(2) strong').text();
+                var row = $(this).closest('tr');
+                
+                // Get medication details from the row
+                var dosageForm = row.find('td:nth-child(3)').text();
+                var quantity = row.find('td:nth-child(4) .badge').text();
+                var instructions = row.find('td:nth-child(5)').text();
+                var frequency = row.find('td:nth-child(6)').text();
+                var doctor = row.find('td:nth-child(7)').text();
+                var pharmacist = row.find('td:nth-child(8)').text();
+                var date = row.find('td:nth-child(9)').text();
+                var status = row.find('td:nth-child(10) .badge').text();
+                var type = row.find('td:nth-child(11) .badge').text();
+                var amount = row.find('td:nth-child(12)').text();
+                
+                Swal.fire({
+                    title: 'Medication Details',
+                    html: `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; border-left: 4px solid #007bff;">
+                                <h4 style="color: #2c3e50; margin-bottom: 15px; font-weight: 600;">
+                                    <i class="fas fa-pills mr-2"></i>${medicationName}
+                                </h4>
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Dosage Form:</strong> ${dosageForm}</p>
+                                        <p><strong>Quantity:</strong> ${quantity}</p>
+                                        <p><strong>Instructions:</strong> ${instructions}</p>
+                                        <p><strong>Frequency:</strong> ${frequency}</p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Doctor:</strong> ${doctor}</p>
+                                        <p><strong>Pharmacist:</strong> ${pharmacist}</p>
+                                        <p><strong>Date:</strong> ${date}</p>
+                                        <p><strong>Status:</strong> ${status}</p>
+                                        <p><strong>Type:</strong> ${type}</p>
+                                        <p><strong>Amount:</strong> ${amount}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonColor: '#007bff',
+                    confirmButtonText: '<i class="fas fa-check mr-2"></i>OK',
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom'
+                    }
+                });
+            });
+        });
+    </script>
+    
+    <style>
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup-custom {
+            border-radius: 15px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            border: none !important;
+        }
+        
+        .swal2-title-custom {
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 24px !important;
+        }
+        
+        .swal2-confirm-custom {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-confirm-custom:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+        }
+        
+        .swal2-cancel-custom {
+            background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-cancel-custom:hover {
+            background: linear-gradient(135deg, #5a6268, #495057) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4) !important;
+        }
+        
+        .swal2-html-container {
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+        }
+        
+        /* Dropdown functionality is now handled by the layout */
+    </style>
+}
+
+@functions {
+    string GetStatusBadgeClass(string status)
+    {
+        return status switch
+        {
+            "Prescribed" => "primary",
+            "Dispensed" => "success",
+            "Dispensed & Paid" => "success",
+            "Ordered" => "info",
+            "Cancelled" => "danger",
+            "Active Repeat" => "warning",
+            "Inactive Repeat" => "secondary",
+            _ => "secondary"
+        };
+    }
+
+    string GetTypeBadgeClass(string type)
+    {
+        return type switch
+        {
+            "Prescription" => "primary",
+            "Dispensed" => "success",
+            "Order" => "info",
+            "Repeat" => "warning",
+            _ => "secondary"
+        };
+    }
+}

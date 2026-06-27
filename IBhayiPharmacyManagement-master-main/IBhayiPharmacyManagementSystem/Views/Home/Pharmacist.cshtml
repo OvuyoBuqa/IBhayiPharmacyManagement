@@ -1,0 +1,832 @@
+﻿@{
+    ViewData["Title"] = "Pharmacist Dashboard";
+    Layout = "_LayoutPharmacist";
+    ViewData["DisableDashboard"] = true;
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+<div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Pharmacist Dashboard</h1>
+    </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <!-- Info boxes with 3D effects and real counts -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box stat-card-3d">
+                    <span class="info-box-icon bg-brown elevation-1"><i class="fas fa-file-prescription"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Pending Prescriptions</span>
+                        <span class="info-box-number" id="pendingPrescriptionsCount">Loading...</span>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                    </div>
+                        <span class="progress-description">
+                            <a href="@Url.Action("PendingScripts","Prescriptions")" class="text-brown">View All</a>
+                        </span>
+            </div>
+        </div>
+    </div>
+
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box stat-card-3d">
+                    <span class="info-box-icon bg-dark elevation-1"><i class="fas fa-users"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Customers</span>
+                        <span class="info-box-number" id="totalCustomersCount">Loading...</span>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                    </div>
+                        <span class="progress-description">
+                            <a href="@Url.Action("CustomerList","Account")" class="text-dark">View All</a>
+                        </span>
+                                            </div>
+                                        </div>
+                                    </div>
+            
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box stat-card-3d">
+                    <span class="info-box-icon bg-brown elevation-1"><i class="fas fa-redo"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Dispensation Requests</span>
+                        <span class="info-box-number" id="dispensationRequestsCount">Loading...</span>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-description">
+                            <a href="@Url.Action("Index","DispensationRequests")" class="text-brown">View All</a>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box stat-card-3d">
+                    <span class="info-box-icon bg-dark elevation-1"><i class="fas fa-clipboard-check"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Orders</span>
+                        <span class="info-box-number" id="dispensingRequestsCount">Loading...</span>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-description">
+                            <a href="@Url.Action("OrdersForCustomers","Orders")" class="text-dark">View All</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left col -->
+            <div class="col-md-8">
+                <!-- TABLE: LATEST PRESCRIPTIONS -->
+                <div class="card modern-card">
+                    <div class="card-header border-transparent">
+                        <h3 class="card-title">Latest Prescriptions</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                                <i class="fas fa-expand"></i>
+                        </button>
+                    </div>
+                                        </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table m-0">
+                                <thead>
+                                    <tr>
+                                        <th>Prescription ID</th>
+                                        <th>Customer</th>
+                                        <th>Doctor</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="prescriptionsTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
+                                            <p>Loading prescriptions...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                                            </div>
+                                        </div>
+                    <div class="card-footer clearfix">
+                        <a href="@Url.Action("PendingScripts","Prescriptions")" class="btn btn-sm btn-brown float-left">View All Prescriptions</a>
+                                    </div>
+                                </div>
+
+                <!-- Dispensing Requests Chart -->
+                <div class="card modern-card">
+                    <div class="card-header border-transparent">
+                        <h3 class="card-title">Dispensing Requests Trend</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                                    </div>
+                    <div class="card-body">
+                        <canvas id="dispensingChart" style="height: 250px;"></canvas>
+                                    </div>
+                                </div>
+                    </div>
+
+            <!-- Right col -->
+            <div class="col-md-4">
+                <!-- PRODUCT LIST -->
+                <div class="card modern-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Medications</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                    </button>
+                </div>
+            </div>
+                    <div class="card-body p-0">
+                        <ul class="products-list product-list-in-card pl-2 pr-2" id="medicationsList">
+                            <li class="item">
+                                <div class="product-info">
+                                    <a href="javascript:void(0)" class="product-title">Loading medications...</a>
+                                    <span class="product-description">
+                                        <i class="fas fa-spinner fa-spin"></i> Please wait
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
+        </div>
+                    <div class="card-footer text-center">
+                        <a href="@Url.Action("ViewAllMedications","Medications")" class="uppercase">View All Medications</a>
+    </div>
+</div>
+
+    <!-- Quick Actions -->
+                <div class="card modern-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Actions</h3>
+                    </div>
+            <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="@Url.Action("Index","WalkInCustomers")" class="btn btn-outline-brown btn-block">
+                                <i class="fas fa-user-plus mr-2"></i>New Walk-in Customer
+                            </a>
+                            <a href="@Url.Action("PendingScripts","Prescriptions")" class="btn btn-outline-brown btn-block">
+                                <i class="fas fa-file-prescription mr-2"></i>Process Prescriptions
+                            </a>
+                            <div class="btn-group btn-group-sm mb-2" role="group" aria-label="Prescription status filters">
+                                <a href="@Url.Action("PendingScripts","Prescriptions", new { status = "Pending" })" class="btn btn-outline-brown"><i class="fas fa-hourglass-start mr-1"></i>Pending</a>
+                                <a href="@Url.Action("PendingScripts","Prescriptions", new { status = "Processing" })" class="btn btn-outline-brown"><i class="fas fa-cogs mr-1"></i>Processing</a>
+                                <a href="@Url.Action("PendingScripts","Prescriptions", new { status = "Completed" })" class="btn btn-outline-brown"><i class="fas fa-check mr-1"></i>Completed</a>
+                                <a href="@Url.Action("PendingScripts","Prescriptions", new { status = "Rejected" })" class="btn btn-outline-brown"><i class="fas fa-times mr-1"></i>Rejected</a>
+                            </div>
+                            <a href="@Url.Action("OrdersForCustomers","Orders")" class="btn btn-outline-brown btn-block">
+                                <i class="fas fa-clipboard-check mr-2"></i>Manage Dispensing
+                    </a>
+                            <a href="@Url.Action("Index","OrderTracking")" class="btn btn-outline-brown btn-block">
+                                <i class="fas fa-shipping-fast mr-2"></i>Order Tracking
+                            </a>
+                            <a href="@Url.Action("SearchExistingPrescriptions","WalkInCustomers")" class="btn btn-outline-brown btn-block">
+                                <i class="fas fa-search mr-2"></i>Search Existing Prescriptions
+                            </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(function () {
+            // Load dashboard data
+            loadDashboardData();
+            
+            // Initialize dispensing chart
+            initializeDispensingChart();
+        });
+
+        function loadDashboardData() {
+            // Load pending prescriptions count
+            $.ajax({
+                url: '@Url.Action("PendingScripts","Prescriptions")',
+                method: 'GET',
+                success: function(data) {
+                    // Extract count from the response
+                    const pendingCount = $(data).find('.table tbody tr').length;
+                    $('#pendingPrescriptionsCount').text(pendingCount);
+                    updateProgressBar('pendingPrescriptionsCount', pendingCount);
+                },
+                error: function() {
+                    $('#pendingPrescriptionsCount').text('0');
+                }
+            });
+
+            // Load total customers count
+            $.ajax({
+                url: '@Url.Action("CustomerList","Account")',
+                method: 'GET',
+                success: function(data) {
+                    const customerCount = $(data).find('.table tbody tr').length;
+                    $('#totalCustomersCount').text(customerCount);
+                    updateProgressBar('totalCustomersCount', customerCount);
+                },
+                error: function() {
+                    $('#totalCustomersCount').text('0');
+                }
+            });
+
+            // Load dispensation requests count
+            $.ajax({
+                url: '@Url.Action("Index","DispensationRequests")',
+                method: 'GET',
+                success: function(data) {
+                    const requestCount = $(data).find('.table tbody tr').length;
+                    $('#dispensationRequestsCount').text(requestCount);
+                    updateProgressBar('dispensationRequestsCount', requestCount);
+                },
+                error: function() {
+                    $('#dispensationRequestsCount').text('0');
+                }
+            });
+
+            // Load dispensing requests count
+            $.ajax({
+                url: '@Url.Action("OrdersForCustomers","Orders")',
+                method: 'GET',
+                success: function(data) {
+                    const orderCount = $(data).find('.table tbody tr').length;
+                    $('#dispensingRequestsCount').text(orderCount);
+                    updateProgressBar('dispensingRequestsCount', orderCount);
+                },
+                error: function() {
+                    $('#dispensingRequestsCount').text('0');
+                }
+            });
+
+            // Load latest prescriptions
+            loadLatestPrescriptions();
+            
+            // Load recent medications
+            loadRecentMedications();
+        }
+
+        function loadLatestPrescriptions() {
+            $.ajax({
+                url: '@Url.Action("PendingScripts","Prescriptions")',
+                method: 'GET',
+                success: function(data) {
+                    const $tableBody = $('#prescriptionsTableBody');
+                    const $rows = $(data).find('.table tbody tr');
+                    
+                    if ($rows.length > 0) {
+                        $tableBody.empty();
+                        $rows.slice(0, 5).each(function() {
+                            const $row = $(this);
+                            const prescriptionId = $row.find('td:eq(0)').text().trim();
+                            const customerName = $row.find('td:eq(1)').text().trim();
+                            const doctorName = $row.find('td:eq(2)').text().trim();
+                            const status = $row.find('td:eq(3)').text().trim();
+                            
+                            if (prescriptionId && prescriptionId !== '') {
+                                $tableBody.append(`
+                                    <tr>
+                                        <td>${prescriptionId}</td>
+                                        <td>${customerName || 'N/A'}</td>
+                                        <td>${doctorName || 'N/A'}</td>
+                                        <td><span class="badge badge-warning">${status || 'Pending'}</span></td>
+                                    </tr>
+                                `);
+                            }
+                        });
+                    } else {
+                        $tableBody.html(`
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="fas fa-file-prescription fa-3x mb-3"></i>
+                                    <p>No prescriptions to display</p>
+                            <a href="@Url.Action("PendingScripts","Prescriptions")" class="btn btn-brown btn-sm">
+                                        <i class="fas fa-eye mr-1"></i>View All Prescriptions
+                                    </a>
+                                </td>
+                            </tr>
+                        `);
+                    }
+                },
+                error: function() {
+                    $('#prescriptionsTableBody').html(`
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">
+                                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                                <p>Error loading prescriptions</p>
+                                <a href="/Prescriptions/PendingScripts" class="btn btn-brown btn-sm">
+                                    <i class="fas fa-eye mr-1"></i>View All Prescriptions
+                                </a>
+                            </td>
+                        </tr>
+                    `);
+                }
+            });
+        }
+
+        function loadRecentMedications() {
+            $.ajax({
+                url: '@Url.Action("ViewAllMedications","Medications")',
+                method: 'GET',
+                success: function(data) {
+                    const $medicationsList = $('#medicationsList');
+                    const $rows = $(data).find('.table tbody tr');
+                    
+                    if ($rows.length > 0) {
+                        $medicationsList.empty();
+                        $rows.slice(0, 3).each(function() {
+                            const $row = $(this);
+                            const medicationName = $row.find('td:eq(0)').text().trim();
+                            const description = $row.find('td:eq(1)').text().trim();
+                            
+                            if (medicationName && medicationName !== '') {
+                                $medicationsList.append(`
+                                    <li class="item">
+                                        <div class="product-info">
+                                            <a href="javascript:void(0)" class="product-title">${medicationName}</a>
+                                            <span class="product-description">
+                                                ${description || 'No description available'}
+                                            </span>
+                                        </div>
+                                    </li>
+                                `);
+                            }
+                        });
+                    } else {
+                        $medicationsList.html(`
+                            <li class="item">
+                                <div class="product-info">
+                                    <a href="javascript:void(0)" class="product-title">No medications available</a>
+                                    <span class="product-description">
+                                        Start by adding medications to your inventory
+                                    </span>
+                                </div>
+                            </li>
+                        `);
+                    }
+                },
+                error: function() {
+                    $('#medicationsList').html(`
+                        <li class="item">
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">Error loading medications</a>
+                                <span class="product-description">
+                                    <i class="fas fa-exclamation-triangle"></i> Please try again
+                                </span>
+                            </div>
+                        </li>
+                    `);
+                }
+            });
+        }
+
+        function updateProgressBar(elementId, count) {
+            const maxCount = Math.max(count, 10); // Set a reasonable max for progress bar
+            const percentage = Math.min((count / maxCount) * 100, 100);
+            $(`#${elementId}`).closest('.info-box').find('.progress-bar').css('width', percentage + '%');
+        }
+
+        function initializeDispensingChart() {
+            const ctx = document.getElementById('dispensingChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Dispensing Requests',
+                        data: [12, 19, 3, 5, 2, 3, 7],
+                        borderColor: '#0a1f14',
+                        backgroundColor: 'rgba(10, 31, 20, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+}
+
+    <style>
+    /* System Colors - Almost Black Green Theme with Dark Blue Accents */
+    .bg-brown {
+        background-color: #0a1f14 !important;
+    }
+
+    .text-brown {
+        color: #0a1f14 !important;
+    }
+
+    .btn-brown {
+        background-color: #0a1f14 !important;
+        border-color: #0a1f14 !important;
+        color: white !important;
+    }
+
+    .btn-brown:hover {
+        background-color: #1b4332 !important;
+        border-color: #1b4332 !important;
+        box-shadow: 0 0 0 0.2rem rgba(30, 58, 95, 0.25);
+    }
+
+    .btn-outline-brown {
+        color: #0a1f14 !important;
+        border-color: #0a1f14 !important;
+    }
+
+    .btn-outline-brown:hover {
+        background-color: #0a1f14 !important;
+        color: white !important;
+    }
+
+    /* Dark Blue Accents */
+    .accent-blue {
+        color: #1e3a5f !important;
+    }
+
+    .border-blue {
+        border-color: #1e3a5f !important;
+    }
+
+    /* Unique Lovely 3D Card Effects */
+    .stat-card-3d {
+        transition: all 0.5s cubic-bezier(0.23, 1, 0.320, 1);
+        transform-style: preserve-3d;
+        perspective: 1000px;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow:
+            0 10px 30px rgba(30, 58, 95, 0.15),
+            0 1px 8px rgba(0, 0, 0, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        position: relative;
+        background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(255, 255, 255, 0.9) 50%,
+            rgba(255, 255, 255, 0.95) 100%);
+    }
+
+    .stat-card-3d::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: conic-gradient(
+            from 0deg,
+            transparent 0deg,
+            rgba(30, 58, 95, 0.03) 45deg,
+            transparent 90deg,
+            rgba(10, 31, 20, 0.02) 135deg,
+            transparent 180deg,
+            rgba(30, 58, 95, 0.03) 225deg,
+            transparent 270deg,
+            rgba(10, 31, 20, 0.02) 315deg,
+            transparent 360deg
+        );
+        animation: gentleRotate 20s linear infinite;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .stat-card-3d:hover::after {
+        opacity: 1;
+    }
+
+    .stat-card-3d:hover {
+        transform: translateY(-12px) rotateX(8deg) rotateY(8deg) scale(1.02);
+        box-shadow:
+            0 25px 50px rgba(30, 58, 95, 0.2),
+            0 5px 20px rgba(0, 0, 0, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .stat-card-3d::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background:
+            radial-gradient(circle at 20% 80%, rgba(10, 31, 20, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(30, 58, 95, 0.03) 0%, transparent 50%);
+        opacity: 0;
+        transition: opacity 0.4s ease;
+        pointer-events: none;
+    }
+
+    .stat-card-3d:hover::before {
+        opacity: 1;
+    }
+
+    /* Modern Card Styling */
+    .modern-card {
+        border: none;
+        border-radius: 15px;
+        box-shadow: 0 8px 32px rgba(30, 58, 95, 0.1), 0 4px 16px rgba(0, 0, 0, 0.1);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(30, 58, 95, 0.1);
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+
+    .modern-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .modern-card .card-header {
+        background: linear-gradient(135deg, #0a1f14 0%, #1b4332 100%);
+        color: white;
+        border-bottom: none;
+        border-radius: 15px 15px 0 0;
+    }
+
+    .modern-card .card-header .card-title {
+        color: white;
+            font-weight: 600;
+        }
+
+    /* Glassmorphism Effects */
+    .info-box {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 32px rgba(30, 58, 95, 0.1);
+    }
+
+    .info-box-icon {
+        border-radius: 20px 0 0 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+    }
+
+    .info-box-icon::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg,
+            rgba(255, 255, 255, 0.1) 0%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(30, 58, 95, 0.05) 100%);
+        animation: gentleRotate 15s linear infinite reverse;
+        pointer-events: none;
+    }
+
+    .stat-card-3d:hover .info-box-icon {
+        transform: scale(1.05) translateX(5px);
+    }
+
+    .info-box-icon i {
+        transition: all 0.4s ease;
+        position: relative;
+        z-index: 1;
+    }
+
+    .stat-card-3d:hover .info-box-icon i {
+        transform: scale(1.1) rotate(5deg);
+    }
+
+    /* Unique Info Box Content Styling */
+    .info-box-content {
+        position: relative;
+        z-index: 2;
+        padding: 1.5rem;
+    }
+
+    .info-box-text {
+        font-weight: 600;
+        font-size: 0.9rem;
+        color: #1e3a5f;
+        margin-bottom: 0.5rem;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        position: relative;
+    }
+
+    .info-box-text::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 30px;
+        height: 2px;
+        background: linear-gradient(90deg, #0a1f14, #1b4332);
+        border-radius: 1px;
+        transition: width 0.4s ease;
+    }
+
+    .stat-card-3d:hover .info-box-text::after {
+        width: 50px;
+    }
+
+    .info-box-number {
+        font-size: 2.8rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #0a1f14 0%, #1b4332 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        transition: all 0.4s ease;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+        position: relative;
+    }
+
+    .stat-card-3d:hover .info-box-number {
+        transform: scale(1.15) translateY(-2px);
+        filter: brightness(1.1);
+    }
+
+    /* Progress Bar Enhancement */
+    .progress {
+        height: 8px;
+        border-radius: 10px;
+        background: rgba(30, 58, 95, 0.1);
+        overflow: hidden;
+        border: 1px solid rgba(30, 58, 95, 0.1);
+    }
+
+    .progress-bar {
+        background: linear-gradient(90deg, #0a1f14 0%, #1b4332 100%);
+        border-radius: 10px;
+        transition: width 1s ease;
+        box-shadow: 0 0 10px rgba(30, 58, 95, 0.3);
+    }
+
+    /* Button Enhancements */
+    .btn {
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        font-weight: 500;
+    }
+
+    .btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Table Enhancements */
+    .table {
+        border-radius: 10px;
+        overflow: hidden;
+        border: 1px solid rgba(30, 58, 95, 0.1);
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        border: none;
+        font-weight: 600;
+        color: #1e3a5f;
+    }
+
+    /* Dark Blue Accent Elements */
+    .breadcrumb-item.active {
+        color: #1e3a5f !important;
+        font-weight: 600;
+    }
+
+    .card-footer a {
+        color: #1e3a5f !important;
+        font-weight: 500;
+        transition: color 0.3s ease;
+    }
+
+    .card-footer a:hover {
+        color: #0a1f14 !important;
+    }
+
+    .progress-description {
+        font-size: 0.85rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+        position: relative;
+    }
+
+    .progress-description a {
+        color: #1e3a5f !important;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        position: relative;
+        padding: 0.25rem 0.5rem;
+        border-radius: 8px;
+        background: rgba(30, 58, 95, 0.05);
+        border: 1px solid rgba(30, 58, 95, 0.1);
+    }
+
+    .progress-description a:hover {
+        color: #0a1f14 !important;
+        background: rgba(10, 31, 20, 0.1);
+        border-color: rgba(10, 31, 20, 0.2);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(30, 58, 95, 0.15);
+    }
+
+    .stat-card-3d:hover .progress-description a {
+        animation: pulseGlow 2s ease-in-out infinite;
+    }
+
+    /* Responsive Enhancements */
+    @@media (max-width: 768px) {
+        .stat-card-3d:hover {
+            transform: translateY(-5px);
+        }
+
+        .modern-card:hover {
+            transform: translateY(-3px);
+        }
+    }
+
+    /* Chart Container Enhancement */
+    .card-body canvas {
+        border-radius: 10px;
+        box-shadow: 0 4px 16px rgba(30, 58, 95, 0.1);
+    }
+
+    /* Loading Animation */
+    .info-box-number {
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    /* Unique Card Animations */
+    @@keyframes gentleRotate {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @@keyframes pulseGlow {
+        0%, 100% {
+            box-shadow: 0 0 20px rgba(30, 58, 95, 0.1);
+        }
+        50% {
+            box-shadow: 0 0 30px rgba(30, 58, 95, 0.2);
+        }
+    }
+
+    @@keyframes fadeInUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+            }
+    </style>
+    
+    

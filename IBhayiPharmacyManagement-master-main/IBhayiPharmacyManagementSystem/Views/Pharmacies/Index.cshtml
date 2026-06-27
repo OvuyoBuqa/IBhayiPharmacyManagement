@@ -1,0 +1,376 @@
+﻿@using Microsoft.EntityFrameworkCore
+@model IEnumerable<IBhayiPharmacyManagementSystem.Models.Pharmacy>
+@inject IBhayiPharmacyManagementSystem.Data.AppDbContext _context
+
+@{
+    ViewData["Title"] = "Pharmacies Management";
+    var pharmacyExists = await _context.Pharmacies.AnyAsync();
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    :root {
+        --primary-color: #b3d9ff; /* light blue */
+        --primary-dark: #99ccff; /* deeper light blue */
+        --secondary-color: #6c757d; /* grey */
+        --success-color: #27ae60; /* green */
+        --warning-color: #f39c12; /* orange */
+        --danger-color: #e74c3c;
+        --info-color: #3498db;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00; /* orange accent */
+        --brown-soft: #c4a484; /* soft brown */
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        border-top: 4px solid var(--orange-accent); /* orange accent */
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--info-color);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        border-left: 4px solid var(--brown-soft); /* subtle brown edge */
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey header */
+        color: white;
+        padding: 25px 30px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: var(--white);
+    }
+
+    .card-title i {
+        margin-right: 12px;
+        font-size: 1.3rem;
+        color: var(--success-color); /* green icon accent */
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey button */
+        color: white;
+        border: 1px solid #5a6268;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6268, #495057);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, var(--secondary-color), #5a6268);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #5a6268, var(--secondary-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        color: white;
+    }
+
+    .btn-outline-primary {
+        background: transparent;
+        color: var(--info-color);
+        border: 2px solid var(--info-color);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--info-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-outline-info {
+        background: transparent;
+        color: var(--info-color);
+        border: 2px solid var(--info-color);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-info:hover {
+        background: var(--info-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-outline-danger {
+        background: transparent;
+        color: var(--danger-color);
+        border: 2px solid var(--danger-color);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-danger:hover {
+        background: var(--danger-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .table {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+        border: none;
+        font-size: 0.9rem;
+        padding: 15px 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        white-space: nowrap;
+    }
+
+    .table td {
+        font-size: 0.9rem;
+        padding: 12px;
+        vertical-align: middle;
+        border-color: #e9ecef;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+        transition: all 0.3s ease;
+    }
+
+    .alert {
+        border-radius: 15px;
+        border: none;
+        padding: 20px 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        color: #0c5460;
+        border-left: 5px solid var(--info-color);
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--info-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--muted-text);
+        font-weight: 600;
+    }
+
+    .btn-group .btn {
+        margin-right: 8px;
+    }
+
+    .btn-group .btn:last-child {
+        margin-right: 0;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-hospital"></i>@ViewData["Title"]
+                    </h1>
+                    <nav aria-label="breadcrumb" class="mt-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Action("PharmacyManager", "Home")">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Pharmacies Management</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                @if (pharmacyExists && Model.Any())
+                {
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> Only one pharmacy can exist in the system.
+                        To make changes, edit the existing pharmacy record.
+                    </div>
+                }
+
+                <!-- Pharmacies Management Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-hospital"></i>Pharmacy Information
+                        </h5>
+                        @if (!pharmacyExists)
+                        {
+                            <div class="ms-auto">
+                                <a asp-action="Create" class="btn btn-secondary">
+                                    <i class="fas fa-plus me-2"></i>Create New Pharmacy
+                                </a>
+                            </div>
+                        }
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>@Html.DisplayNameFor(model => model.Name)</th>
+                                        <th>@Html.DisplayNameFor(model => model.HealthcareCouncilRegistrationNumber)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Address)</th>
+                                        <th>@Html.DisplayNameFor(model => model.ContactNumber)</th>
+                                        <th>@Html.DisplayNameFor(model => model.Email)</th>
+                                        <th>@Html.DisplayNameFor(model => model.WebsiteURL)</th>
+                                        <th>Responsible Pharmacist</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in Model)
+                                    {
+                                        <tr>
+                                            <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.HealthcareCouncilRegistrationNumber)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Address)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.ContactNumber)</td>
+                                            <td>@Html.DisplayFor(modelItem => item.Email)</td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(item.WebsiteURL))
+                                                {
+                                                    <a href="@item.WebsiteURL" target="_blank" class="text-primary fw-bold">
+                                                        <i class="fas fa-external-link-alt me-1"></i>@item.WebsiteURL
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted fst-italic">No website</span>
+                                                }
+                                            </td>
+                                            <td>@(item.Pharmacist?.User?.FullName ?? "-")</td>
+                                            <td class="text-center">
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Edit" asp-route-id="@item.PharmacyId" class="btn btn-sm btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <a asp-action="Details" asp-route-id="@item.PharmacyId" class="btn btn-sm btn-outline-info">
+                                                        <i class="fas fa-info-circle"></i>
+                                                    </a>
+                                                    <a asp-action="Delete" asp-route-id="@item.PharmacyId" class="btn btn-sm btn-outline-danger">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </a>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+}

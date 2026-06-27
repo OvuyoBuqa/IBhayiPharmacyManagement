@@ -1,0 +1,50 @@
+services:
+  db:
+    image: postgres:16
+    container_name: ibhayi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${HOST_DB_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: IBhayiPharmacyManagementSystem/Dockerfile
+    container_name: ibhayi-app
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      # Native .NET override of appsettings ConnectionString using double underscores
+      - ConnectionStrings__Default=Host=${DB_HOST};Port=${DB_PORT};Database=${DB_NAME};Username=${DB_USER};Password=${DB_PASSWORD}
+      # EmailSettings Overrides
+      - EmailSettings__SmtpServer=${SMTP_SERVER}
+      - EmailSettings__SmtpPort=${SMTP_PORT}
+      - EmailSettings__FromEmail=${SMTP_SENDER_EMAIL}
+      - EmailSettings__Username=${SMTP_USERNAME}
+      - EmailSettings__Password=${SMTP_PASSWORD}
+      # SmtpSettings Overrides
+      - SmtpSettings__Server=${SMTP_SERVER}
+      - SmtpSettings__Port=${SMTP_PORT}
+      - SmtpSettings__SenderEmail=${SMTP_SENDER_EMAIL}
+      - SmtpSettings__Username=${SMTP_USERNAME}
+      - SmtpSettings__Password=${SMTP_PASSWORD}
+      - SmtpSettings__EnableSsl=${SMTP_SSL}
+    ports:
+      - "${HOST_APP_PORT:-8085}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pgdata:

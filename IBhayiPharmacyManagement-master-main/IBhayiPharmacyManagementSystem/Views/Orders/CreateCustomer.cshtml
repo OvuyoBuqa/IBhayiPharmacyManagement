@@ -1,0 +1,975 @@
+@model IBhayiPharmacyManagementSystem.ViewModels.CustomerOrderCreateRequest
+@using IBhayiPharmacyManagementSystem.Enums
+@{
+    ViewData["Title"] = "Create New Order";
+    Layout = "_LayoutCustomer";
+}
+
+<style>
+    :root {
+        --primary-color: #34495e;
+        --secondary-color: #2c3e50;
+        --accent-color: #3498db;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --light-gray: #ecf0f1;
+        --dark-gray: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00;
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--accent-color);
+    }
+
+    .btn-back {
+        background: linear-gradient(135deg, var(--accent-color), #2980b9);
+        color: var(--white);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-back:hover {
+        background: linear-gradient(135deg, #2980b9, var(--accent-color));
+        transform: translateY(-3px);
+        color: var(--white);
+        text-decoration: none;
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #d2b48c, #c4a484);
+        color: var(--white);
+        padding: 25px 30px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: var(--dark-blue-gray); /* Matching 'My Orders' and 'Create New Order' page title */
+    }
+
+    .card-title i {
+        margin-right: 12px;
+        font-size: 1.3rem;
+        color: var(--accent-color);
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 14px 18px;
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 0.3rem rgba(52, 152, 219, 0.25);
+        background: var(--white);
+    }
+
+    .form-control[readonly] {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        color: var(--dark-gray);
+        border-color: #d1d3d4;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--success-color), #229954);
+        border: none;
+        border-radius: 10px;
+        padding: 14px 28px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        color: var(--white);
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #229954, var(--success-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+        color: var(--white);
+    }
+
+    .btn-outline-primary {
+        border: 2px solid var(--accent-color);
+        color: var(--accent-color);
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .btn-outline-primary:hover {
+        background: linear-gradient(135deg, var(--accent-color), #2980b9);
+        color: var(--white);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.3);
+        border-color: var(--accent-color);
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid var(--dark-gray);
+        color: var(--dark-gray);
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .btn-outline-secondary:hover {
+        background: linear-gradient(135deg, var(--dark-gray), #6c7b7d);
+        color: var(--white);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(127, 140, 141, 0.3);
+        border-color: var(--dark-gray);
+    }
+
+    .btn-outline-danger {
+        border: 2px solid var(--danger-color);
+        color: var(--danger-color);
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .btn-outline-danger:hover {
+        background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        color: var(--white);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.3);
+        border-color: var(--danger-color);
+    }
+
+    .order-item {
+        background: var(--white);
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .order-item:hover {
+        border-color: var(--accent-color);
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .medication-selection {
+        background: var(--white);
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .medication-selection:hover {
+        border-color: var(--orange-accent);
+        box-shadow: 0 8px 25px rgba(255, 140, 0, 0.15);
+    }
+
+    .btn-add-medication {
+        background: linear-gradient(135deg, var(--orange-accent), #e67e22);
+        color: var(--white);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+    }
+
+    .btn-add-medication:hover {
+        background: linear-gradient(135deg, #e67e22, var(--orange-accent));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(255, 140, 0, 0.4);
+        color: var(--white);
+    }
+
+    .btn-remove-medication {
+        background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        color: var(--white);
+        border: none;
+        border-radius: 10px;
+        padding: 10px 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-remove-medication:hover {
+        background: linear-gradient(135deg, #c0392b, var(--danger-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        color: var(--white);
+    }
+
+    .selected-medication {
+        background: linear-gradient(135deg, #fff3cd, #ffeaa7);
+        border: 2px solid var(--orange-accent);
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.2);
+    }
+
+    .selected-medication:hover {
+        box-shadow: 0 6px 20px rgba(255, 140, 0, 0.3);
+        transform: translateY(-2px);
+    }
+
+    .summary-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .summary-title {
+        color: var(--secondary-color);
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        font-size: 1.1rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        font-size: 1rem;
+        font-weight: 500;
+    }
+
+    .total-amount {
+        font-size: 1.4rem;
+        font-weight: 800;
+        color: var(--success-color);
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .alert {
+        border-radius: 15px;
+        border: none;
+        padding: 20px 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border-left: 5px solid var(--danger-color);
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--accent-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--dark-gray);
+        font-weight: 600;
+    }
+
+    .order-items-header {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-bottom: 3px solid var(--accent-color);
+        border-radius: 15px 15px 0 0;
+        padding: 20px 25px;
+    }
+
+    .order-items-title {
+        color: var(--secondary-color);
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        font-size: 1.2rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .order-items-title i {
+        margin-right: 10px;
+        color: var(--accent-color);
+        font-size: 1.1rem;
+    }
+
+    @@media (max-width: 768px) {
+        .page-header {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .order-item {
+            padding: 20px;
+        }
+        
+        .card-header {
+            padding: 20px;
+        }
+    }
+
+    /* SweetAlert2 Custom Styling */
+    .swal2-popup-custom {
+        border-radius: 15px !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+        border: none !important;
+    }
+    
+    .swal2-title-custom {
+        color: #2c3e50 !important;
+        font-weight: 600 !important;
+        font-size: 24px !important;
+    }
+    
+    .swal2-confirm-custom {
+        background: linear-gradient(135deg, #28a745, #20c997) !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 24px !important;
+        font-weight: 500 !important;
+        font-size: 16px !important;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .swal2-confirm-custom:hover {
+        background: linear-gradient(135deg, #20c997, #17a2b8) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+    }
+    
+    .swal2-html-container {
+        font-size: 16px !important;
+        line-height: 1.5 !important;
+    }
+
+    /* Out of stock medication styling */
+    .medication-item.opacity-70 {
+        opacity: 0.7;
+        background-color: #f5f5f5 !important;
+        cursor: not-allowed;
+    }
+
+    .medication-item.opacity-70 label {
+        cursor: not-allowed;
+        color: #6c757d;
+    }
+
+    .medication-item .badge-danger {
+        animation: pulse-badge 2s ease-in-out infinite;
+    }
+    
+    /* Fallback for browsers that support :has() */
+    @@supports selector(:has(*)) {
+        .medication-item:has(input:disabled) {
+            opacity: 0.7;
+            background-color: #f5f5f5 !important;
+            cursor: not-allowed;
+        }
+
+        .medication-item:has(input:disabled) label {
+            cursor: not-allowed;
+            color: #6c757d;
+        }
+    }
+
+    @@keyframes pulse-badge {
+        0%, 100% {
+            opacity: 0.9;
+        }
+        50% {
+            opacity: 1;
+        }
+    }
+
+    /* Gray out text for out of stock items */
+    .form-check-input:disabled ~ .form-check-label {
+        color: #6c757d !important;
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="page-title">
+                            <i class="fas fa-plus-circle"></i>Create New Order
+                        </h1>
+                        <a asp-action="Index" class="btn-back" style="background: linear-gradient(135deg, #6c757d, #495057); color: white; border: none; padding: 10px 20px; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; font-weight: 500; transition: all 0.3s ease;" onmouseover="this.style.background='linear-gradient(135deg, #495057, #343a40)'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)'" onmouseout="this.style.background='linear-gradient(135deg, #6c757d, #495057)'; this.style.transform=''; this.style.boxShadow=''">
+                            <i class="fas fa-arrow-left mr-2"></i>Back
+                </a>
+            </div>
+                    <nav aria-label="breadcrumb" class="mt-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Home")">Home</a></li>
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Orders")">My Orders</a></li>
+                            <li class="breadcrumb-item active">Create New Order</li>
+                        </ol>
+                    </nav>
+        </div>
+        
+                <!-- Main Content Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-shopping-cart mr-2"></i>Order Details
+                        </h3>
+                    </div>
+                    <div class="card-body" style="padding: 25px;">
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>@TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            }
+            
+            <form id="orderForm" method="post" asp-action="CreateCustomer">
+                @Html.AntiForgeryToken()
+
+                            <!-- Customer Information -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                                        <label class="form-label">Customer</label>
+                            <input type="text" class="form-control" value="@ViewBag.Customer.Name @ViewBag.Customer.Surname" readonly>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                                        <label class="form-label">Order Date</label>
+                            <input type="text" class="form-control" value="@DateTime.Now.ToString("g")" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                            <!-- Medication Selection Section -->
+                            <div class="medication-selection">
+                                <h5 class="order-items-title" style="color: var(--orange-accent);">
+                                    <i class="fas fa-pills"></i>Select Medications
+                        </h5>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="form-group">
+                                            <label class="form-label">Available Medications</label>
+                                            <div class="medication-checkbox-container" style="max-height: 300px; overflow-y: auto; border: 2px solid #e9ecef; border-radius: 12px; padding: 20px; background: #f8f9fa; box-shadow: inset 0 2px 4px rgba(0,0,0,0.06);">
+                                                @foreach (var medication in (List<Medication>)ViewBag.Medications)
+                                                {
+                                                    bool isOutOfStock = medication.QuantityInStock <= 0;
+                                                    <div class="form-check medication-item mb-2 @(isOutOfStock ? "opacity-70" : "")" style="border-bottom: 1px solid #e9ecef; padding: 12px; margin-bottom: 15px; border-radius: 8px; transition: all 0.3s ease;" onmouseover="this.style.background='white'; this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'; this.style.transform='translateY(-1px)'" onmouseout="this.style.background=''; this.style.boxShadow=''; this.style.transform=''">
+                                                        <input class="form-check-input medication-checkbox" 
+                                                               type="checkbox" 
+                                                               value="@medication.MedicationId" 
+                                                               id="med_@medication.MedicationId"
+                                                               data-price="@medication.Price" 
+                                                               data-stock="@medication.QuantityInStock" 
+                                                               data-name="@medication.Name" 
+                                                               data-dosage="@medication.DosageForm.Type"
+                                                               @(isOutOfStock ? "disabled" : "")>
+                                                        <label class="form-check-label" for="med_@medication.MedicationId" style="width: 100%;">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    <strong>@medication.Name</strong>
+                                                                    <small class="text-muted d-block">@medication.DosageForm.Type</small>
+                                                                    @if (isOutOfStock)
+                                                                    {
+                                                                        <span class="badge badge-danger" style="background-color: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; margin-top: 4px;">Out of Stock</span>
+                                                                    }
+                                        </div>
+                                                                <div class="text-right">
+                                                                    <span class="text-success font-weight-bold">R @medication.Price.ToString("F2")</span>
+                                                                    <small class="text-muted d-block">Stock: @medication.QuantityInStock</small>
+                                    </div>
+                                        </div>
+                                                        </label>
+                                    </div>
+                                                }
+                    </div>
+                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Quantity Selection for Selected Medications -->
+                                <div id="quantitySection" style="display: none;">
+                                    <h6 class="mt-3 mb-2" style="color: var(--primary-color);">
+                                        <i class="fas fa-calculator"></i> Set Quantities
+                                    </h6>
+                                    <div id="selectedMedicationsContainer">
+                                        <!-- Selected medications with quantity inputs will be added here -->
+                        </div>
+                    </div>
+                </div>
+
+                            <!-- Order Items Section -->
+                            <div class="card mb-4" style="border: 2px solid #e9ecef; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);">
+                                <div class="order-items-header">
+                                    <h5 class="order-items-title">
+                                        <i class="fas fa-shopping-cart"></i>Selected Medications
+                                    </h5>
+                                </div>
+                                <div class="card-body" style="padding: 20px;">
+                                    <div id="orderItemsContainer">
+                                        <!-- Selected medications will be displayed here -->
+                                    </div>
+                                    
+                                    <div id="emptyState" class="text-center py-5" style="display: none;">
+                                        <i class="fas fa-shopping-cart" style="font-size: 3rem; color: var(--dark-gray); margin-bottom: 15px;"></i>
+                                        <h6 style="color: var(--dark-gray);">No medications selected</h6>
+                                        <p style="color: var(--dark-gray);">Select medications from above to add them to your order</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Notes and Summary -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                                        <label asp-for="OrderNotes" class="form-label">Order Notes (Optional)</label>
+                            <textarea asp-for="OrderNotes" class="form-control" rows="3" placeholder="Add any special instructions or notes for your order..."></textarea>
+                            <span asp-validation-for="OrderNotes" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                                    <div class="summary-card">
+                                        <h6 class="summary-title">
+                                            <i class="fas fa-calculator mr-2"></i>Order Summary
+                                </h6>
+                                        <div class="summary-item">
+                                    <span>Items:</span>
+                                    <span id="totalItems">0</span>
+                                </div>
+                                        <hr style="margin: 15px 0; border-color: #dee2e6;">
+                                        <div class="summary-item">
+                                            <span style="font-weight: 600;">Total Amount Due:</span>
+                                            <span id="totalAmount" class="total-amount">R 0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-end gap-3">
+                                <a asp-action="Index" class="btn btn-outline-secondary">
+                                    <i class="fas fa-times mr-1"></i>Cancel
+                                </a>
+                                <button type="submit" id="submitOrder" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane mr-1"></i>Create Order
+                    </button>
+                </div>
+            </form>
+                    </div>
+                </div>
+                </div>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1055;">
+</div>
+
+@section Scripts {
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        let orderItems = [];
+        let itemCounter = 0;
+
+        // Initialize the form
+        $(document).ready(function() {
+            console.log('Document ready, initializing form...');
+            calculateOrderTotals(); // Initialize totals
+            updateEmptyState(); // Show empty state initially
+            
+            // Handle checkbox changes
+            $('.medication-checkbox').change(function() {
+                updateQuantitySection();
+            });
+            
+            // Test if form submission is bound
+            console.log('Form element found:', $('#orderForm').length);
+            console.log('Submit button found:', $('#submitOrder').length);
+        });
+
+        // Update quantity section based on selected medications
+        function updateQuantitySection() {
+            const selectedCheckboxes = $('.medication-checkbox:checked:not(:disabled)');
+            const quantitySection = $('#quantitySection');
+            const container = $('#selectedMedicationsContainer');
+            
+            if (selectedCheckboxes.length > 0) {
+                quantitySection.show();
+                container.empty();
+                
+                selectedCheckboxes.each(function() {
+                    const checkbox = $(this);
+                    const medicationId = checkbox.val();
+                    const medicationName = checkbox.data('name');
+                    const dosage = checkbox.data('dosage');
+                    const price = checkbox.data('price');
+                    const stock = checkbox.data('stock');
+                    
+                    // Prevent adding out of stock items
+                    if (parseInt(stock) <= 0) {
+                        checkbox.prop('checked', false);
+                        showToast('This medication is out of stock', 'warning');
+                        return;
+                    }
+                    
+                    const quantityHtml = `
+                        <div class="row mb-2 align-items-center" data-medication-id="${medicationId}">
+                            <div class="col-md-4">
+                                <strong>${medicationName}</strong>
+                                <small class="text-muted d-block">${dosage}</small>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Quantity:</label>
+                                <input type="number" 
+                                       class="form-control form-control-sm quantity-input" 
+                                       min="1" 
+                                       max="${stock}" 
+                                       value="1"
+                                       data-medication-id="${medicationId}"
+                                       data-price="${price}">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Unit Price:</label>
+                                <span class="form-control-plaintext text-success font-weight-bold">
+                                    R ${parseFloat(price).toFixed(2)}
+                                </span>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label small">Total:</label>
+                                <span class="form-control-plaintext text-success font-weight-bold total-price" 
+                                      data-medication-id="${medicationId}">
+                                    R ${parseFloat(price).toFixed(2)}
+                                </span>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" 
+                                        class="btn btn-sm btn-outline-danger remove-medication-btn"
+                                        data-medication-id="${medicationId}">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.append(quantityHtml);
+                });
+                
+                // Bind quantity change events
+                $('.quantity-input').on('input', function() {
+                    const quantity = parseInt($(this).val()) || 0;
+                    const price = parseFloat($(this).data('price'));
+                    const medicationId = $(this).data('medication-id');
+                    const total = quantity * price;
+                    
+                    $(`.total-price[data-medication-id="${medicationId}"]`).text(`R ${total.toFixed(2)}`);
+                    updateOrderItems();
+                });
+                
+                // Bind remove button events
+                $('.remove-medication-btn').click(function() {
+                    const medicationId = $(this).data('medication-id');
+                    $(`.medication-checkbox[value="${medicationId}"]`).prop('checked', false);
+                    updateQuantitySection();
+                });
+                
+                updateOrderItems();
+            } else {
+                quantitySection.hide();
+                orderItems = [];
+                updateOrderItemsDisplay();
+                calculateOrderTotals();
+                updateEmptyState();
+            }
+        }
+
+        // Update order items array based on selected medications and quantities
+        function updateOrderItems() {
+            orderItems = [];
+            
+            $('.quantity-input').each(function() {
+                const quantity = parseInt($(this).val()) || 0;
+                if (quantity > 0) {
+                    const medicationId = $(this).data('medication-id');
+                    const checkbox = $(`.medication-checkbox[value="${medicationId}"]`);
+                    const price = parseFloat($(this).data('price'));
+                    
+            orderItems.push({
+                medicationId: medicationId,
+                        name: checkbox.data('name'),
+                        dosage: checkbox.data('dosage'),
+                price: price,
+                quantity: quantity
+                    });
+                }
+            });
+            
+            updateOrderItemsDisplay();
+            calculateOrderTotals();
+            updateEmptyState();
+        }
+
+        // Check for success message and show SweetAlert2 modal
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            Swal.fire({
+                title: 'Order Created Successfully!',
+                html: `
+                    <div style="text-align: center; margin: 20px 0;">
+                        <i class="fas fa-check-circle" style="font-size: 64px; color: #28a745; margin-bottom: 20px;"></i>
+                        <p style="font-size: 18px; margin-bottom: 15px; color: #2c3e50;">@Html.Raw(TempData["SuccessMessage"])</p>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff; margin: 15px 0;">
+                            <p style="margin: 0; color: #6c757d; font-size: 14px;">
+                                <i class="fas fa-info-circle mr-2"></i>
+                                Your order has been submitted and will be processed shortly.
+                            </p>
+                        </div>
+                    </div>
+                `,
+                icon: 'success',
+                confirmButtonColor: '#28a745',
+                confirmButtonText: '<i class="fas fa-check mr-2"></i>OK',
+                customClass: {
+                    popup: 'swal2-popup-custom',
+                    title: 'swal2-title-custom',
+                    confirmButton: 'swal2-confirm-custom'
+                }
+            });
+            </text>
+        }
+
+        // Update order items display
+        function updateOrderItemsDisplay() {
+            const container = $('#orderItemsContainer');
+            container.empty();
+            
+            orderItems.forEach((item, index) => {
+            const itemHtml = `
+                    <div class="selected-medication" data-index="${index}">
+                        <div class="row align-items-center">
+                            <div class="col-md-4">
+                                <h6 class="mb-1" style="color: var(--secondary-color); font-weight: 700;">${item.name}</h6>
+                                <small style="color: var(--dark-gray);">${item.dosage}</small>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <span class="badge" style="background: var(--accent-color); color: white; padding: 8px 12px; border-radius: 20px; font-size: 0.9rem;">
+                                    Qty: ${item.quantity}
+                                </span>
+                        </div>
+                            <div class="col-md-2 text-center">
+                                <span style="color: var(--success-color); font-weight: 600; font-size: 1.1rem;">
+                                    R ${item.price.toFixed(2)}
+                                </span>
+                            </div>
+                            <div class="col-md-2 text-center">
+                                <span style="color: var(--success-color); font-weight: 700; font-size: 1.2rem;">
+                                    R ${(item.price * item.quantity).toFixed(2)}
+                                </span>
+                        </div>
+                            <div class="col-md-2 text-center">
+                                <button type="button" class="btn btn-remove-medication" onclick="removeMedication(${index})" title="Remove Medication">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+                container.append(itemHtml);
+            });
+        }
+
+        // Remove medication from order
+        function removeMedication(index) {
+            orderItems.splice(index, 1);
+            updateOrderItemsDisplay();
+            calculateOrderTotals();
+            updateEmptyState();
+            showToast('Medication removed from order', 'info');
+        }
+
+        // Update empty state visibility
+        function updateEmptyState() {
+            if (orderItems.length === 0) {
+                $('#emptyState').show();
+            } else {
+                $('#emptyState').hide();
+            }
+        }
+
+
+        // Calculate order totals
+        function calculateOrderTotals() {
+            let totalItems = 0;
+            let totalAmount = 0;
+            
+            orderItems.forEach(item => {
+                totalItems += item.quantity;
+                totalAmount += (item.price * item.quantity);
+            });
+            
+            // Update the display
+            $('#totalItems').text(totalItems);
+            $('#totalAmount').text(`R ${totalAmount.toFixed(2)}`);
+        }
+
+        // Form submission
+        $('#orderForm').submit(function(e) {
+            console.log('Form submission started');
+
+            // Validate that at least one medication is selected
+            if (orderItems.length === 0) {
+                showToast('Please add at least one medication to your order', 'warning');
+                return false;
+            }
+
+            // Clear any existing hidden fields
+            $('input[name^="OrderItems"]').remove();
+            $('input[name="TotalAmount"]').remove();
+
+            // Add hidden fields to the form for order items
+            orderItems.forEach((item, index) => {
+                    // Add hidden input for medication ID
+                    $('<input>').attr({
+                        type: 'hidden',
+                    name: `OrderItems[${index}].MedicationId`,
+                    value: item.medicationId
+                    }).appendTo('#orderForm');
+                    
+                    // Add hidden input for quantity
+                    $('<input>').attr({
+                        type: 'hidden',
+                    name: `OrderItems[${index}].Quantity`,
+                    value: item.quantity
+                    }).appendTo('#orderForm');
+            });
+
+            // Add hidden input for total amount
+            const totalAmount = parseFloat($('#totalAmount').text().replace('R ', ''));
+            $('<input>').attr({
+                type: 'hidden',
+                name: 'TotalAmount',
+                value: totalAmount.toFixed(2)
+            }).appendTo('#orderForm');
+
+            console.log('Form will submit with regular POST request');
+            // Let the form submit normally
+        });
+
+        // Function to show toast notifications
+        function showToast(message, type = 'info') {
+            const toast = `
+                <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                    <div class="d-flex">
+                        <div class="toast-body">
+                            ${message}
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            `;
+            
+            $('.toast-container').append(toast);
+            $('.toast').toast('show');
+        }
+    </script>
+}

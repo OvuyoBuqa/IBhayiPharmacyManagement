@@ -1,0 +1,491 @@
+@using IBhayiPharmacyManagementSystem.Enums
+@model IEnumerable<IBhayiPharmacyManagementSystem.Models.Order>
+@{
+    ViewData["Title"] = "Collected Orders";
+    Layout = "_LayoutCustomer";
+}
+
+<style>
+    :root {
+        --primary-blue: #3498db;
+        --dark-blue-gray: #2c3e50;
+        --light-gray: #ecf0f1;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --white: #ffffff;
+        --accent-color: #3498db;
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 20px;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, var(--primary-blue), #2980b9);
+        color: var(--white);
+        padding: 30px;
+        border-radius: 15px;
+        margin-bottom: 30px;
+        box-shadow: 0 8px 25px rgba(52, 152, 219, 0.3);
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin-bottom: 30px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--dark-blue-gray), #34495e);
+        color: var(--white);
+        padding: 25px 30px;
+        border-bottom: none;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .table {
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #34495e, #2c3e50);
+        color: var(--white);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        padding: 20px 15px;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #ecf0f1;
+    }
+
+    .table tbody tr:hover {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .table tbody td {
+        padding: 20px 15px;
+        vertical-align: middle;
+        border: none;
+    }
+
+    .badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-success {
+        background: linear-gradient(135deg, var(--success-color), #229954);
+        color: var(--white);
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, var(--warning-color), #e67e22);
+        color: var(--white);
+    }
+
+    .badge-danger {
+        background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        color: var(--white);
+    }
+
+    .badge-info {
+        background: linear-gradient(135deg, var(--primary-blue), #2980b9);
+        color: var(--white);
+    }
+
+    /* Enhanced dropdown styles for orders page */
+    .btn-group {
+        position: relative !important;
+        z-index: 10 !important;
+        display: inline-block !important;
+    }
+    
+    .btn-group.show {
+        z-index: 99999 !important;
+    }
+    
+    .btn-group .dropdown-toggle {
+        position: relative !important;
+        z-index: 99998 !important;
+    }
+    
+    .btn-group.show .dropdown-toggle {
+        z-index: 99998 !important;
+    }
+    
+    .btn-group .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 100% !important;
+        z-index: 99999 !important;
+        border-radius: 8px !important;
+        border: 1px solid #e9ecef !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        min-width: 180px !important;
+        padding: 0.5rem 0 !important;
+        background: white !important;
+        margin-right: 10px !important;
+        margin-top: 5px !important;
+        display: none !important;
+    }
+    
+    .btn-group .dropdown-menu.show {
+        display: block !important;
+    }
+    
+    .btn-group.show .dropdown-menu {
+        display: block !important;
+    }
+    
+    /* Ensure table containers allow dropdown overflow */
+    .table-responsive {
+        overflow: visible !important;
+    }
+    
+    .card-body {
+        overflow: visible !important;
+    }
+    
+    .table {
+        overflow: visible !important;
+    }
+    
+    .table tbody {
+        overflow: visible !important;
+    }
+    
+    .table tbody tr {
+        overflow: visible !important;
+    }
+    
+    .table tbody tr td {
+        overflow: visible !important;
+        position: relative !important;
+    }
+    
+    .table tbody tr td:last-child {
+        overflow: visible !important;
+        position: relative !important;
+        z-index: auto !important;
+    }
+    
+    .btn-group .dropdown-item {
+        padding: 0.75rem 1.25rem;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        color: #2c3e50;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .btn-group .dropdown-item:last-child {
+        border-bottom: none;
+    }
+    
+    .btn-group .dropdown-item:hover,
+    .btn-group .dropdown-item:focus {
+        background-color: #f8f9fa;
+        color: #007bff;
+        transform: translateX(3px);
+    }
+    
+    .btn-group .dropdown-item i {
+        width: 20px;
+        text-align: center;
+        margin-right: 10px;
+    }
+    
+    .btn-group .dropdown-divider {
+        margin: 8px 0;
+        border-top: 1px solid #e9ecef;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: #6c757d;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+
+    .empty-state h5 {
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+        color: #495057;
+    }
+
+    .empty-state p {
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    .btn-outline-primary {
+        border: 2px solid var(--primary-blue);
+        color: var(--primary-blue);
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background: linear-gradient(135deg, var(--primary-blue), #2980b9);
+        border-color: var(--primary-blue);
+        color: var(--white);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
+    }
+
+    .btn-outline-primary:focus {
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    }
+
+    .btn-outline-primary:active {
+        transform: translateY(0);
+    }
+
+    .btn-outline-primary i {
+        margin-right: 8px;
+    }
+
+    .btn-outline-primary .fa-caret-down {
+        margin-left: 8px;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-outline-primary[aria-expanded="true"] .fa-caret-down {
+        transform: rotate(180deg);
+    }
+
+    .btn-group.dropdown-up .dropdown-menu {
+        top: auto !important;
+        bottom: 100% !important;
+        margin-top: 0 !important;
+        margin-bottom: 5px !important;
+    }
+
+    @@media (max-width: 768px) {
+        .page-header {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .table-responsive {
+            border-radius: 10px;
+            overflow: visible !important;
+        }
+        
+        /* Keep dropdown opening to left on mobile but adjust positioning */
+        .btn-group .dropdown-menu {
+            left: auto !important;
+            right: 0 !important;
+            min-width: 160px;
+        }
+        
+        .btn-group.dropdown-up .dropdown-menu {
+            bottom: 100% !important;
+            top: auto !important;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="page-title">
+                            <i class="fas fa-check-circle"></i>Collected Orders
+                        </h1>
+                        <div class="d-flex gap-2">
+                            <a asp-action="Index" class="btn btn-outline-light">
+                                <i class="fas fa-arrow-left mr-2"></i>All Orders
+                            </a>
+                            <a asp-action="OrderHistory" class="btn btn-outline-light">
+                                <i class="fas fa-history mr-2"></i>Order History
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Content Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-check-circle mr-2"></i>Collected Orders
+                        </h3>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        @if (!Model.Any())
+                        {
+                            <div class="empty-state">
+                                <i class="fas fa-check-circle"></i>
+                                <h5>No Collected Orders</h5>
+                                <p>You don't have any collected orders yet. Orders will appear here once they are marked as collected by the pharmacist.</p>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                <i class="fas fa-hashtag mr-1"></i>Order #
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-calendar mr-1"></i>Date
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-info-circle mr-1"></i>Status
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-money-bill mr-1"></i>Total
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-credit-card mr-1"></i>Payment
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-cogs mr-1"></i>Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model)
+                                        {
+                                            <tr class="align-middle">
+                                                <td class="text-center font-weight-bold">#@item.OrderId</td>
+                                                <td class="text-center">@item.OrderDate.ToString("MMM dd, yyyy")<br><small class="text-muted">@item.OrderDate.ToString("HH:mm")</small></td>
+                                                <td class="text-center">
+                                                    <span class="badge badge-success">
+                                                        @item.OrderStatus
+                                                    </span>
+                                                </td>
+                                                <td class="text-center font-weight-bold" style="color: var(--success-color);">R @item.TotalAmount.ToString("F2")</td>
+                                                <td class="text-center">
+                                                    @if (item.PaymentStatus)
+                                                    {
+                                                        <span class="badge badge-success">Paid</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-warning">Pending</span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" 
+                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fas fa-cog"></i> Actions
+                                                        </button>
+                                                        <div class="dropdown-menu shadow">
+                                                            <a class="dropdown-item" asp-action="Details" asp-route-id="@item.OrderId">
+                                                                <i class="fas fa-eye text-info mr-2"></i>View Details
+                                                            </a>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Override default Bootstrap dropdown behavior
+            $('.dropdown-toggle').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var $this = $(this);
+                var $parent = $this.closest('.btn-group');
+                var $menu = $parent.find('.dropdown-menu');
+                
+                // Check if already open
+                var isOpen = $menu.hasClass('show');
+                
+                // Close ALL dropdowns first
+                $('.dropdown-menu').removeClass('show');
+                $('.btn-group').removeClass('show');
+                $('.dropdown-toggle').attr('aria-expanded', 'false');
+                
+                // If this one wasn't open, open it now
+                if (!isOpen) {
+                    $menu.addClass('show');
+                    $parent.addClass('show');
+                    $this.attr('aria-expanded', 'true');
+                }
+                
+                // Prevent dropdown items from closing when clicked
+                $menu.on('click', 'a', function(e) {
+                    e.stopPropagation();
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            $(document).on('click.dropdown', function(e) {
+                if (!$(e.target).closest('.btn-group').length) {
+                    $('.dropdown-menu').removeClass('show');
+                    $('.btn-group').removeClass('show');
+                    $('.dropdown-toggle').attr('aria-expanded', 'false');
+                }
+            });
+            
+            // Add dropdown-up class to last two rows
+            function updateDropdownDirections() {
+                $('.btn-group').removeClass('dropdown-up');
+                var $btnGroups = $('.btn-group');
+                $btnGroups.slice(-2).addClass('dropdown-up');
+            }
+            
+            updateDropdownDirections();
+        });
+    </script>
+}

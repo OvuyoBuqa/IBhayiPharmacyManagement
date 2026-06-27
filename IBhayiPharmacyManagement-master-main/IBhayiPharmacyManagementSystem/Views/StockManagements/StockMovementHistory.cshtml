@@ -1,0 +1,271 @@
+@model List<IBhayiPharmacyManagementSystem.Models.StockMovement>
+
+@{
+    ViewData["Title"] = "Stock Movement History";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    :root {
+        --primary-color: #b3d9ff; /* light blue */
+        --primary-dark: #99ccff; /* deeper light blue */
+        --secondary-color: #6c757d; /* grey */
+        --success-color: #27ae60; /* green */
+        --warning-color: #f39c12; /* orange */
+        --danger-color: #e74c3c;
+        --info-color: #3498db;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00; /* orange accent */
+        --brown-soft: #c4a484; /* soft brown */
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        border-top: 4px solid var(--orange-accent); /* orange accent */
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--info-color);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        border-left: 4px solid var(--brown-soft); /* subtle brown edge */
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey header */
+        color: var(--white);
+        padding: 20px 25px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    }
+
+    .card-title i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, var(--secondary-color), #5a6268);
+        border: none;
+        color: var(--white);
+        padding: 12px 24px;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #5a6268, #495057);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        color: var(--white);
+        text-decoration: none;
+    }
+
+    .btn-secondary i {
+        margin-right: 8px;
+        font-size: 0.9rem;
+    }
+
+    .table {
+        margin-bottom: 0;
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border: none;
+        color: var(--dark-text);
+        font-weight: 600;
+        padding: 15px 12px;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table tbody td {
+        padding: 15px 12px;
+        border-top: 1px solid #e9ecef;
+        vertical-align: middle;
+    }
+
+    .table tbody tr:hover {
+        background-color: rgba(179, 217, 255, 0.1);
+        transition: background-color 0.3s ease;
+    }
+
+    .text-muted {
+        color: var(--muted-text) !important;
+        font-style: italic;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--info-color);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--muted-text);
+        font-weight: 600;
+    }
+
+        
+        .page-header {
+            padding: 20px;
+        }
+        
+        .card-header {
+            padding: 15px 20px;
+        }
+        
+        .btn-secondary {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="page-title">
+                            <i class="fas fa-history"></i>@ViewData["Title"]
+                        </h1>
+                        <a asp-action="Index" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Stock Management
+                        </a>
+                    </div>
+                    <nav aria-label="breadcrumb" class="mt-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Action("PharmacyManager", "Home")">Dashboard</a></li>
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index", "StockManagements")">Stock Management</a></li>
+                            <li class="breadcrumb-item active">Stock Movement History</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Stock Movement History Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-history"></i>Recent Stock Movements
+                        </h5>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date/Time</th>
+                                        <th>Medication</th>
+                                        <th>Type</th>
+                                        <th>Quantity Changed</th>
+                                        <th>Reason</th>
+                                        <th>Adjusted By</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @if (Model == null || !Model.Any())
+                                    {
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted">
+                                                <div style="padding: 40px;">
+                                                    <i class="fas fa-info-circle fa-2x mb-3" style="color: var(--muted-text);"></i>
+                                                    <p class="mb-0">No stock movement history found.</p>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                    else
+                                    {
+                                        foreach (var movement in Model)
+                                        {
+                                            <tr>
+                                                <td>@movement.Timestamp.ToString("yyyy-MM-dd HH:mm")</td>
+                                                <td>@movement.Medication.Name</td>
+                                                <td>
+                                                    <span class="badge bg-@(movement.MovementType == "Increment" ? "success" : movement.MovementType == "Decrement" ? "danger" : "info")">
+                                                        @movement.MovementType
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="fw-bold @(movement.MovementType == "Increment" ? "text-success" : movement.MovementType == "Decrement" ? "text-danger" : "text-info")">
+                                                        @(movement.MovementType == "Increment" ? "+" : movement.MovementType == "Decrement" ? "-" : "")@movement.QuantityChanged
+                                                    </span>
+                                                </td>
+                                                <td>@(string.IsNullOrEmpty(movement.Reason) ? "N/A" : movement.Reason)</td>
+                                                <td>@(movement.User != null ? movement.User.FullName : "N/A")</td>
+                                            </tr>
+                                        }
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

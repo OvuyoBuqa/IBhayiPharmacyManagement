@@ -1,0 +1,330 @@
+﻿@model IBhayiPharmacyManagementSystem.ViewModels.RegisterWalkInCustomerViewModel
+@{
+    ViewData["Title"] = "Register Walk-In Customer";
+    Layout = "_LayoutPharmacist";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show">
+        <i class="fas fa-check-circle me-2"></i> @Html.Raw(TempData["SuccessMessage"])
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+<div class="container-fluid px-4">
+    <div class="row justify-content-center">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg mt-3">
+                <div class="card-header bg-primary text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-user-plus me-2"></i>Register Walk-In Customer
+                        </h3>
+                        <span class="badge bg-white text-primary fs-6">
+                            <i class="fas fa-walking me-1"></i> Walk-In
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body p-4">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show mb-3">
+                            <i class="fas fa-check-circle me-2"></i> @Html.Raw(TempData["SuccessMessage"])
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show mb-3">
+                            <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+
+                    <form asp-action="RegisterWalkInCustomer" method="post" id="registerForm" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Name" class="form-label fw-bold">First Name <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input asp-for="Name" class="form-control form-control-sm" required />
+                                </div>
+                                <span asp-validation-for="Name" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Surname" class="form-label fw-bold">Last Name <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-user"></i></span>
+                                    <input asp-for="Surname" class="form-control form-control-sm" required />
+                                </div>
+                                <span asp-validation-for="Surname" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="IDNumber" class="form-label fw-bold">ID Number</label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-id-card"></i></span>
+                                <input asp-for="IDNumber" class="form-control form-control-sm" placeholder="13-digit ID number" maxlength="13" />
+                            </div>
+                            <span asp-validation-for="IDNumber" class="text-danger small"></span>
+                            <div class="form-text small">Format: 1234567890123</div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="CellPhoneNumber" class="form-label fw-bold">Cellphone Number <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-mobile-alt"></i></span>
+                                    <input asp-for="CellPhoneNumber" class="form-control form-control-sm" placeholder="e.g. 0831234567" required />
+                                </div>
+                                <span asp-validation-for="CellPhoneNumber" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="Email" class="form-label fw-bold">Email Address</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-envelope"></i></span>
+                                    <input asp-for="Email" type="email" class="form-control form-control-sm" />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="border-top border-bottom py-2 my-3">
+                            <h5 class="mb-0 text-primary fs-6">
+                                <i class="fas fa-map-marker-alt me-2"></i> Address Information
+                            </h5>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Street" class="form-label fw-bold">Street Address <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="fas fa-road"></i></span>
+                                <input asp-for="Street" class="form-control form-control-sm" required />
+                            </div>
+                            <span asp-validation-for="Street" class="text-danger small"></span>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label asp-for="Suburb" class="form-label fw-bold">Suburb <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-home"></i></span>
+                                    <input asp-for="Suburb" class="form-control form-control-sm" required />
+                                </div>
+                                <span asp-validation-for="Suburb" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-6">
+                                <label asp-for="City" class="form-label fw-bold">City/Town <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-city"></i></span>
+                                    <input asp-for="City" class="form-control form-control-sm" required />
+                                </div>
+                                <span asp-validation-for="City" class="text-danger small"></span>
+                            </div>
+                        </div>
+
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-4">
+                                <label asp-for="Province" class="form-label fw-bold">Province <span class="text-danger">*</span></label>
+                                <select asp-for="Province" class="form-select form-select-sm" required>
+                                    <option value="" selected disabled>Select Province</option>
+                                    <option value="Eastern Cape">Eastern Cape</option>
+                                    <option value="Free State">Free State</option>
+                                    <option value="Gauteng">Gauteng</option>
+                                    <option value="KwaZulu-Natal">KwaZulu-Natal</option>
+                                    <option value="Limpopo">Limpopo</option>
+                                    <option value="Mpumalanga">Mpumalanga</option>
+                                    <option value="North West">North West</option>
+                                    <option value="Northern Cape">Northern Cape</option>
+                                    <option value="Western Cape">Western Cape</option>
+                                </select>
+                                <span asp-validation-for="Province" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="ZipCode" class="form-label fw-bold">Postal Code <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="fas fa-mail-bulk"></i></span>
+                                    <input asp-for="ZipCode" class="form-control form-control-sm" required />
+                                </div>
+                                <span asp-validation-for="ZipCode" class="text-danger small"></span>
+                            </div>
+
+                            <div class="col-md-4">
+                                <label asp-for="Country" class="form-label fw-bold">Country</label>
+                                <input asp-for="Country" class="form-control form-control-sm" value="South Africa" readonly />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between border-top pt-3 mt-3">
+                            <a asp-action="CustomerList" class="btn btn-outline-secondary btn-sm px-3">
+                                <i class="fas fa-arrow-left me-2"></i> Back to List
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-sm px-3" id="registerBtn">
+                                <i class="fas fa-user-plus me-2"></i> Register Customer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .container-fluid {
+            max-width: 98%;
+            padding-left: 1.5rem;
+            padding-right: 1.5rem;
+        }
+
+        .card {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        .card-header {
+            padding: 0.75rem 1.25rem;
+        }
+
+        h3 {
+            font-size: 1.25rem;
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            margin-bottom: 0.25rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .input-group-text {
+            background-color: #f8f9fa;
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .form-control, .form-control-sm, .form-select, .form-select-sm {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            height: calc(1.5em + 0.75rem + 2px);
+            border-radius: 0.25rem;
+        }
+
+            .form-control:focus, .form-select:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+
+        .btn {
+            padding: 0.375rem 0.75rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            border-radius: 0.25rem;
+        }
+
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+            .btn-primary:hover {
+                background-color: #0b5ed7;
+                border-color: #0a58ca;
+            }
+
+        .btn-outline-secondary {
+            border-color: #dee2e6;
+        }
+
+            .btn-outline-secondary:hover {
+                background-color: #f8f9fa;
+            }
+
+        .is-invalid {
+            border-color: #dc3545;
+        }
+
+            .is-invalid:focus {
+                box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+            }
+
+        .text-danger {
+            font-size: 0.75em;
+        }
+
+        .form-text {
+            font-size: 0.75rem;
+        }
+
+        .alert {
+            padding: 0.75rem 1.25rem;
+            margin-bottom: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+
+        .border-top, .border-bottom {
+            border-color: #e9ecef !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function() {
+            // Format ID number input
+            $('#IDNumber').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value.length > 13) {
+                    this.value = this.value.slice(0, 13);
+                }
+            });
+
+            // Format phone number input
+            $('#CellPhoneNumber').on('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+
+            // Client-side validation
+            (function() {
+                'use strict'
+                var forms = document.querySelectorAll('.needs-validation')
+                Array.prototype.slice.call(forms)
+                    .forEach(function(form) {
+                        form.addEventListener('submit', function(event) {
+                            if (!form.checkValidity()) {
+                                event.preventDefault()
+                                event.stopPropagation()
+                            } else {
+                                // Show loading state
+                                $('#registerBtn').prop('disabled', true)
+                                    .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Registering...')
+                            }
+                            form.classList.add('was-validated')
+                        }, false)
+                    })
+            })()
+        });
+    </script>
+}

@@ -1,0 +1,534 @@
+﻿@model IBhayiPharmacyManagementSystem.Models.UnprocessedScript
+@{
+    ViewData["Title"] = "Load Prescription";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Load Prescription</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a asp-controller="Home" asp-action="Index">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Load Prescription</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-gradient-primary text-white">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-upload mr-2"></i>Prescription Details
+                        </h3>
+                    </div>
+                    <form asp-action="Load" method="post" enctype="multipart/form-data">
+                        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+                        <div class="card-body">
+                            @if (Model.UnploadId > 0)
+                            {
+                                <div class="form-group">
+                                    <label asp-for="UnploadId" class="form-label">Prescription Reference #</label>
+                                    <input asp-for="UnploadId" class="form-control" readonly />
+                                </div>
+                            }
+                            <div class="form-group">
+                                <label for="prescriptionImage" class="form-label">Prescription File <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <div class="custom-file">
+                                        <input type="file" class="custom-file-input" id="prescriptionImage" asp-for="ScriptImage" accept=".pdf" required>
+                                        <label class="custom-file-label" for="prescriptionImage">Choose PDF file</label>
+                                    </div>
+                                </div>
+                                <small class="form-text text-muted">Only PDF files are accepted. Maximum size: 10MB</small>
+                                <span asp-validation-for="ScriptImage" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="requestDispensation" name="RequestDispensation" value="true">
+                                    <label class="custom-control-label" for="requestDispensation">
+                                        <strong>Please dispense this prescription for collection</strong>
+                                    </label>
+                                </div>
+                                <small class="form-text text-muted">Check this box if you want your medication dispensed and ready for collection once processed.</small>
+                            </div>
+
+                            <div class="form-group">
+                                <label asp-for="Comments" class="form-label">Additional Notes</label>
+                                <textarea asp-for="Comments" class="form-control" rows="4" placeholder="Any special instructions or notes for the pharmacist..."></textarea>
+                                <span asp-validation-for="Comments" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="card-footer bg-light">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-upload mr-2"></i>Submit Prescription
+                            </button>
+                            <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left mr-2"></i>Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-gradient-info text-white">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-info-circle mr-2"></i>Upload Instructions
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.UnploadId > 0)
+                        {
+                            <div class="alert alert-success border-0 shadow-sm">
+                                <h5><i class="fas fa-check-circle mr-2"></i>Upload Successful!</h5>
+                                <p class="mb-1">Your prescription reference number is: <strong>@Model.UnploadId</strong></p>
+                                <p class="mb-0">Please keep this number for your records.</p>
+                            </div>
+                        }
+                        
+                        <div class="info-card mb-3">
+                            <div class="info-card-header info">
+                                <i class="fas fa-info-circle"></i>
+                                <h5>Important Information</h5>
+                            </div>
+                            <div class="info-card-body">
+                                <ul class="mb-0">
+                                    <li><strong>File Format:</strong> Only PDF files are accepted</li>
+                                    <li><strong>File Size:</strong> Maximum 10MB</li>
+                                    <li><strong>Processing Time:</strong> Within 24 hours</li>
+                                    <li><strong>Dispensation:</strong> Check the box if you want medication dispensed</li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        
+                        <div class="info-card">
+                            <div class="info-card-header success">
+                                <i class="fas fa-check-circle"></i>
+                                <h5>Dispensation Process</h5>
+                            </div>
+                            <div class="info-card-body">
+                                <p class="mb-2">If you check the dispensation box:</p>
+                                <ul class="mb-0">
+                                    <li>Your prescription will be processed for dispensing</li>
+                                    <li>You'll be notified when medication is ready for collection</li>
+                                    <li>Payment is due upon collection at the pharmacy</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    /* Professional, muted color palette */
+    :root {
+        --primary-color: #2c3e50;        /* Dark blue-grey */
+        --primary-dark: #1a252f;         /* Darker blue-grey */
+        --secondary-color: #6c757d;     /* Muted grey */
+        --success-color: #27ae60;        /* Professional green */
+        --warning-color: #f39c12;        /* Professional orange */
+        --danger-color: #e74c3c;         /* Professional red */
+        --info-color: #3498db;           /* Professional blue */
+        --light-bg: #f8f9fa;             /* Light background */
+        --dark-text: #2c3e50;            /* Dark text */
+        --muted-text: #7f8c8d;           /* Muted text */
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    }
+
+    .card-header {
+        border-radius: 12px 12px 0 0 !important;
+        border: none;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #34495e, #2c3e50);
+    }
+
+    .bg-gradient-info {
+        background: linear-gradient(135deg, #34495e, #2c3e50);
+    }
+
+    .card-body {
+        padding: 1.5rem;
+    }
+
+    .card-footer {
+        border-top: 1px solid #e9ecef;
+        padding: 1rem 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 0.75rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(44, 62, 80, 0.25);
+    }
+
+    .custom-file-label {
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 0.75rem;
+    }
+
+    .custom-file-input:focus ~ .custom-file-label {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(44, 62, 80, 0.25);
+    }
+
+    .custom-control-label {
+        font-weight: 500;
+        color: var(--dark-text);
+    }
+
+    .btn {
+        border-radius: 8px;
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #27ae60, #229954);
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #229954, #1e8449);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+        border: none;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: linear-gradient(135deg, #6c7b7d, #5a6c7d);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(127, 140, 141, 0.3);
+    }
+
+    .info-card {
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+
+    .info-card-header {
+        background: linear-gradient(135deg, #ecf0f1, #bdc3c7);
+        padding: 1rem;
+        display: flex;
+        align-items: center;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .info-card-header.info {
+        background: linear-gradient(135deg, #FF8C00, #e67e22);
+        color: white;
+    }
+
+    .info-card-header.warning {
+        background: linear-gradient(135deg, #f39c12, #e67e22);
+        color: white;
+    }
+
+    .info-card-header.success {
+        background: linear-gradient(135deg, #27ae60, #229954);
+        color: white;
+    }
+
+    .info-card-header i {
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+        color: var(--dark-text);
+    }
+
+    .info-card-header.info i,
+    .info-card-header.warning i,
+    .info-card-header.success i {
+        color: white;
+    }
+
+    .info-card-header h5 {
+        margin: 0;
+        font-weight: 600;
+        color: var(--dark-text);
+    }
+
+    .info-card-header.info h5,
+    .info-card-header.warning h5,
+    .info-card-header.success h5 {
+        color: white;
+    }
+
+    .info-card-body {
+        padding: 1rem;
+        background: white;
+    }
+
+    .info-card-body ul {
+        margin-bottom: 0;
+        padding-left: 1.25rem;
+    }
+
+    .info-card-body li {
+        margin-bottom: 0.5rem;
+        color: var(--muted-text);
+    }
+
+    .info-card-body p {
+        color: var(--muted-text);
+        margin-bottom: 0.75rem;
+    }
+
+    .alert {
+        border: none;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #27ae60, #229954);
+        color: white;
+        border: none;
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--primary-color);
+        text-decoration: none;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-dark);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--muted-text);
+    }
+
+    /* Responsive adjustments */
+    @@media (max-width: 768px) {
+        .card-body {
+            padding: 1rem;
+        }
+        
+        .info-card-header {
+            padding: 0.75rem;
+        }
+        
+        .info-card-body {
+            padding: 0.75rem;
+        }
+    }
+</style>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Check for success message and show SweetAlert2 modal
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    title: 'Upload Successful!',
+                    html: `
+                        <div style="text-align: center; margin: 20px 0;">
+                            <i class="fas fa-check-circle" style="font-size: 64px; color: #28a745; margin-bottom: 20px;"></i>
+                            <p style="font-size: 18px; margin-bottom: 15px; color: #2c3e50;">@Html.Raw(TempData["SuccessMessage"])</p>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff; margin: 15px 0;">
+                                <p style="margin: 0; color: #6c757d; font-size: 14px;">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Your prescription has been submitted for processing. You will be notified once it's reviewed.
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: '<i class="fas fa-check mr-2"></i>Continue to Prescriptions',
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom'
+                    },
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = '@Url.Action("UnprocessedScripts", "UnprocessedScripts")';
+                    }
+                });
+                </text>
+            }
+
+            // Check for error message and show SweetAlert2 modal
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    title: 'Upload Error!',
+                    html: `
+                        <div style="text-align: center; margin: 20px 0;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: #dc3545; margin-bottom: 20px;"></i>
+                            <p style="font-size: 18px; margin-bottom: 15px; color: #2c3e50;">@Html.Raw(TempData["ErrorMessage"])</p>
+                        </div>
+                    `,
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: '<i class="fas fa-times mr-2"></i>Try Again',
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom'
+                    }
+                });
+                </text>
+            }
+        });
+
+        document.getElementById('prescriptionImage').addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                // Check if file is PDF, JPG, JPEG, PNG, or HEIC
+                const allowedMimeTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/heic'];
+                if (!allowedMimeTypes.includes(file.type)) {
+                    Swal.fire({
+                        title: 'Invalid File Type!',
+                        html: `
+                            <div style="text-align: center; margin: 20px 0;">
+                                <i class="fas fa-file-exclamation" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                                <p style="font-size: 16px; color: #2c3e50;">Only PDF, JPG, PNG, or HEIC files are allowed.</p>
+                                <p style="color: #6c757d; font-size: 14px;">Please select a valid file type.</p>
+                            </div>
+                        `,
+                        icon: 'error',
+                        confirmButtonColor: '#dc3545',
+                        confirmButtonText: '<i class="fas fa-times mr-2"></i>OK',
+                        customClass: {
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            confirmButton: 'swal2-confirm-custom'
+                        }
+                    });
+                    this.value = '';
+                    this.nextElementSibling.innerText = 'Choose PDF file';
+                    return;
+                }
+                
+                // Check file size (10MB limit)
+                if (file.size > 10 * 1024 * 1024) {
+                    Swal.fire({
+                        title: 'File Too Large!',
+                        html: `
+                            <div style="text-align: center; margin: 20px 0;">
+                                <i class="fas fa-weight-hanging" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                                <p style="font-size: 16px; color: #2c3e50;">File size cannot exceed 10MB.</p>
+                                <p style="color: #6c757d; font-size: 14px;">Please select a smaller file.</p>
+                            </div>
+                        `,
+                        icon: 'error',
+                        confirmButtonColor: '#dc3545',
+                        confirmButtonText: '<i class="fas fa-times mr-2"></i>OK',
+                        customClass: {
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            confirmButton: 'swal2-confirm-custom'
+                        }
+                    });
+                    this.value = '';
+                    this.nextElementSibling.innerText = 'Choose PDF file';
+                    return;
+                }
+                
+                this.nextElementSibling.innerText = file.name;
+            } else {
+                this.nextElementSibling.innerText = 'Choose PDF file';
+            }
+        });
+    </script>
+    
+    <style>
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup-custom {
+            border-radius: 15px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            border: none !important;
+        }
+        
+        .swal2-title-custom {
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 24px !important;
+        }
+        
+        .swal2-confirm-custom {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-confirm-custom:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+        }
+        
+        .swal2-html-container {
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+        }
+    </style>
+}

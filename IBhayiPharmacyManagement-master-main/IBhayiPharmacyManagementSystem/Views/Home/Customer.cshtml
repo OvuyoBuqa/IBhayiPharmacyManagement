@@ -1,0 +1,646 @@
+﻿@{
+    ViewData["Title"] = "Customer Dashboard";
+    Layout = "_LayoutCustomer";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Customer Dashboard</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <!-- Info boxes with 3D effects and real counts -->
+        <div class="row">
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box stat-card-3d">
+                    <span class="info-box-icon bg-brown elevation-1"><i class="fas fa-prescription-bottle-alt"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Active Prescriptions</span>
+                        <span class="info-box-number" id="activePrescriptionsCount">Loading...</span>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-description">
+                            <a href="@Url.Action("UnprocessedScripts", "UnprocessedScripts")" class="text-brown">View All</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box stat-card-3d">
+                    <span class="info-box-icon bg-dark elevation-1"><i class="fas fa-redo"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Available Repeats</span>
+                        <span class="info-box-number" id="pendingRepeatsCount">Loading...</span>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-description">
+                            <a href="@Url.Action("Index", "PrescriptionRepeats")" class="text-dark">Manage Repeats</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box stat-card-3d">
+                    <span class="info-box-icon bg-brown elevation-1"><i class="fas fa-box-open"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Ready for Collection</span>
+                        <span class="info-box-number" id="readyForCollectionCount">Loading...</span>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-description">
+                            <a href="@Url.Action("CollectedOrders", "Orders")" class="text-brown">View Collection</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="info-box stat-card-3d">
+                    <span class="info-box-icon bg-dark elevation-1"><i class="fas fa-shopping-cart"></i></span>
+                    <div class="info-box-content">
+                        <span class="info-box-text">Total Orders</span>
+                        <span class="info-box-number" id="totalOrdersCount">Loading...</span>
+                        <div class="progress">
+                            <div class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <span class="progress-description">
+                            <a href="@Url.Action("OrderHistory", "Orders")" class="text-dark">Order History</a>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Left col -->
+            <div class="col-md-8">
+                <!-- TABLE: LATEST PRESCRIPTIONS -->
+                <div class="card modern-card">
+                    <div class="card-header border-transparent">
+                        <h3 class="card-title">Latest Prescriptions</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="maximize">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table m-0">
+                                <thead>
+                                    <tr>
+                                        <th>Prescription ID</th>
+                                        <th>Doctor</th>
+                                        <th>Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="prescriptionsTableBody">
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted py-4">
+                                            <i class="fas fa-spinner fa-spin fa-3x mb-3"></i>
+                                            <p>Loading prescriptions...</p>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="card-footer clearfix">
+                        <a href="@Url.Action("UnprocessedScripts", "UnprocessedScripts")" class="btn btn-sm btn-brown float-left">View All Prescriptions</a>
+                    </div>
+                </div>
+
+                <!-- Prescription Repeats Overview -->
+                <div class="card modern-card">
+                    <div class="card-header border-transparent">
+                        <h3 class="card-title">Prescription Repeats Overview</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-4">
+                                <div class="info-box stat-card-3d">
+                                    <span class="info-box-icon bg-success elevation-1"><i class="fas fa-check"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Total Available</span>
+                                        <span class="info-box-number" id="totalRepeatsAvailable">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="info-box stat-card-3d">
+                                    <span class="info-box-icon bg-warning elevation-1"><i class="fas fa-clock"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Used This Month</span>
+                                        <span class="info-box-number" id="totalRepeatsUsed">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="info-box stat-card-3d">
+                                    <span class="info-box-icon bg-info elevation-1"><i class="fas fa-history"></i></span>
+                                    <div class="info-box-content">
+                                        <span class="info-box-text">Recent Requests</span>
+                                        <span class="info-box-number" id="recentRepeatRequests">Loading...</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="@Url.Action("Index", "PrescriptionRepeats")" class="btn btn-brown">Manage All Repeats</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right col -->
+            <div class="col-md-4">
+                <!-- Recent Activity -->
+                <div class="card modern-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Recent Activity</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <ul class="products-list product-list-in-card pl-2 pr-2" id="recentActivityList">
+                            <li class="item">
+                                <div class="product-img">
+                                    <i class="fas fa-prescription-bottle-alt text-brown fa-2x"></i>
+                                </div>
+                                <div class="product-info">
+                                    <a href="javascript:void(0)" class="product-title">Loading activity...</a>
+                                    <span class="product-description">
+                                        <i class="fas fa-spinner fa-spin"></i> Please wait
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a href="@Url.Action("Index", "Orders")" class="uppercase">View All Activity</a>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="card modern-card">
+                    <div class="card-header">
+                        <h3 class="card-title">Quick Actions</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-grid gap-2">
+                            <a href="@Url.Action("Load", "UnprocessedScripts")" class="btn btn-outline-brown btn-block">
+                                <i class="fas fa-upload mr-2"></i>Upload New Prescription
+                            </a>
+                            <a href="@Url.Action("Index", "PrescriptionRepeats")" class="btn btn-outline-brown btn-block">
+                                <i class="fas fa-redo mr-2"></i>Manage Repeats
+                            </a>
+                            <a href="@Url.Action("Index", "Orders")" class="btn btn-outline-brown btn-block">
+                                <i class="fas fa-shopping-cart mr-2"></i>View Orders
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(function () {
+            console.log('Customer dashboard loaded successfully');
+            
+            // Load dashboard data dynamically
+            loadDashboardData();
+            
+            // Load recent prescriptions
+            loadRecentPrescriptions();
+            
+            // Load recent activity
+            loadRecentActivity();
+        });
+
+        function loadDashboardData() {
+            // Load active prescriptions count
+            $.ajax({
+                url: '@Url.Action("UnprocessedScripts", "UnprocessedScripts")',
+                method: 'GET',
+                success: function(data) {
+                    const activeCount = $(data).find('.table tbody tr').length;
+                    $('#activePrescriptionsCount').text(activeCount);
+                    updateProgressBar('activePrescriptionsCount', activeCount);
+                },
+                error: function() {
+                    $('#activePrescriptionsCount').text('0');
+                }
+            });
+
+            // Load pending repeats count
+            $.ajax({
+                url: '@Url.Action("Index", "PrescriptionRepeats")',
+                method: 'GET',
+                success: function(data) {
+                    const pendingCount = $(data).find('.table tbody tr').length;
+                    $('#pendingRepeatsCount').text(pendingCount);
+                    updateProgressBar('pendingRepeatsCount', pendingCount);
+                },
+                error: function() {
+                    $('#pendingRepeatsCount').text('0');
+                }
+            });
+
+            // Load ready for collection count
+            $.ajax({
+                url: '@Url.Action("CollectedOrders", "Orders")',
+                method: 'GET',
+                success: function(data) {
+                    const readyCount = $(data).find('.table tbody tr').length;
+                    $('#readyForCollectionCount').text(readyCount);
+                    updateProgressBar('readyForCollectionCount', readyCount);
+                },
+                error: function() {
+                    $('#readyForCollectionCount').text('0');
+                }
+            });
+
+            // Load total orders count
+            $.ajax({
+                url: '@Url.Action("Index", "Orders")',
+                method: 'GET',
+                success: function(data) {
+                    const totalCount = $(data).find('.table tbody tr').length;
+                    $('#totalOrdersCount').text(totalCount);
+                    updateProgressBar('totalOrdersCount', totalCount);
+                },
+                error: function() {
+                    $('#totalOrdersCount').text('0');
+                }
+            });
+
+            // Load prescription repeats overview data
+            $.ajax({
+                url: '@Url.Action("History", "PrescriptionRepeats")',
+                method: 'GET',
+                success: function(data) {
+                    const totalAvailable = $(data).find('.table tbody tr').length;
+                    $('#totalRepeatsAvailable').text(totalAvailable);
+                    
+                    // Calculate used this month (simplified - you might want to enhance this)
+                    const usedThisMonth = Math.floor(totalAvailable * 0.3); // Example calculation
+                    $('#totalRepeatsUsed').text(usedThisMonth);
+                    
+                    // Recent requests count
+                    $('#recentRepeatRequests').text(Math.floor(totalAvailable * 0.1));
+                },
+                error: function() {
+                    $('#totalRepeatsAvailable').text('0');
+                    $('#totalRepeatsUsed').text('0');
+                    $('#recentRepeatRequests').text('0');
+                }
+            });
+        }
+
+        function loadRecentPrescriptions() {
+            $.ajax({
+                url: '@Url.Action("UnprocessedScripts", "UnprocessedScripts")',
+                method: 'GET',
+                success: function(data) {
+                    const $tableBody = $('#prescriptionsTableBody');
+                    const $rows = $(data).find('.table tbody tr');
+                    
+                    if ($rows.length > 0) {
+                        $tableBody.empty();
+                        $rows.slice(0, 5).each(function() {
+                            const $row = $(this);
+                            const prescriptionId = $row.find('td:eq(0)').text().trim();
+                            const doctorName = $row.find('td:eq(1)').text().trim();
+                            const date = $row.find('td:eq(2)').text().trim();
+                            const status = $row.find('td:eq(3)').text().trim();
+                            
+                            if (prescriptionId && prescriptionId !== '') {
+                                $tableBody.append(`
+                                    <tr>
+                                        <td>${prescriptionId}</td>
+                                        <td>${doctorName || 'N/A'}</td>
+                                        <td>${date || 'N/A'}</td>
+                                        <td><span class="badge badge-warning">${status || 'Pending'}</span></td>
+                                    </tr>
+                                `);
+                            }
+                        });
+                    } else {
+                        $tableBody.html(`
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="fas fa-prescription-bottle-alt fa-3x mb-3"></i>
+                                    <p>No recent prescriptions found</p>
+                                    <a href="@Url.Action("Load", "UnprocessedScripts")" class="btn btn-brown btn-sm">
+                                        <i class="fas fa-upload mr-1"></i>Upload New Prescription
+                                    </a>
+                                </td>
+                            </tr>
+                        `);
+                    }
+                },
+                error: function() {
+                    $('#prescriptionsTableBody').html(`
+                        <tr>
+                            <td colspan="4" class="text-center text-muted py-4">
+                                <i class="fas fa-exclamation-triangle fa-3x mb-3"></i>
+                                <p>Error loading prescriptions</p>
+                                <a href="@Url.Action("Load", "UnprocessedScripts")" class="btn btn-brown btn-sm">
+                                    <i class="fas fa-upload mr-1"></i>Upload New Prescription
+                                </a>
+                            </td>
+                        </tr>
+                    `);
+                }
+            });
+        }
+
+        function loadRecentActivity() {
+            $.ajax({
+                url: '@Url.Action("Index", "Orders")',
+                method: 'GET',
+                success: function(data) {
+                    const $activityList = $('#recentActivityList');
+                    const $rows = $(data).find('.table tbody tr');
+                    
+                    if ($rows.length > 0) {
+                        $activityList.empty();
+                        $rows.slice(0, 3).each(function() {
+                            const $row = $(this);
+                            const orderId = $row.find('td:eq(0)').text().trim();
+                            const status = $row.find('td:eq(1)').text().trim();
+                            const date = $row.find('td:eq(2)').text().trim();
+                            
+                            if (orderId && orderId !== '') {
+                                $activityList.append(`
+                                    <li class="item">
+                                        <div class="product-img">
+                                            <i class="fas fa-shopping-cart text-brown fa-2x"></i>
+                                        </div>
+                                        <div class="product-info">
+                                            <a href="javascript:void(0)" class="product-title">Order #${orderId}</a>
+                                            <span class="product-description">
+                                                Status: ${status || 'Processing'}
+                                                <br><small class="text-muted">${date || 'Recently'}</small>
+                                            </span>
+                                        </div>
+                                    </li>
+                                `);
+                            }
+                        });
+                    } else {
+                        $activityList.html(`
+                            <li class="item">
+                                <div class="product-img">
+                                    <i class="fas fa-info-circle text-brown fa-2x"></i>
+                                </div>
+                                <div class="product-info">
+                                    <a href="javascript:void(0)" class="product-title">Welcome!</a>
+                                    <span class="product-description">
+                                        Upload a prescription or create an order to get started.
+                                    </span>
+                                </div>
+                            </li>
+                        `);
+                    }
+                },
+                error: function() {
+                    $('#recentActivityList').html(`
+                        <li class="item">
+                            <div class="product-img">
+                                <i class="fas fa-exclamation-triangle text-brown fa-2x"></i>
+                            </div>
+                            <div class="product-info">
+                                <a href="javascript:void(0)" class="product-title">Error loading activity</a>
+                                <span class="product-description">
+                                    <i class="fas fa-spinner fa-spin"></i> Please try again
+                                </span>
+                            </div>
+                        </li>
+                    `);
+                }
+            });
+        }
+
+        function getStatusClass(status) {
+            switch(status.toLowerCase()) {
+                case 'completed': return 'badge-success';
+                case 'pending': return 'badge-warning';
+                case 'processing': return 'badge-info';
+                case 'rejected': return 'badge-danger';
+                default: return 'badge-secondary';
+            }
+        }
+
+        function updateProgressBar(elementId, count, maxCount = 100) {
+            const maxCountForBar = Math.max(count, maxCount);
+            const percentage = Math.min((count / maxCountForBar) * 100, 100);
+            $(`#${elementId}`).closest('.info-box').find('.progress-bar').css('width', percentage + '%');
+        }
+    </script>
+}
+
+@section Styles {
+    <style>
+        /* System Colors - Brown/Black Theme - EXACT MATCH */
+        .bg-brown {
+            background-color: #3e2a1f !important;
+        }
+        
+        .text-brown {
+            color: #3e2a1f !important;
+        }
+        
+        .btn-brown {
+            background-color: #3e2a1f !important;
+            border-color: #3e2a1f !important;
+            color: white !important;
+        }
+        
+        .btn-brown:hover {
+            background-color: #5d4e37 !important;
+            border-color: #5d4e37 !important;
+        }
+        
+        .btn-outline-brown {
+            color: #3e2a1f !important;
+            border-color: #3e2a1f !important;
+        }
+        
+        .btn-outline-brown:hover {
+            background-color: #3e2a1f !important;
+            color: white !important;
+        }
+
+        /* Modern 3D Card Effects - EXACT MATCH */
+        .stat-card-3d {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            perspective: 1000px;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-card-3d:hover {
+            transform: translateY(-10px) rotateX(5deg) rotateY(5deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card-3d::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .stat-card-3d:hover::before {
+            opacity: 1;
+        }
+
+        /* Glassmorphism Effects - EXACT MATCH */
+        .info-box {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .info-box-icon {
+            border-radius: 15px 0 0 15px;
+        }
+
+        /* Smooth Animations - EXACT MATCH */
+        .info-box-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card-3d:hover .info-box-number {
+            transform: scale(1.1);
+            color: #3e2a1f;
+        }
+
+        /* Progress Bar Enhancement - EXACT MATCH */
+        .progress {
+            height: 8px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            background: linear-gradient(90deg, #3e2a1f 0%, #5d4e37 100%);
+            border-radius: 10px;
+            transition: width 1s ease;
+        }
+
+        /* Modern Card Styling - EXACT MATCH */
+        .modern-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .modern-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .modern-card .card-header {
+            background: linear-gradient(135deg, #3e2a1f 0%, #5d4e37 100%);
+            color: white;
+            border-bottom: none;
+            border-radius: 15px 15px 0 0;
+        }
+
+        .modern-card .card-header .card-title {
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Button Enhancements - EXACT MATCH */
+        .btn {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Table Enhancements - EXACT MATCH */
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .table thead th {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: none;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        /* Responsive Enhancements - EXACT MATCH */
+        @@media (max-width: 768px) {
+            .stat-card-3d:hover {
+                transform: translateY(-5px);
+            }
+            
+            .modern-card:hover {
+                transform: translateY(-3px);
+            }
+        }
+    </style>
+}

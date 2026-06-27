@@ -1,0 +1,429 @@
+﻿@model IBhayiPharmacyManagementSystem.ViewModels.OrderCreateRequest
+@using IBhayiPharmacyManagementSystem.Enums
+@{
+    ViewData["Title"] = "Create New Order";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-gradient-primary text-white py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>@ViewData["Title"]
+                </h3>
+                <a asp-action="OrdersForCustomers" class="btn btn-outline-light">
+                    <i class="fas fa-arrow-left me-1"></i> Back to Orders
+                </a>
+            </div>
+        </div>
+        
+        <div class="card-body p-4">
+            <form id="orderForm" method="post" asp-action="Create">
+                @Html.AntiForgeryToken()
+
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label fw-bold">Customer</label>
+                            <select class="form-select" asp-for="CustomerId" required>
+                                <option value="">-- Select Customer --</option>
+                                @foreach (var customer in (List<Customer>)ViewBag.Customers)
+                                {
+                                    <option value="@customer.CustomerId">
+                                        @customer.Name @customer.Surname - @customer.IDNumber
+                                    </option>
+                                }
+                            </select>
+                            <span asp-validation-for="CustomerId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label class="form-label fw-bold">Order Date</label>
+                            <input type="text" class="form-control" value="@DateTime.Now.ToString("g")" readonly>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header bg-light">
+                        <h5 class="mb-0">
+                            <i class="fas fa-pills me-2"></i>Order Items
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row mb-3">
+                            <div class="col-md-5">
+                                <div class="form-group">
+                                    <label class="form-label">Medication</label>
+                                    <select class="form-select" id="medicationSelect">
+                                        <option value="">-- Select Medication --</option>
+                                        @foreach (var med in (List<Medication>)ViewBag.Medications)
+                                        {
+                                            <option value="@med.MedicationId" data-price="@med.Price" data-name="@med.Name" data-stock="@med.QuantityInStock">
+                                                @med.Name - @($"R{med.Price:F2}") (Stock: @med.QuantityInStock)
+                                            </option>
+                                        }
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Quantity</label>
+                                    <input type="number" class="form-control" id="medicationQuantity" min="1" value="1">
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="form-group">
+                                    <label class="form-label">Unit Price</label>
+                                    <input type="text" class="form-control" id="unitPrice" readonly>
+                                </div>
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="button" id="addMedication" class="btn btn-primary">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover" id="medicationsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Medication</th>
+                                        <th class="text-center">Quantity</th>
+                                        <th class="text-end">Unit Price</th>
+                                        <th class="text-end">Subtotal</th>
+                                        <th class="text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Dynamic content will be added here -->
+                                </tbody>
+                                <tfoot>
+                                    <tr class="table-light">
+                                        <td colspan="3" class="text-end fw-bold">Total:</td>
+                                        <td class="text-end fw-bold" id="tableTotal">R0.00</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="form-group">
+                            <label asp-for="OrderNotes" class="form-label fw-bold">Order Notes</label>
+                            <textarea asp-for="OrderNotes" class="form-control" rows="3" placeholder="Any special instructions, customer preferences, or dispensing notes..."></textarea>
+                            <span asp-validation-for="OrderNotes" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h4 class="mb-2">Order Total</h4>
+                                <h2 class="text-primary mb-0" id="orderTotal">R0.00</h2>
+                                <small class="text-muted">Total amount for customer</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between">
+                    <button type="button" id="saveDraft" class="btn btn-secondary">
+                        <i class="fas fa-save me-1"></i> Save Draft
+                    </button>
+                    <div>
+                        <a asp-action="OrdersForCustomers" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-times me-1"></i> Cancel
+                        </a>
+                        <button type="submit" class="btn btn-success" id="submitOrder">
+                            <i class="fas fa-paper-plane me-1"></i> Create Order
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Toast Notifications Container -->
+<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
+
+@section Styles {
+    <style>
+        .form-select:focus, .form-control:focus {
+            border-color: #3a7bd5;
+            box-shadow: 0 0 0 0.25rem rgba(58, 123, 213, 0.25);
+        }
+        
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2c6bc7 0%, #00b8e6 100%);
+        }
+        
+        .card-header {
+            background: linear-gradient(135deg, #3a7bd5 0%, #00d2ff 100%);
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            let orderItems = [];
+            let total = 0;
+
+            // Update unit price when medication is selected
+            $('#medicationSelect').change(function() {
+                const selectedOption = $(this).find('option:selected');
+                const price = selectedOption.data('price');
+                if (price) {
+                    $('#unitPrice').val('R' + parseFloat(price).toFixed(2));
+                } else {
+                    $('#unitPrice').val('');
+                }
+            });
+
+            // Add medication to order
+            $('#addMedication').click(function() {
+                const select = $('#medicationSelect');
+                const selectedOption = select.find('option:selected');
+                const medicationId = select.val();
+                const medicationName = selectedOption.data('name');
+                const price = parseFloat(selectedOption.data('price'));
+                const stock = parseInt(selectedOption.data('stock'));
+                const quantity = parseInt($('#medicationQuantity').val());
+
+                if (!medicationId || isNaN(quantity) || quantity < 1) {
+                    showToast('Please select a medication and enter a valid quantity', 'warning');
+                    return;
+                }
+
+                if (quantity > stock) {
+                    showToast(`Not enough stock available. Only ${stock} units available.`, 'danger');
+                    return;
+                }
+
+                // Check if medication already exists in order
+                const existingItemIndex = orderItems.findIndex(item => item.MedicationId == medicationId);
+                if (existingItemIndex >= 0) {
+                    const newQuantity = orderItems[existingItemIndex].Quantity + quantity;
+                    if (newQuantity > stock) {
+                        showToast(`Total quantity (${newQuantity}) exceeds available stock (${stock})`, 'danger');
+                        return;
+                    }
+                    orderItems[existingItemIndex].Quantity = newQuantity;
+                } else {
+                    // Add new item
+                    orderItems.push({
+                        MedicationId: medicationId,
+                        Name: medicationName,
+                        Price: price,
+                        Quantity: quantity
+                    });
+                }
+
+                updateMedicationsTable();
+                updateOrderTotal();
+
+                // Reset inputs
+                select.val('');
+                $('#medicationQuantity').val(1);
+                $('#unitPrice').val('');
+                select.focus();
+            });
+
+            // Update medications table
+            function updateMedicationsTable() {
+                const tbody = $('#medicationsTable tbody');
+                tbody.empty();
+
+                if (orderItems.length === 0) {
+                    tbody.append('<tr><td colspan="5" class="text-center text-muted py-4">No medications added yet</td></tr>');
+                    $('#tableTotal').text('R0.00');
+                    return;
+                }
+
+                let tableTotal = 0;
+                orderItems.forEach((item, index) => {
+                    const subtotal = item.Price * item.Quantity;
+                    tableTotal += subtotal;
+                    tbody.append(`
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-sm bg-light rounded-circle me-2 d-flex align-items-center justify-content-center">
+                                        <i class="fas fa-pills text-primary"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="mb-0">${item.Name}</h6>
+                                        <small class="text-muted">Medication</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="text-center">${item.Quantity}</td>
+                            <td class="text-end">R${item.Price.toFixed(2)}</td>
+                            <td class="text-end fw-bold">R${subtotal.toFixed(2)}</td>
+                            <td class="text-center">
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-item" data-index="${index}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `);
+                });
+
+                $('#tableTotal').text('R' + tableTotal.toFixed(2));
+
+                // Add event listeners for remove buttons
+                $('.remove-item').click(function() {
+                    const index = $(this).data('index');
+                    orderItems.splice(index, 1);
+                    updateMedicationsTable();
+                    updateOrderTotal();
+                });
+            }
+
+            // Update order total
+            function updateOrderTotal() {
+                total = orderItems.reduce((sum, item) => sum + (item.Price * item.Quantity), 0);
+                $('#orderTotal').text('R' + total.toFixed(2));
+            }
+
+            // Save draft button click handler
+            $('#saveDraft').click(function() {
+                if (orderItems.length === 0) {
+                    showToast('Please add at least one medication to save as draft', 'warning');
+                    return;
+                }
+
+                // Save to localStorage
+                localStorage.setItem('orderDraft', JSON.stringify({
+                    items: orderItems,
+                    notes: $('#OrderNotes').val(),
+                    customerId: $('#CustomerId').val(),
+                    total: total
+                }));
+
+                showToast('Draft saved successfully! You can continue editing later.', 'success');
+            });
+
+            // Load draft if exists
+            function loadDraft() {
+                const draft = localStorage.getItem('orderDraft');
+                if (draft) {
+                    try {
+                        const parsedDraft = JSON.parse(draft);
+                        orderItems = parsedDraft.items || [];
+                        $('#OrderNotes').val(parsedDraft.notes || '');
+                        if (parsedDraft.customerId) {
+                            $('#CustomerId').val(parsedDraft.customerId);
+                        }
+                        updateMedicationsTable();
+                        updateOrderTotal();
+                        showToast('Draft order loaded successfully!', 'info');
+                    } catch (e) {
+                        console.error('Error loading draft:', e);
+                        localStorage.removeItem('orderDraft');
+                    }
+                }
+            }
+
+            // Form submission
+            $('#orderForm').submit(function(e) {
+                e.preventDefault();
+
+                if (orderItems.length === 0) {
+                    showToast('Please add at least one medication to your order', 'danger');
+                    return false;
+                }
+
+                const customerId = $('#CustomerId').val();
+                if (!customerId) {
+                    showToast('Please select a customer', 'danger');
+                    return false;
+                }
+
+                const submitBtn = $('#submitOrder');
+                submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i> Creating...');
+
+                const formData = new FormData();
+                formData.append('CustomerId', customerId);
+                formData.append('OrderNotes', $('#OrderNotes').val());
+
+                // Add all order items
+                orderItems.forEach((item, index) => {
+                    formData.append(`OrderItems[${index}].MedicationId`, item.MedicationId);
+                    formData.append(`OrderItems[${index}].Quantity`, item.Quantity);
+                });
+
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        if (response.success) {
+                            localStorage.removeItem('orderDraft');
+                            showToast('Order created successfully!', 'success');
+                            setTimeout(() => {
+                                window.location.href = '@Url.Action("OrdersForCustomers", "Orders")';
+                            }, 1500);
+                        } else {
+                            showToast(response.message || 'Failed to create order', 'danger');
+                        }
+                        submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i> Create Order');
+                    },
+                    error: function() {
+                        showToast('An error occurred while creating the order', 'danger');
+                        submitBtn.prop('disabled', false).html('<i class="fas fa-paper-plane me-1"></i> Create Order');
+                    }
+                });
+            });
+
+            // Function to show toast notifications
+            function showToast(message, type) {
+                const toast = $(`
+                    <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                `);
+                
+                $('#toastContainer').append(toast);
+                const bsToast = new bootstrap.Toast(toast[0]);
+                bsToast.show();
+                
+                // Remove toast after it hides
+                toast.on('hidden.bs.toast', function() {
+                    toast.remove();
+                });
+            }
+
+            // Initialize empty table and load draft if exists
+            updateMedicationsTable();
+            loadDraft();
+        });
+    </script>
+}
+}

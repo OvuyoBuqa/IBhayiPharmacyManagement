@@ -1,0 +1,375 @@
+@model IBhayiPharmacyManagementSystem.ViewModels.DataImportPreviewViewModel
+@{
+    ViewData["Title"] = "Import Preview";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="content-wrapper">
+    <!-- Content Header -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Import Preview</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index")">Data Import</a></li>
+                        <li class="breadcrumb-item active">Preview</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <form asp-action="ExecuteImport" method="post">
+                <div class="row">
+                    <!-- Import Options -->
+                    <div class="col-md-3">
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">
+                                    <i class="fas fa-cogs mr-2"></i>
+                                    Import Options
+                                </h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" asp-for="ImportOptions.ImportActiveIngredients" id="importActiveIngredients">
+                                        <label class="custom-control-label" for="importActiveIngredients">
+                                            Active Ingredients (@Model.ParsedData.ActiveIngredients.Count)
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" asp-for="ImportOptions.ImportDosageForms" id="importDosageForms">
+                                        <label class="custom-control-label" for="importDosageForms">
+                                            Dosage Forms (@Model.ParsedData.DosageForms.Count)
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" asp-for="ImportOptions.ImportSuppliers" id="importSuppliers">
+                                        <label class="custom-control-label" for="importSuppliers">
+                                            Suppliers (@Model.ParsedData.Suppliers.Count)
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" asp-for="ImportOptions.ImportMedications" id="importMedications">
+                                        <label class="custom-control-label" for="importMedications">
+                                            Medications (@Model.ParsedData.Medications.Count)
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" asp-for="ImportOptions.ImportDoctors" id="importDoctors">
+                                        <label class="custom-control-label" for="importDoctors">
+                                            Doctors (@Model.ParsedData.Doctors.Count)
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" asp-for="ImportOptions.ImportPharmacyManagers" id="importPharmacyManagers">
+                                        <label class="custom-control-label" for="importPharmacyManagers">
+                                            Pharmacy Managers (@Model.ParsedData.PharmacyManagers.Count)
+                                        </label>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" asp-for="ImportOptions.ImportPharmacists" id="importPharmacists">
+                                        <label class="custom-control-label" for="importPharmacists">
+                                            Pharmacists (@Model.ParsedData.Pharmacists.Count)
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="form-group mt-4">
+                                    <button type="submit" class="btn btn-success btn-lg btn-block">
+                                        <i class="fas fa-download mr-2"></i>
+                                        Execute Import
+                                    </button>
+                                    <a href="@Url.Action("Index")" class="btn btn-secondary btn-block mt-2">
+                                        <i class="fas fa-arrow-left mr-2"></i>
+                                        Back to Upload
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data Preview -->
+                    <div class="col-md-9">
+                        <!-- Active Ingredients -->
+                        @if (Model.ParsedData.ActiveIngredients.Any())
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-pills mr-2"></i>
+                                        Active Ingredients (@Model.ParsedData.ActiveIngredients.Count)
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        @foreach (var ingredient in Model.ParsedData.ActiveIngredients)
+                                        {
+                                            <div class="col-md-3 col-sm-6 mb-2">
+                                                <span class="badge badge-primary">@ingredient</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Dosage Forms -->
+                        @if (Model.ParsedData.DosageForms.Any())
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-capsules mr-2"></i>
+                                        Dosage Forms (@Model.ParsedData.DosageForms.Count)
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        @foreach (var form in Model.ParsedData.DosageForms)
+                                        {
+                                            <div class="col-md-3 col-sm-6 mb-2">
+                                                <span class="badge badge-success">@form</span>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Suppliers -->
+                        @if (Model.ParsedData.Suppliers.Any())
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-truck mr-2"></i>
+                                        Suppliers (@Model.ParsedData.Suppliers.Count)
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Contact</th>
+                                                    <th>Email</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var supplier in Model.ParsedData.Suppliers)
+                                                {
+                                                    <tr>
+                                            <td>@supplier.Name</td>
+                                            <td>@supplier.ContactPerson</td>
+                                            <td>@supplier.Email</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Medications -->
+                        @if (Model.ParsedData.Medications.Any())
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-prescription-bottle-alt mr-2"></i>
+                                        Medications (@Model.ParsedData.Medications.Count)
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Schedule</th>
+                                                    <th>Dosage Form</th>
+                                                    <th>Supplier</th>
+                                                    <th>Price</th>
+                                                    <th>Ingredients</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var medication in Model.ParsedData.Medications)
+                                                {
+                                                    var isDefaultPrice = medication.Price == 0.01m;
+                                                    <tr class="@(isDefaultPrice ? "table-warning" : "")">
+                                                        <td>@medication.Name</td>
+                                                        <td>@medication.Schedule</td>
+                                                        <td>@medication.DosageForm</td>
+                                                        <td>@medication.Supplier</td>
+                                                        <td>
+                                                            @if (isDefaultPrice)
+                                                            {
+                                                                <span class="text-danger font-weight-bold">R@medication.Price (⚠ Default - Needs Manual Update)</span>
+                                                            }
+                                                            else
+                                                            {
+                                                                <span>R@medication.Price.ToString("0.00")</span>
+                                                            }
+                                                        </td>
+                                                        <td>
+                                                            @foreach (var ingredient in medication.ActiveIngredients)
+                                                            {
+                                                                <span class="badge badge-info">@ingredient.Name (@ingredient.Strength)</span>
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Doctors -->
+                        @if (Model.ParsedData.Doctors.Any())
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-user-md mr-2"></i>
+                                        Doctors (@Model.ParsedData.Doctors.Count)
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Phone</th>
+                                                    <th>Email</th>
+                                                    <th>Practice Number</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var doctor in Model.ParsedData.Doctors)
+                                                {
+                                                    <tr>
+                                                        <td>@doctor.FirstName @doctor.LastName</td>
+                                                        <td>@doctor.PhoneNumber</td>
+                                                        <td>@doctor.Email</td>
+                                                        <td>@doctor.PracticeNumber</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Pharmacy Managers -->
+                        @if (Model.ParsedData.PharmacyManagers.Any())
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-user-tie mr-2"></i>
+                                        Pharmacy Managers (@Model.ParsedData.PharmacyManagers.Count)
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Phone</th>
+                                                    <th>Email</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var manager in Model.ParsedData.PharmacyManagers)
+                                                {
+                                                    <tr>
+                                                        <td>@manager.FirstName @manager.LastName</td>
+                                                        <td>@manager.PhoneNumber</td>
+                                                        <td>@manager.Email</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Pharmacists -->
+                        @if (Model.ParsedData.Pharmacists.Any())
+                        {
+                            <div class="card">
+                                <div class="card-header">
+                                    <h3 class="card-title">
+                                        <i class="fas fa-user-nurse mr-2"></i>
+                                        Pharmacists (@Model.ParsedData.Pharmacists.Count)
+                                    </h3>
+                                </div>
+                                <div class="card-body">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Phone</th>
+                                                    <th>Email</th>
+                                                    <th>Registration Number</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var pharmacist in Model.ParsedData.Pharmacists)
+                                                {
+                                                    <tr>
+                                                        <td>@pharmacist.FirstName @pharmacist.LastName</td>
+                                                        <td>@pharmacist.PhoneNumber</td>
+                                                        <td>@pharmacist.Email</td>
+                                                        <td>@pharmacist.RegistrationNumber</td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </form>
+        </div>
+    </section>
+</div>

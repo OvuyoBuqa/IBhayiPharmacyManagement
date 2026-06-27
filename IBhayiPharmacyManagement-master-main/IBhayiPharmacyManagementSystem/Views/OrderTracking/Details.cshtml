@@ -1,0 +1,567 @@
+@using IBhayiPharmacyManagementSystem.Enums
+@model IBhayiPharmacyManagementSystem.Models.Order
+@{
+    ViewData["Title"] = $"Order Tracking Details - #{Model.OrderId}";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #0a1f14 0%, #1b4332 100%);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-search me-2"></i>Order Tracking Details - #@Model.OrderId
+                        </h3>
+                        <a href="@Url.Action("Index", "OrderTracking")" class="btn btn-outline-light">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <!-- Order Status Timeline -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-route me-2"></i>Order Status Timeline
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="timeline">
+                                        <div class="timeline-item @(Model.OrderStatus >= IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Pending ? "completed" : "")">
+                                            <div class="timeline-marker bg-warning"></div>
+                                            <div class="timeline-content">
+                                                <h6>Order Placed</h6>
+                                                <p class="text-muted mb-0">@Model.OrderDate.ToString("MMM dd, yyyy HH:mm")</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="timeline-item @(Model.OrderStatus >= IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Processing ? "completed" : "")">
+                                            <div class="timeline-marker bg-info"></div>
+                                            <div class="timeline-content">
+                                                <h6>Processing Started</h6>
+                                                <p class="text-muted mb-0">
+                                                    @if (Model.OrderStatus >= IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Processing)
+                                                    {
+                                                        <span>Assigned to: @(Model.Pharmacist?.Name ?? "Unassigned")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Pending</span>
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="timeline-item @(Model.OrderStatus >= IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Ready ? "completed" : "")">
+                                            <div class="timeline-marker bg-success"></div>
+                                            <div class="timeline-content">
+                                                <h6>Ready for Collection</h6>
+                                                <p class="text-muted mb-0">
+                                                    @if (Model.OrderStatus >= IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Ready)
+                                                    {
+                                                        <span>Ready since: @(Model.LastUpdated?.ToString("MMM dd, yyyy HH:mm") ?? "Unknown")</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>In Progress</span>
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="timeline-item @(IsOrderCollected(Model) ? "completed" : "")">
+                                            <div class="timeline-marker bg-secondary"></div>
+                                            <div class="timeline-content">
+                                                <h6>Collected</h6>
+                                                <p class="text-muted mb-0">
+                                                    @if (IsOrderCollected(Model))
+                                                    {
+                                                        var collectionInfo = ExtractCollectionInfo(Model);
+                                                        <span>Collected: @collectionInfo.CollectedDate?.ToString("MMM dd, yyyy HH:mm")</span>
+                                                        <br><small>By: @collectionInfo.CollectedBy</small>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span>Awaiting Collection</span>
+                                                    }
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <!-- Order Information -->
+                        <div class="col-lg-8">
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-file-invoice me-2"></i>Order Information
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>Order ID:</strong> #<span class="text-primary">@Model.OrderId</span></p>
+                                            <p><strong>Order Date:</strong> @Model.OrderDate.ToString("g")</p>
+                                            <p><strong>Status:</strong>
+                                                <span class="badge bg-@(Model.OrderStatus switch {
+                                                    IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Pending => "warning",
+                                                    IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Processing => "info",
+                                                    IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Ready => "success",
+                                                    IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Cancelled => "danger",
+                                                    _ => "secondary"
+                                                })">
+                                                    @Model.OrderStatus
+                                                </span>
+                                            </p>
+                                            <p><strong>Total Amount:</strong> <span class="h5 text-success">R@(Model.TotalAmount.ToString("F2"))</span></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>Payment Status:</strong>
+                                                <span class="badge @(Model.OrderStatus == IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Collected || Model.PaymentStatus ? "bg-success" : "bg-warning")">
+                                                    @(Model.OrderStatus == IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Collected || Model.PaymentStatus ? "Paid" : "Pending Payment")
+                                                </span>
+                                            </p>
+                                            <p><strong>Last Updated:</strong> @(Model.LastUpdated?.ToString() ?? "Never")</p>
+                                            @if (Model.Pharmacist != null)
+                                            {
+                                                <p><strong>Assigned Pharmacist:</strong> @Model.Pharmacist.Name</p>
+                                            }
+                                            @if (!string.IsNullOrEmpty(Model.OrderNotes))
+                                            {
+                                                <p><strong>Notes:</strong> @Model.OrderNotes</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Items -->
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-pills me-2"></i>Order Items (@Model.OrderItems.Count)
+                                    </h5>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th class="ps-3">Medication</th>
+                                                    <th class="text-center">Quantity</th>
+                                                    <th class="text-end">Unit Price</th>
+                                                    <th class="text-end">Subtotal</th>
+                                                    <th class="text-center">Status</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach (var item in Model.OrderItems)
+                                                {
+                                                    <tr>
+                                                        <td class="ps-3">
+                                                            <div class="d-flex align-items-center">
+                                                                <div class="avatar-xs bg-light rounded-circle me-3 d-flex align-items-center justify-content-center">
+                                                                    <i class="fas fa-pills text-primary"></i>
+                                                                </div>
+                                                                <div>
+                                                                    <h6 class="mb-0">@item.Medication?.Name</h6>
+                                                                    <small class="text-muted">@item.Medication?.Description</small>
+                                                                    @if (item.Medication?.DosageForm != null)
+                                                                    {
+                                                                        <div class="text-muted small">@item.Medication.DosageForm.Type</div>
+                                                                    }
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <span class="badge bg-light text-dark">@item.QuantityOrdered</span>
+                                                        </td>
+                                                        <td class="text-end">R@(item.UnitPrice.ToString("F2"))</td>
+                                                        <td class="text-end fw-bold">R@((item.QuantityOrdered * item.UnitPrice).ToString("F2"))</td>
+                                                        <td class="text-center">
+                                                            <span class="badge bg-@(item.DispensingStatus switch {
+                                                                IBhayiPharmacyManagementSystem.Enums.DispensingStatusEnum.Filled => "success",
+                                                                IBhayiPharmacyManagementSystem.Enums.DispensingStatusEnum.Pending => "secondary",
+                                                                IBhayiPharmacyManagementSystem.Enums.DispensingStatusEnum.OutOfStock => "danger",
+                                                                _ => "secondary"
+                                                            })">
+                                                                @item.DispensingStatus
+                                                            </span>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            </tbody>
+                                            <tfoot class="table-light">
+                                                <tr>
+                                                    <td colspan="3" class="text-end fw-bold ps-3">Order Total:</td>
+                                                    <td class="text-end fw-bold h5 text-success">R@(Model.TotalAmount.ToString("F2"))</td>
+                                                    <td></td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Customer Information & Actions -->
+                        <div class="col-lg-4">
+                            <!-- Customer Details -->
+                            <div class="card border-0 shadow-sm mb-4">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-user me-2"></i>Customer Details
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="text-center mb-3">
+                                        <div class="avatar-lg bg-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-2">
+                                            <i class="fas fa-user text-white fa-2x"></i>
+                                        </div>
+                                        <h6 class="mb-0">@Model.Customer?.Name</h6>
+                                        <small class="text-muted">@Model.Customer?.User?.Email</small>
+                                    </div>
+
+                                    <hr>
+
+                                    <div class="customer-info">
+                                        <p><strong>Customer ID:</strong> #<span class="text-primary">@Model.Customer?.CustomerId</span></p>
+                                        @if (Model.Customer != null)
+                                        {
+                                            <p><strong>Phone:</strong> @Model.Customer.CellPhoneNumber</p>
+                                            <p><strong>Address:</strong></p>
+                                            <address class="small text-muted">
+                                                @Model.Customer.Street<br>
+                                                @Model.Customer.City, @Model.Customer.Province<br>
+                                                @Model.Customer.ZipCode
+                                            </address>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quick Actions -->
+                            <div class="card border-0 shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">
+                                        <i class="fas fa-bolt me-2"></i>Quick Actions
+                                    </h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-grid gap-2">
+                                        @if (Model.OrderStatus == IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Ready && !IsOrderCollected(Model))
+                                        {
+                                            <button type="button" class="btn btn-success mark-collected-btn" 
+                                                    data-order-id="@Model.OrderId" 
+                                                    data-customer-name="@Model.Customer?.Name">
+                                                <i class="fas fa-hand-holding me-1"></i>Mark as Collected
+                                            </button>
+                                        }
+                                        @if (Model.OrderStatus == IBhayiPharmacyManagementSystem.Enums.OrderStatusEnum.Processing)
+                                        {
+                                            <button type="button" class="btn btn-success mark-ready-btn" 
+                                                    data-order-id="@Model.OrderId">
+                                                <i class="fas fa-check me-1"></i>Mark as Ready
+                                            </button>
+                                        }
+                                        
+                                        <button type="button" class="btn btn-outline-secondary" onclick="window.print()">
+                                            <i class="fas fa-print me-1"></i>Print Order
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public bool IsOrderCollected(IBhayiPharmacyManagementSystem.Models.Order order)
+    {
+        return order.OrderStatus == OrderStatusEnum.Collected;
+    }
+
+    public (DateTime? CollectedDate, string CollectedBy) ExtractCollectionInfo(IBhayiPharmacyManagementSystem.Models.Order order)
+    {
+        if (order.OrderStatus != OrderStatusEnum.Collected || !order.CollectedDate.HasValue)
+            return (null, null);
+
+        return (order.CollectedDate.Value, "Pharmacist"); // We can enhance this later to get actual pharmacist name
+    }
+}
+
+@section Styles {
+    <style>
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .timeline-item:not(:last-child)::before {
+            content: '';
+            position: absolute;
+            left: -20px;
+            top: 20px;
+            width: 2px;
+            height: 30px;
+            background-color: #dee2e6;
+        }
+
+        .timeline-item.completed:not(:last-child)::before {
+            background-color: #28a745;
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: -25px;
+            top: 5px;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #fff;
+            box-shadow: 0 0 0 2px #dee2e6;
+        }
+
+        .timeline-item.completed .timeline-marker {
+            box-shadow: 0 0 0 2px #28a745;
+        }
+
+        .timeline-content h6 {
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .avatar-lg {
+            width: 80px;
+            height: 80px;
+        }
+
+        .avatar-xs {
+            width: 32px;
+            height: 32px;
+            font-size: 0.875rem;
+        }
+
+        /* Enhanced button styling */
+        .mark-collected-btn {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .mark-collected-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        .mark-collected-btn:active {
+            transform: translateY(0);
+        }
+
+        .mark-collected-btn.btn-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            border: none;
+        }
+
+        .mark-collected-btn.btn-success:hover {
+            background: linear-gradient(135deg, #218838 0%, #1ea085 100%);
+        }
+
+        .mark-collected-btn.btn-secondary {
+            background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+            border: none;
+            cursor: default;
+        }
+
+        .mark-collected-btn.btn-secondary:hover {
+            transform: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* Loading state animation */
+        .mark-collected-btn.loading {
+            pointer-events: none;
+        }
+
+        .mark-collected-btn.loading i.fa-spinner {
+            animation: spin 1s linear infinite;
+        }
+
+        @@keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Success animation */
+        .mark-collected-btn.success {
+            animation: successPulse 0.6s ease-out;
+        }
+
+        @@keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Enhanced toast styling */
+        .toast {
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .toast.bg-success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+        }
+
+        .toast.bg-danger {
+            background: linear-gradient(135deg, #dc3545 0%, #e74c3c 100%) !important;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Mark as Collected functionality
+            $('.mark-collected-btn').click(function() {
+                const orderId = $(this).data('order-id');
+                const customerName = $(this).data('customer-name');
+                const button = $(this);
+
+                Swal.fire({
+                    title: 'Mark as Collected?',
+                    html: `Mark Order #${orderId} for ${customerName} as collected?`,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'OK',
+                    cancelButtonText: 'Cancel',
+                    confirmButtonColor: '#0d6efd',
+                    cancelButtonColor: '#6c757d',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        button.prop('disabled', true)
+                              .addClass('loading')
+                              .html('<i class="fas fa-spinner fa-spin me-1"></i>Processing...');
+
+                        $.ajax({
+                            url: '@Url.Action("MarkAsCollected", "OrderTracking")',
+                            type: 'POST',
+                            data: { orderId: orderId },
+                            success: function(response) {
+                                if (response.success) {
+                                    showToast(response.message, 'success');
+                                    
+                                    // Add success animation
+                                    button.removeClass('loading').addClass('success');
+                                    
+                                    // Change button to "collected" state instead of reloading
+                                    setTimeout(function() {
+                                        button.removeClass('btn-success success').addClass('btn-secondary')
+                                              .html('<i class="fas fa-check-circle me-1"></i>Collected')
+                                              .prop('disabled', false);
+                                    }, 600);
+                                    
+                                    // Update the timeline to show collected status
+                                    $('.timeline-item:last-child').addClass('completed');
+                                    $('.timeline-item:last-child .timeline-marker').removeClass('bg-secondary').addClass('bg-success');
+                                    
+                                    // Update status badge if visible
+                                    $('.badge').filter(function() {
+                                        return $(this).text().trim() === 'Ready';
+                                    }).removeClass('bg-success').addClass('bg-secondary').text('Collected');
+                                } else {
+                                    showToast(response.message, 'danger');
+                                    button.removeClass('loading').prop('disabled', false).html('<i class="fas fa-hand-holding me-1"></i>Mark as Collected');
+                                }
+                            },
+                            error: function() {
+                                showToast('An error occurred while updating the order', 'danger');
+                                button.removeClass('loading').prop('disabled', false).html('<i class="fas fa-hand-holding me-1"></i>Mark as Collected');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Mark as Ready functionality
+            $('.mark-ready-btn').click(function() {
+                const orderId = $(this).data('order-id');
+                const button = $(this);
+
+                if (confirm(`Mark Order #${orderId} as ready for collection?`)) {
+                    button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-1"></i>Processing...');
+
+                    $.ajax({
+                        url: '@Url.Action("MarkAsReady", "OrderTracking")',
+                        type: 'POST',
+                        data: { orderId: orderId },
+                        success: function(response) {
+                            if (response.success) {
+                                showToast(response.message, 'success');
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1500);
+                            } else {
+                                showToast(response.message, 'danger');
+                                button.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Mark as Ready');
+                            }
+                        },
+                        error: function() {
+                            showToast('An error occurred while updating the order', 'danger');
+                            button.prop('disabled', false).html('<i class="fas fa-check me-1"></i>Mark as Ready');
+                        }
+                    });
+                }
+            });
+
+            // Toast notification function
+            function showToast(message, type) {
+                const toast = $(`
+                    <div class="toast align-items-center text-white bg-${type} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="d-flex">
+                            <div class="toast-body">
+                                ${message}
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                    </div>
+                `);
+
+                const toastContainer = $('#toastContainer') || $('body').append('<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>');
+                $('#toastContainer').append(toast);
+
+                const bsToast = new bootstrap.Toast(toast[0]);
+                bsToast.show();
+
+                toast.on('hidden.bs.toast', function() {
+                    toast.remove();
+                });
+            }
+        });
+    </script>
+}

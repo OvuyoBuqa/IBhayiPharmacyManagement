@@ -1,0 +1,801 @@
+﻿@using IBhayiPharmacyManagementSystem.Enums
+@model IEnumerable<IBhayiPharmacyManagementSystem.Models.Order>
+@{
+    ViewData["Title"] = "My Orders";
+    Layout = "_LayoutCustomer";
+}
+
+@Html.AntiForgeryToken()
+
+<style>
+    :root {
+        --primary-color: #34495e;
+        --secondary-color: #2c3e50;
+        --accent-color: #3498db;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --light-gray: #ecf0f1;
+        --dark-gray: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00;
+        --brown-header: #d2b48c;
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--secondary-color);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--accent-color);
+    }
+
+    .btn-new-order {
+        background: linear-gradient(135deg, var(--accent-color), #2980b9);
+        color: var(--white);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-new-order:hover {
+        background: linear-gradient(135deg, #2980b9, var(--accent-color));
+        transform: translateY(-3px);
+        color: var(--white);
+        text-decoration: none;
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, var(--brown-header), #c4a484);
+        color: var(--white);
+        padding: 25px 30px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: var(--dark-blue-gray); /* Matching 'My Orders' and 'Create New Order' page title */
+    }
+
+    .card-title i {
+        margin-right: 12px;
+        font-size: 1.3rem;
+        color: var(--accent-color);
+    }
+
+    .table {
+        margin: 0;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .table thead th {
+        background: var(--secondary-color);
+        color: var(--white);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: 0.5px;
+        padding: 15px 12px;
+        border: none;
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .table tbody tr {
+        transition: all 0.3s ease;
+        border-bottom: 1px solid #f1f3f4;
+    }
+
+    .table tbody tr:hover {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .table tbody td {
+        padding: 15px 12px;
+        vertical-align: middle;
+        border: none;
+        font-size: 0.9rem;
+    }
+
+    .table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .badge {
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 6px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-pending {
+        background: var(--warning-color);
+        color: var(--white);
+    }
+
+    .badge-processing {
+        background: var(--accent-color);
+        color: var(--white);
+    }
+
+    .badge-ready {
+        background: var(--success-color);
+        color: var(--white);
+    }
+
+    .badge-cancelled {
+        background: var(--danger-color);
+        color: var(--white);
+    }
+
+    .badge-paid {
+        background: var(--success-color);
+        color: var(--white);
+    }
+
+    .badge-pending-payment {
+        background: var(--warning-color);
+        color: var(--white);
+    }
+
+    .btn-ready-collection {
+        background: linear-gradient(135deg, var(--orange-accent), #e67e22);
+        color: var(--white);
+        border: none;
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(255, 140, 0, 0.3);
+    }
+
+    .btn-ready-collection:hover {
+        background: linear-gradient(135deg, #e67e22, var(--orange-accent));
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 140, 0, 0.4);
+        color: var(--white);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        margin: 20px 0;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: var(--dark-gray);
+        margin-bottom: 20px;
+    }
+
+    .empty-state h5 {
+        color: var(--dark-gray);
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .empty-state p {
+        color: var(--dark-gray);
+        font-size: 0.95rem;
+    }
+
+    /* Enhanced dropdown styles for orders page */
+    .btn-group {
+        position: relative !important;
+        z-index: 10 !important;
+        display: inline-block !important;
+    }
+    
+    .btn-group.show {
+        z-index: 99999 !important;
+    }
+    
+    .btn-group .dropdown-toggle {
+        position: relative !important;
+        z-index: 99998 !important;
+    }
+    
+    .btn-group.show .dropdown-toggle {
+        z-index: 99998 !important;
+    }
+    
+    .btn-group .dropdown-menu {
+        position: absolute !important;
+        top: 100% !important;
+        left: auto !important;
+        right: 100% !important;
+        z-index: 99999 !important;
+        border-radius: 8px !important;
+        border: 1px solid #e9ecef !important;
+        box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+        min-width: 180px !important;
+        padding: 0.5rem 0 !important;
+        background: white !important;
+        margin-right: 10px !important;
+        margin-top: 5px !important;
+        display: none !important;
+    }
+    
+    .btn-group .dropdown-menu.show {
+        display: block !important;
+    }
+    
+    .btn-group.show .dropdown-menu {
+        display: block !important;
+    }
+    
+    /* Ensure table containers allow dropdown overflow */
+    .table-responsive {
+        overflow: visible !important;
+    }
+    
+    .card-body {
+        overflow: visible !important;
+    }
+    
+    .table {
+        overflow: visible !important;
+    }
+    
+    .table tbody {
+        overflow: visible !important;
+    }
+    
+    .table tbody tr {
+        overflow: visible !important;
+    }
+    
+    .table tbody tr td {
+        overflow: visible !important;
+    }
+    
+    /* Ensure Actions column allows overflow */
+    .table tbody tr td:last-child {
+        overflow: visible !important;
+        position: relative !important;
+        z-index: auto !important;
+    }
+    
+    .btn-group .dropdown-item {
+        padding: 0.75rem 1.25rem;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        color: #2c3e50;
+        border-bottom: 1px solid #f1f3f4;
+    }
+    
+    .btn-group .dropdown-item:last-child {
+        border-bottom: none;
+    }
+    
+    .btn-group .dropdown-item:hover,
+    .btn-group .dropdown-item:focus {
+        background-color: #f8f9fa;
+        color: #007bff;
+        transform: translateX(3px);
+    }
+    
+    .btn-group .dropdown-item i {
+        width: 20px;
+        text-align: center;
+        margin-right: 10px;
+    }
+
+    #readyForCollectionBtn {
+        background: linear-gradient(135deg, var(--accent-color), #2980b9);
+        color: var(--white);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+    }
+
+    #readyForCollectionBtn:hover {
+        background: linear-gradient(135deg, #2980b9, var(--accent-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        color: var(--white);
+    }
+
+    #readyForCollectionBtn.active {
+        background: linear-gradient(135deg, var(--success-color), #229954);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    #readyForCollectionBtn.active:hover {
+        background: linear-gradient(135deg, #229954, var(--success-color));
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    #collectedOrdersBtn {
+        background: linear-gradient(135deg, var(--success-color), #229954);
+        color: var(--white);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    #collectedOrdersBtn:hover {
+        background: linear-gradient(135deg, #229954, var(--success-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        color: var(--white);
+    }
+
+    #collectedOrdersBtn.active {
+        background: linear-gradient(135deg, var(--success-color), #229954);
+        box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+    }
+
+    #collectedOrdersBtn.active:hover {
+        background: linear-gradient(135deg, #229954, var(--success-color));
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    /* Last row: force dropdown to open upwards */
+    .btn-group.dropdown-up .dropdown-menu {
+        top: auto !important;
+        bottom: 100% !important;
+        margin-top: 0 !important;
+        margin-bottom: 5px !important;
+    }
+    
+    @@media (max-width: 768px) {
+        .page-header {
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+        
+        .table-responsive {
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        /* Keep dropdown opening to left on mobile but adjust positioning */
+        .btn-group .dropdown-menu {
+            left: auto !important;
+            right: 0 !important;
+            min-width: 160px;
+        }
+        
+        .btn-group.dropdown-up .dropdown-menu {
+            bottom: 100% !important;
+            top: auto !important;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+            <div class="d-flex justify-content-between align-items-center">
+                        <h1 class="page-title">
+                            <i class="fas fa-shopping-cart"></i>My Orders
+                        </h1>
+                        <div class="d-flex gap-2">
+                            <button id="readyForCollectionBtn" class="btn btn-info btn-lg" onclick="toggleReadyForCollection()">
+                                <i class="fas fa-check-circle mr-2"></i>Ready for Collection
+                            </button>
+                            <a asp-action="CollectedOrders" class="btn btn-success btn-lg">
+                                <i class="fas fa-check-double mr-2"></i>Collected Orders
+                            </a>
+                            <a asp-action="CreateCustomer" class="btn-new-order">
+                                <i class="fas fa-plus mr-2"></i>New Order
+                            </a>
+                        </div>
+            </div>
+        </div>
+
+                <!-- Main Content Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-list-alt mr-2"></i>Order History
+                        </h3>
+                    </div>
+                    <div class="card-body" style="padding: 0;">
+            @if (!Model.Any())
+            {
+                            <div class="empty-state">
+                                <i class="fas fa-shopping-cart"></i>
+                                <h5>No Orders Yet</h5>
+                                <p>You haven't placed any orders yet. <a asp-action="CreateCustomer" style="color: var(--accent-color); text-decoration: none; font-weight: 600;">Create your first order</a> to get started.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th class="text-center">
+                                                <i class="fas fa-hashtag mr-1"></i>Order #
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-calendar mr-1"></i>Date
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-info-circle mr-1"></i>Status
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-calendar-check mr-1"></i>Collected Date
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-money-bill mr-1"></i>Total
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-credit-card mr-1"></i>Payment
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-cogs mr-1"></i>Actions
+                                            </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                            <tr class="align-middle">
+                                                <td class="text-center font-weight-bold">#@item.OrderId</td>
+                                                <td class="text-center">@item.OrderDate.ToString("MMM dd, yyyy")<br><small class="text-muted">@item.OrderDate.ToString("HH:mm")</small></td>
+                                                <td class="text-center">
+                                        <span class="badge @GetStatusBadgeClass(item.OrderStatus)">
+                                            @item.OrderStatus
+                                        </span>
+                                        @if (item.OrderItems.Any(oi => oi.DispensingStatus == DispensingStatusEnum.OutOfStock))
+                                        {
+                                            <br><small class="text-danger"><i class="fas fa-exclamation-triangle"></i> Some items out of stock</small>
+                                        }
+                                    </td>
+                                                <td class="text-center">
+                                        @if (item.OrderStatus == OrderStatusEnum.Collected && item.CollectedDate.HasValue)
+                                        {
+                                            <span class="text-success font-weight-bold">
+                                                @item.CollectedDate.Value.ToString("MMM dd, yyyy")<br>
+                                                <small class="text-muted">@item.CollectedDate.Value.ToString("HH:mm")</small>
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">-</span>
+                                        }
+                                    </td>
+                                                <td class="text-center font-weight-bold" style="color: var(--success-color);">R @item.TotalAmount.ToString("F2")</td>
+                                                <td class="text-center">
+                                        @if (item.PaymentStatus)
+                                        {
+                                                        <span class="badge badge-paid">Paid</span>
+                                        }
+                                        else
+                                        {
+                                                        <span class="badge badge-pending-payment">Pending</span>
+                                        }
+                                    </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" 
+                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fas fa-cog"></i> Actions
+                                                        </button>
+                                                        <div class="dropdown-menu shadow">
+                                                <a class="dropdown-item" asp-action="Details" asp-route-id="@item.OrderId">
+                                                                <i class="fas fa-eye text-info mr-2"></i>View Details
+                                                            </a>
+                                                                                                                                                 @if (item.OrderStatus == OrderStatusEnum.Pending)
+                                                {
+                                                    <div class="dropdown-divider"></div>
+                                                                <a href="javascript:void(0)" 
+                                                                   class="dropdown-item text-danger" 
+                                                                   onclick="deleteOrder(@item.OrderId)">
+                                                                    <i class="fas fa-trash mr-2"></i>Delete Order
+                                                    </a>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public string GetStatusBadgeClass(OrderStatusEnum status)
+    {
+        return status switch
+        {
+            OrderStatusEnum.Pending => "badge-pending",
+            OrderStatusEnum.Processing => "badge-processing",
+            OrderStatusEnum.Ready => "badge-ready",
+            OrderStatusEnum.Collected => "badge-info",
+            OrderStatusEnum.Cancelled => "badge-cancelled",
+            _ => "badge-pending",
+        };
+    }
+}
+
+@section Scripts {
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Override default Bootstrap dropdown behavior
+            $('.dropdown-toggle').off('click').on('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                var $this = $(this);
+                var $parent = $this.closest('.btn-group');
+                var $menu = $parent.find('.dropdown-menu');
+                
+                // Check if already open
+                var isOpen = $menu.hasClass('show');
+                
+                // Close ALL dropdowns first
+                $('.dropdown-menu').removeClass('show');
+                $('.btn-group').removeClass('show');
+                $('.dropdown-toggle').attr('aria-expanded', 'false');
+                
+                // If this one wasn't open, open it now
+                if (!isOpen) {
+                    $menu.addClass('show');
+                    $parent.addClass('show');
+                    $this.attr('aria-expanded', 'true');
+                }
+                
+                // Prevent dropdown items from closing when clicked
+                $menu.on('click', 'a', function(e) {
+                    e.stopPropagation();
+                });
+            });
+            
+            // Close dropdowns when clicking outside
+            $(document).on('click.dropdown', function(e) {
+                if (!$(e.target).closest('.btn-group').length) {
+                    $('.dropdown-menu').removeClass('show');
+                    $('.btn-group').removeClass('show');
+                    $('.dropdown-toggle').attr('aria-expanded', 'false');
+                }
+            });
+            
+            // Add dropdown-up class to last two rows
+            function updateDropdownDirections() {
+                $('.btn-group').removeClass('dropdown-up');
+                var $btnGroups = $('.btn-group');
+                $btnGroups.slice(-2).addClass('dropdown-up');
+            }
+            
+            updateDropdownDirections();
+        });
+        
+        function deleteOrder(orderId) {
+            Swal.fire({
+                title: 'Delete Order?',
+                html: `
+                    <div style="text-align: left; margin: 20px 0;">
+                        <p style="margin-bottom: 15px; font-size: 16px;">Are you sure you want to delete order #${orderId}?</p>
+                        <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                            <strong style="color: #2c3e50; font-size: 18px;">This action cannot be undone.</strong>
+                        </div>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#dc3545',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, Delete',
+                cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                reverseButtons: true,
+                focusCancel: true,
+                customClass: {
+                    popup: 'swal2-popup-custom',
+                    title: 'swal2-title-custom',
+                    confirmButton: 'swal2-confirm-custom',
+                    cancelButton: 'swal2-cancel-custom'
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                // Create a form and submit it
+                var form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '@Url.Action("Delete", "Orders")/' + orderId;
+                
+                // Add anti-forgery token
+                var token = document.createElement('input');
+                token.type = 'hidden';
+                token.name = '__RequestVerificationToken';
+                token.value = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                form.appendChild(token);
+                
+                // Add the form to the page and submit it
+                document.body.appendChild(form);
+                form.submit();
+            }
+            });
+        }
+
+
+        // Toggle Ready for Collection filter
+        function toggleReadyForCollection() {
+            const button = document.getElementById('readyForCollectionBtn');
+            const table = document.querySelector('.table tbody');
+            const rows = table.querySelectorAll('tr');
+            
+            if (button.classList.contains('active')) {
+                // Show all orders
+                rows.forEach(row => {
+                    row.style.display = '';
+                });
+                button.classList.remove('active');
+                button.innerHTML = '<i class="fas fa-check-circle mr-2"></i>Ready for Collection';
+                button.classList.remove('btn-success');
+                button.classList.add('btn-info');
+            } else {
+                // Show only ready orders
+                rows.forEach(row => {
+                    const statusCell = row.querySelector('td:nth-child(3)');
+                    if (statusCell && statusCell.textContent.trim().toLowerCase().includes('ready')) {
+                        row.style.display = '';
+                    } else {
+                        row.style.display = 'none';
+                    }
+                });
+                button.classList.add('active');
+                button.innerHTML = '<i class="fas fa-times mr-2"></i>Show All Orders';
+                button.classList.remove('btn-info');
+                button.classList.add('btn-success');
+            }
+        }
+
+
+        // Check for success message and show SweetAlert2 modal
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <text>
+            Swal.fire({
+                title: 'Success!',
+                html: `
+                    <div style="text-align: center; margin: 20px 0;">
+                        <i class="fas fa-check-circle" style="font-size: 64px; color: #28a745; margin-bottom: 20px;"></i>
+                        <p style="font-size: 18px; margin-bottom: 15px; color: #2c3e50;">@Html.Raw(TempData["SuccessMessage"])</p>
+                    </div>
+                `,
+                icon: 'success',
+                confirmButtonColor: '#28a745',
+                confirmButtonText: '<i class="fas fa-check mr-2"></i>OK',
+                customClass: {
+                    popup: 'swal2-popup-custom',
+                    title: 'swal2-title-custom',
+                    confirmButton: 'swal2-confirm-custom'
+                }
+            });
+            </text>
+        }
+    </script>
+    
+    <style>
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup-custom {
+            border-radius: 15px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            border: none !important;
+        }
+        
+        .swal2-title-custom {
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 24px !important;
+        }
+        
+        .swal2-confirm-custom {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-confirm-custom:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+        }
+        
+        .swal2-cancel-custom {
+            background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-cancel-custom:hover {
+            background: linear-gradient(135deg, #5a6268, #495057) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4) !important;
+        }
+        
+        .swal2-html-container {
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+        }
+    </style>
+}

@@ -1,0 +1,237 @@
+﻿@model IBhayiPharmacyManagementSystem.ViewModels.CustomerAllergyViewModel
+
+@{
+    ViewData["Title"] = (Model.AllergyId == 0 ? "Create" : "Edit") + " Customer Allergy";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid px-4">
+    <div class="row mb-4">
+        <div class="col-12">
+            <nav aria-label="breadcrumb" class="bg-light rounded-3 p-3 mb-4">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a asp-action="CustomerAllergyRecords" class="text-decoration-none">Customer Allergies</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">@(Model.AllergyId == 0 ? "Create" : "Edit")</li>
+                </ol>
+            </nav>
+
+            <div class="d-flex align-items-center mb-4">
+                <div class="icon-circle bg-primary text-white me-3">
+                    <i class="fas @(Model.AllergyId == 0 ? "fa-plus-circle" : "fa-edit")"></i>
+                </div>
+                <div>
+                    <h1 class="h4 mb-0">@(Model.AllergyId == 0 ? "Create New" : "Edit") Customer Allergy</h1>
+                    <p class="text-muted mb-0">@(Model.AllergyId == 0 ? "Add a new allergy record" : "Update existing allergy details")</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-lg">
+        <div class="card-header bg-primary text-white py-3">
+            <h5 class="mb-0">Allergy Information</h5>
+        </div>
+        <div class="card-body p-4">
+            <form asp-action="@(Model.AllergyId == 0 ? "AddCustomerAllergies" : "EditCustomerAllergies")" method="post" class="needs-validation" novalidate>
+                @Html.AntiForgeryToken()
+
+                @if (Model.AllergyId != 0)
+                {
+                    <input type="hidden" asp-for="AllergyId" />
+                }
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label asp-for="CustomerId" class="form-label fw-bold">Customer <span class="text-danger">*</span></label>
+                            <select asp-for="CustomerId" class="form-select form-select-lg" required>
+                                <option value="">-- Select Customer --</option>
+                                @foreach (var customer in Model.Customers)
+                                {
+                                    <option value="@customer.CustomerId">@customer.Name</option>
+                                }
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select a customer
+                            </div>
+                            <span asp-validation-for="CustomerId" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label asp-for="ActiveIngredientId" class="form-label fw-bold">Active Ingredient <span class="text-danger">*</span></label>
+                            <select asp-for="ActiveIngredientId" class="form-select form-select-lg" required>
+                                <option value="">-- Select Active Ingredient --</option>
+                                @foreach (var ingredient in Model.ActiveIngredients)
+                                {
+                                    <option value="@ingredient.ActiveIngredientId">@ingredient.Name</option>
+                                }
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select an active ingredient
+                            </div>
+                            <span asp-validation-for="ActiveIngredientId" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-3">
+                        <div class="form-group">
+                            <label asp-for="Severity" class="form-label fw-bold">Severity <span class="text-danger">*</span></label>
+                            <select asp-for="Severity" class="form-select form-select-lg" required>
+                                <option value="">-- Select Severity --</option>
+                                <option value="Mild">Mild</option>
+                                <option value="Moderate">Moderate</option>
+                                <option value="Severe">Severe</option>
+                            </select>
+                            <div class="invalid-feedback">
+                                Please select the allergy severity
+                            </div>
+                            <span asp-validation-for="Severity" class="text-danger small"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group mb-4">
+                    <label asp-for="Description" class="form-label fw-bold">Description</label>
+                    <textarea asp-for="Description" class="form-control form-control-lg" rows="4" placeholder="Enter additional details about the allergy reaction..."></textarea>
+                    <div class="form-text">Optional: Describe symptoms, reactions, or other relevant information</div>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex justify-content-between border-top pt-4 mt-4">
+                    <a asp-action="CustomerAllergyRecords" class="btn btn-outline-secondary px-4">
+                        <i class="fas fa-arrow-left me-2"></i> Back to List
+                    </a>
+                    <button type="submit" class="btn btn-primary px-4">
+                        <i class="fas fa-save me-2"></i> @(Model.AllergyId == 0 ? "Create Allergy" : "Update Allergy")
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .icon-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .form-label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .form-select-lg, .form-control-lg {
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid #ced4da;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+            .form-select-lg:focus, .form-control-lg:focus {
+                border-color: #86b7fe;
+                box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+            }
+
+        textarea.form-control {
+            min-height: 120px;
+        }
+
+        .card {
+            border-radius: 0.75rem;
+            overflow: hidden;
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            font-weight: 600;
+        }
+
+        .breadcrumb {
+            background-color: #f1f8ff;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .breadcrumb-item a {
+            color: #0d6efd;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+            .breadcrumb-item a:hover {
+                color: #0a58ca;
+            }
+
+        .btn {
+            font-weight: 500;
+            padding: 0.5rem 1.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
+
+            .btn-primary:hover {
+                background-color: #0b5ed7;
+                border-color: #0a58ca;
+            }
+
+        .invalid-feedback {
+            font-size: 0.875rem;
+        }
+
+        .form-text {
+            font-size: 0.875rem;
+            color: #6c757d;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Enhanced client-side validation
+        (function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation')
+
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}

@@ -1,0 +1,431 @@
+@model IBhayiPharmacyManagementSystem.ViewModels.ImportResultsViewModel
+@{
+    ViewData["Title"] = "Import Results";
+    Layout = "_LayoutAdmin";
+}
+
+<div class="content-wrapper">
+    <!-- Content Header -->
+    <div class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1 class="m-0">Import Results</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="#">Admin</a></li>
+                        <li class="breadcrumb-item"><a href="@Url.Action("Index")">Data Import</a></li>
+                        <li class="breadcrumb-item active">Results</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <!-- Success/Error Alert -->
+            @if (Model.HasErrors)
+            {
+                <div class="alert alert-warning">
+                    <h5><i class="icon fas fa-exclamation-triangle"></i> Import Completed with Warnings</h5>
+                    <p class="mb-0">Some items could not be imported. Please review the results below.</p>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-success">
+                    <h5><i class="icon fas fa-check"></i> Import Completed Successfully</h5>
+                    <p class="mb-0">All selected data has been imported successfully!</p>
+                </div>
+            }
+
+            <div class="row">
+                <!-- Import Results Summary -->
+                <div class="col-12">
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                <i class="fas fa-chart-bar mr-2"></i>
+                                Import Results Summary
+                            </h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <!-- Active Ingredients -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-primary">
+                                            <i class="fas fa-pills"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Active Ingredients</span>
+                                            <span class="info-box-number">@Model.ActiveIngredientsResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.ActiveIngredientsResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.ActiveIngredientsResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.ActiveIngredientsResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.ActiveIngredientsResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Dosage Forms -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-success">
+                                            <i class="fas fa-capsules"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Dosage Forms</span>
+                                            <span class="info-box-number">@Model.DosageFormsResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.DosageFormsResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.DosageFormsResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.DosageFormsResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.DosageFormsResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Suppliers -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-warning">
+                                            <i class="fas fa-truck"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Suppliers</span>
+                                            <span class="info-box-number">@Model.SuppliersResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-warning" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.SuppliersResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.SuppliersResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.SuppliersResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.SuppliersResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Medications -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-danger">
+                                            <i class="fas fa-prescription-bottle-alt"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Medications</span>
+                                            <span class="info-box-number">@Model.MedicationsResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-danger" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.MedicationsResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.MedicationsResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.MedicationsResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.MedicationsResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <!-- Doctors -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-info">
+                                            <i class="fas fa-user-md"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Doctors</span>
+                                            <span class="info-box-number">@Model.DoctorsResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-info" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.DoctorsResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.DoctorsResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.DoctorsResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.DoctorsResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pharmacy Managers -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-secondary">
+                                            <i class="fas fa-user-tie"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Pharmacy Managers</span>
+                                            <span class="info-box-number">@Model.PharmacyManagersResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-secondary" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.PharmacyManagersResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.PharmacyManagersResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.PharmacyManagersResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.PharmacyManagersResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Pharmacists -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-dark">
+                                            <i class="fas fa-user-nurse"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Pharmacists</span>
+                                            <span class="info-box-number">@Model.PharmacistsResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-dark" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.PharmacistsResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.PharmacistsResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.PharmacistsResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.PharmacistsResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-3">
+                                <!-- Customers -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-teal">
+                                            <i class="fas fa-users"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Customers</span>
+                                            <span class="info-box-number">@Model.CustomersResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-teal" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.CustomersResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.CustomersResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.CustomersResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.CustomersResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Medication Orders -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-primary">
+                                            <i class="fas fa-boxes"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Medication Orders</span>
+                                            <span class="info-box-number">@Model.StockOrdersResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-primary" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.StockOrdersResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.StockOrdersResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.StockOrdersResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.StockOrdersResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Prescriptions -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-success">
+                                            <i class="fas fa-file-prescription"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Prescriptions</span>
+                                            <span class="info-box-number">@Model.PrescriptionsResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-success" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.PrescriptionsResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.PrescriptionsResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.PrescriptionsResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.PrescriptionsResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Customer Orders -->
+                                <div class="col-md-3 col-sm-6">
+                                    <div class="info-box">
+                                        <span class="info-box-icon bg-warning">
+                                            <i class="fas fa-shopping-cart"></i>
+                                        </span>
+                                        <div class="info-box-content">
+                                            <span class="info-box-text">Customer Orders</span>
+                                            <span class="info-box-number">@Model.OrdersResult.SuccessCount</span>
+                                            <div class="progress">
+                                                <div class="progress-bar bg-warning" style="width: 100%"></div>
+                                            </div>
+                                            <span class="progress-description">
+                                                @if (Model.OrdersResult.SkippedCount > 0)
+                                                {
+                                                    <span class="text-warning">@Model.OrdersResult.SkippedCount skipped</span>
+                                                }
+                                                @if (Model.OrdersResult.ErrorCount > 0)
+                                                {
+                                                    <span class="text-danger">@Model.OrdersResult.ErrorCount errors</span>
+                                                }
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed Errors Section -->
+            @if (Model.HasErrors)
+            {
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="card card-danger">
+                            <div class="card-header">
+                                <h3 class="card-title"><i class="fas fa-exclamation-circle mr-2"></i>Detailed Import Errors</h3>
+                            </div>
+                            <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                                @if (Model.CustomersResult.Errors.Any())
+                                {
+                                    <h6 class="text-danger"><strong>Customers (@Model.CustomersResult.ErrorCount):</strong></h6>
+                                    <ul>
+                                        @foreach (var error in Model.CustomersResult.Errors)
+                                        {
+                                            <li>@error</li>
+                                        }
+                                    </ul>
+                                    <hr />
+                                }
+                                @if (Model.StockOrdersResult.Errors.Any())
+                                {
+                                    <h6 class="text-danger"><strong>Medication Orders (@Model.StockOrdersResult.ErrorCount):</strong></h6>
+                                    <ul>
+                                        @foreach (var error in Model.StockOrdersResult.Errors)
+                                        {
+                                            <li>@error</li>
+                                        }
+                                    </ul>
+                                    <hr />
+                                }
+                                @if (Model.PrescriptionsResult.Errors.Any())
+                                {
+                                    <h6 class="text-danger"><strong>Prescriptions (@Model.PrescriptionsResult.ErrorCount):</strong></h6>
+                                    <ul>
+                                        @foreach (var error in Model.PrescriptionsResult.Errors)
+                                        {
+                                            <li>@error</li>
+                                        }
+                                    </ul>
+                                    <hr />
+                                }
+                                @if (Model.OrdersResult.Errors.Any())
+                                {
+                                    <h6 class="text-danger"><strong>Customer Orders (@Model.OrdersResult.ErrorCount):</strong></h6>
+                                    <ul>
+                                        @foreach (var error in Model.OrdersResult.Errors)
+                                        {
+                                            <li>@error</li>
+                                        }
+                                    </ul>
+                                    <hr />
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- Action Buttons -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body text-center">
+                            <a href="@Url.Action("Index")" class="btn btn-primary btn-lg">
+                                <i class="fas fa-upload mr-2"></i>
+                                Import More Data
+                            </a>
+                            <a href="@Url.Action("Index", "Home")" class="btn btn-success btn-lg ml-2">
+                                <i class="fas fa-home mr-2"></i>
+                                Go to Dashboard
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

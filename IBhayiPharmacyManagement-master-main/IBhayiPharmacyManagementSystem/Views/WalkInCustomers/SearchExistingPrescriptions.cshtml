@@ -1,0 +1,757 @@
+ @{
+     ViewData["Title"] = "Search Existing Prescriptions";
+     ViewData["DisableDashboard"] = true;
+     Layout = "_LayoutPharmacist";
+ }
+
+<!-- Page Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="d-flex align-items-center mb-3">
+            <div style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%);" class="rounded-circle p-3 me-3 shadow">
+                <i class="fas fa-search text-white fs-4"></i>
+            </div>
+            <div>
+                <h2 class="mb-1 text-dark fw-bold">Search Existing Prescriptions</h2>
+                <p class="text-muted mb-0">Find and re-prescribe medications for walk-in customers</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search Section -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <div id="alertsContainer"></div>
+
+                <div class="row align-items-end">
+                    <div class="col-lg-8 mb-3">
+                        <label for="prescriptionSearchInput" class="form-label fw-semibold text-dark">
+                            <i class="fas fa-user me-2" style="color: #1e5631;"></i>Search Customer
+                        </label>
+                        <input type="text" class="form-control form-control-lg border-2" id="prescriptionSearchInput" 
+                               placeholder="Type customer name or ID number here...">
+                        <div class="form-text">
+                            <i class="fas fa-lightbulb me-1" style="color: #1e5631;"></i>
+                            Search by: Full name, surname, or ID number
+                        </div>
+                    </div>
+                    <div class="col-lg-4 mb-3">
+                        <button type="button" class="btn btn-lg w-100 shadow-sm text-white" id="searchPrescriptionsBtn" 
+                                style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%); border: none;">
+                            <i class="fas fa-search me-2"></i>Search Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+                    </div>
+                </div>
+
+<!-- Customer Details Section -->
+<div id="customerDetailsSection" class="row mb-4" style="display: none;">
+    <div class="col-12">
+        <div class="card shadow-sm border-0" style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%); color: white;">
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-user-circle fs-1 me-3"></i>
+                            <div>
+                                <h4 class="mb-1 fw-bold" id="customerName">Customer Name</h4>
+                                <p class="mb-0 opacity-75" id="customerIdNumber">ID Number</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                                <small class="d-block opacity-75">
+                                    <i class="fas fa-envelope me-2"></i>
+                                    <span id="customerEmail">Email</span>
+                                </small>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="d-block opacity-75">
+                                    <i class="fas fa-phone me-2"></i>
+                                    <span id="customerPhone">Phone</span>
+                                </small>
+                            </div>
+                            <div class="col-md-4">
+                                <small class="d-block opacity-75">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>
+                                    <span id="customerAllergies">Allergies: Loading...</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-md-end">
+                        <div class="bg-white bg-opacity-20 rounded p-3">
+                            <h6 class="mb-1">Member Since</h6>
+                            <p class="mb-0 fw-bold" id="customerDateCreated">Date</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Prescription History Section -->
+<div id="prescriptionHistorySection" class="row mb-4" style="display: none;">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-light border-0 py-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-history me-2" style="color: #1e5631;"></i>
+                        <span class="fw-bold text-dark">Prescription History</span>
+                        <span class="badge bg-secondary ms-2" id="totalPrescriptionsCount">0 prescriptions</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" id="selectAllBtn" class="btn btn-sm text-white" 
+                                style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%); border: none;">
+                            <i class="fas fa-check-square me-1"></i>Select All
+                        </button>
+                        <button type="button" id="clearSelectionBtn" class="btn btn-outline-secondary btn-sm">
+                            <i class="fas fa-square me-1"></i>Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                <!-- Prescription History Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="prescriptionHistoryTable">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th style="width: 50px;">
+                                    <input type="checkbox" id="selectAllCheckbox" class="form-check-input">
+                                </th>
+                                <th style="width: 120px;">Prescription #</th>
+                                <th style="width: 100px;">Date</th>
+                                <th>Medication</th>
+                                <th style="width: 80px;">Quantity</th>
+                                <th style="width: 120px;">Frequency</th>
+                                <th style="width: 80px;">Repeats</th>
+                                <th>Instructions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="prescriptionHistoryTableBody">
+                            <!-- Prescription history will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- No Results Message -->
+                <div id="noPrescriptionsMessage" class="text-center p-5" style="display: none;">
+                    <i class="fas fa-inbox fs-1 text-muted mb-3"></i>
+                    <h5 class="text-muted">No Prescription History Found</h5>
+                    <p class="text-muted">This customer doesn't have any prescription history yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Selected Items Section -->
+<div id="selectedItemsSection" class="row mb-4" style="display: none;">
+    <div class="col-12">
+        <div class="card shadow-sm" style="border: 2px solid #1e5631;">
+            <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-prescription-bottle-alt me-2"></i>
+                        <span class="fw-bold">Selected Items for Re-prescription</span>
+                        <span class="badge bg-light text-dark ms-2" id="selectedCount">0 items</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" id="clearSelectedItems" class="btn btn-outline-light btn-sm">
+                            <i class="fas fa-times me-1"></i>Clear All
+                        </button>
+                    </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                <!-- Selected Items Table -->
+                            <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="selectedItemsTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                <th style="width: 50px;">Remove</th>
+                                            <th>Medication</th>
+                                <th style="width: 80px;">Quantity</th>
+                                <th style="width: 120px;">Frequency</th>
+                                <th style="width: 80px;">Repeats</th>
+                                            <th>Instructions</th>
+                                <th style="width: 100px;">Date</th>
+                                        </tr>
+                                    </thead>
+                        <tbody id="selectedItemsTableBody">
+                            <!-- Selected items will be populated here -->
+                                    </tbody>
+                    </table>
+                </div>
+                
+                <!-- No Selected Items Message -->
+                <div id="noSelectedItemsMessage" class="text-center p-4" style="display: none;">
+                    <i class="fas fa-shopping-cart fs-1 text-muted mb-3"></i>
+                    <h5 class="text-muted">No Items Selected</h5>
+                    <p class="text-muted">Select medications from the prescription history above to re-prescribe them.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add New Medication Section -->
+<div id="addNewMedicationSection" class="row mb-4" style="display: none;">
+    <div class="col-12">
+        <!-- Toggle Button -->
+        <div class="text-center mb-3">
+            <button type="button" id="toggleAddMedicationBtn" class="btn btn-outline-primary btn-lg px-4 py-2">
+                <i class="fas fa-plus-circle me-2"></i>Add New Medication (Optional)
+            </button>
+        </div>
+        
+        <!-- Add Medication Form (Initially Hidden) -->
+        <div id="addMedicationForm" class="card shadow-sm border-0" style="display: none;">
+            <div class="card-header bg-light border-0 py-3">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-plus-circle me-2" style="color: #1e5631;"></i>
+                    <h6 class="fw-bold text-dark mb-0">Add New Medication</h6>
+                </div>
+                <p class="text-muted mb-0 mt-1">Add medications that aren't in the customer's prescription history</p>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Medication</label>
+                        <select id="addMedicationSelect" class="form-select">
+                            <option value="">Select medication...</option>
+                            @if (ViewBag.Medications != null)
+                            {
+                                foreach (var m in ViewBag.Medications)
+                                {
+                                    <option value="@m.MedicationId">@m.Name</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Quantity</label>
+                        <input type="number" min="1" id="addQty" class="form-control" placeholder="Qty" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Instructions</label>
+                        <input type="text" id="addInstructions" class="form-control" placeholder="Instructions" />
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label fw-semibold">Frequency</label>
+                        <select id="addFrequency" class="form-select">
+                            <option value="OnceDaily">Once Daily</option>
+                            <option value="TwiceDaily">Twice Daily</option>
+                            <option value="ThreeTimesDaily">Three Times Daily</option>
+                            <option value="FourTimesDaily">Four Times Daily</option>
+                            <option value="Weekly">Weekly</option>
+                            <option value="Monthly">Monthly</option>
+                        </select>
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label fw-semibold">Repeats</label>
+                        <input type="number" min="0" id="addRepeats" class="form-control" placeholder="Rpt" />
+                    </div>
+                    <div class="col-md-1">
+                        <label class="form-label fw-semibold">&nbsp;</label>
+                        <button type="button" id="btnAddItem" class="btn w-100 text-white" 
+                                style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%); border: none;">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    
+<!-- Submit Section -->
+<div id="submitSection" class="row mb-4" style="display: none;">
+    <div class="col-12">
+        <div class="card shadow-sm border-0">
+            <div class="card-body text-center p-5" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 2px solid #1e5631;">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle" style="color: #1e5631; font-size: 3rem;"></i>
+                </div>
+                <h3 class="text-dark mb-3 fw-bold">Ready to Submit Prescription?</h3>
+                <p class="text-muted mb-4 fs-5">Review your selections above and click submit to create the prescription</p>
+                <button type="button" id="btnSubmitPrescription" class="btn btn-lg px-5 py-3 text-white shadow-lg" 
+                        style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%); border: none; font-size: 1.2rem;">
+                    <i class="fas fa-paper-plane me-2"></i>Submit Prescription
+                </button>
+                <p class="text-muted mt-3 mb-0">
+                    <i class="fas fa-info-circle me-1"></i>
+                    This will create a new prescription and redirect you to view the details
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+ @section Scripts {
+ <script>
+    (function(){
+        function showAlert(type, message) {
+            if (window.showAlert) { return window.showAlert(type === 'danger' ? 'error' : type, message); }
+            var icon = type === 'success' ? 'fa-check-circle' : (type === 'warning' ? 'fa-exclamation-triangle' : 'fa-times-circle');
+            var alertClass = type === 'success' ? 'alert-success' : (type === 'warning' ? 'alert-warning' : 'alert-danger');
+            var html = '<div class="alert ' + alertClass + ' alert-dismissible fade show" role="alert">'
+                + '<i class="fas ' + icon + ' me-2"></i>' + message
+                + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>'
+                + '</div>';
+            document.getElementById('alertsContainer').innerHTML = html;
+        }
+
+        var lastSearchResults = [];
+        var selectedCustomer = null;
+        var selectedItems = [];
+
+        function searchPrescriptions(searchTerm) {
+            var btn = $('#searchPrescriptionsBtn');
+            btn.prop('disabled', true);
+            btn.html('<i class="fas fa-spinner fa-spin me-2"></i>Searching...');
+
+            $.ajax({
+                url: '@Url.Action("SearchPrescriptions", "WalkInCustomers")',
+                type: 'GET',
+                data: { searchTerm: searchTerm },
+                success: function(response) {
+                    if (response.success) {
+                        lastSearchResults = response.prescriptions || [];
+                        if (lastSearchResults.length > 0) {
+                            // Get customer details for the first result
+                            selectedCustomer = lastSearchResults[0];
+                            displayCustomerDetails(selectedCustomer);
+                            displayPrescriptionHistory(lastSearchResults);
+                        } else {
+                            showAlert('warning', 'No prescriptions found for the search term.');
+                            hideAllSections();
+                        }
+                    } else {
+                        showAlert('error', response.message || 'Search failed. Please try again.');
+                        hideAllSections();
+                    }
+                },
+                error: function() {
+                    showAlert('error', 'An error occurred while searching. Please try again.');
+                    hideAllSections();
+                },
+                complete: function() {
+                    btn.prop('disabled', false);
+                    btn.html('<i class="fas fa-search me-2"></i>Search Prescriptions');
+                }
+            });
+        }
+
+        function displayCustomerDetails(customer) {
+            $('#customerName').text(customer.customerName);
+            $('#customerIdNumber').text('ID: ' + customer.customerIdNumber);
+            $('#customerEmail').text('Loading...');
+            $('#customerPhone').text('Loading...');
+            $('#customerDateCreated').text('Loading...');
+            $('#customerAllergies').text('Allergies: Loading...');
+            
+            $('#customerDetailsSection').show();
+
+            // Get detailed customer information
+            $.ajax({
+                url: '@Url.Action("GetCustomerDetails", "WalkInCustomers")',
+                type: 'GET',
+                data: { customerId: customer.customerId },
+                success: function(response) {
+                    if (response.success) {
+                        $('#customerEmail').text(response.customer.email || 'N/A');
+                        $('#customerPhone').text(response.customer.phone || 'N/A');
+                        $('#customerDateCreated').text(response.customer.dateCreated || 'N/A');
+                        
+                        // Display allergies
+                        if (response.customer.allergies && response.customer.allergies.length > 0) {
+                            var allergiesText = response.customer.allergies.map(function(allergy) {
+                                return allergy.allergyName;
+                            }).join(', ');
+                            $('#customerAllergies').text('Allergies: ' + allergiesText);
+                        } else {
+                            $('#customerAllergies').text('Allergies: None');
+                        }
+                    }
+                },
+                error: function() {
+                    $('#customerEmail').text('N/A');
+                    $('#customerPhone').text('N/A');
+                    $('#customerDateCreated').text('N/A');
+                    $('#customerAllergies').text('Allergies: N/A');
+                }
+            });
+        }
+
+        function displayPrescriptionHistory(prescriptions) {
+            var tbody = $('#prescriptionHistoryTableBody');
+            var section = $('#prescriptionHistorySection');
+            var noResultsMessage = $('#noPrescriptionsMessage');
+            var totalCount = $('#totalPrescriptionsCount');
+            
+            tbody.empty();
+            
+            if (!prescriptions || prescriptions.length === 0) {
+                noResultsMessage.show();
+                totalCount.text('0 prescriptions');
+            } else {
+                noResultsMessage.hide();
+                var totalMedications = 0;
+                
+                prescriptions.forEach(function(prescription, index) {
+                    if (prescription.medications && prescription.medications.length > 0) {
+                        prescription.medications.forEach(function(med, medIndex) {
+                            var uniqueId = 'med_' + prescription.prescriptionId + '_' + medIndex;
+                            var hasRepeats = parseInt(med.repeats) > 0;
+                            var row = '<tr>';
+                            
+                            if (hasRepeats) {
+                                var medicationData = JSON.stringify(med).replace(/"/g, '&quot;');
+                                row += '<td><input type="checkbox" class="form-check-input prescription-checkbox" id="' + uniqueId + '" data-medication="' + medicationData + '" data-prescription-date="' + prescription.prescriptionDate + '" data-prescription-id="' + prescription.prescriptionId + '" data-prescription-line-id="' + med.prescriptionLineId + '"></td>';
+                            } else {
+                                row += '<td><i class="fas fa-times text-danger" title="No repeats available"></i></td>';
+                            }
+                            
+                            row += '<td><strong style="color: #1e5631;">#' + prescription.prescriptionId + '</strong></td>';
+                            row += '<td><small class="text-muted">' + prescription.prescriptionDate + '</small></td>';
+                            row += '<td><strong>' + med.medicationName + '</strong></td>';
+                            row += '<td><span class="badge text-white" style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%);">' + med.quantity + '</span></td>';
+                            row += '<td><span class="badge bg-warning text-dark">' + med.frequency + '</span></td>';
+                            
+                            if (hasRepeats) {
+                                row += '<td><span class="badge bg-secondary">' + med.repeats + '</span></td>';
+                            } else {
+                                row += '<td><span class="badge bg-danger">0 (No repeats)</span></td>';
+                            }
+                            
+                            row += '<td><small style="color: #1e5631;">' + (med.instructions || 'No instructions') + '</small></td>';
+                            row += '</tr>';
+                            tbody.append(row);
+                            totalMedications++;
+                        });
+                    }
+                });
+                
+                totalCount.text(totalMedications + ' medications');
+            }
+            
+            section.show();
+            $('#addNewMedicationSection').show();
+            $('#submitSection').show();
+        }
+
+        function hideAllSections() {
+            $('#customerDetailsSection').hide();
+            $('#prescriptionHistorySection').hide();
+            $('#selectedItemsSection').hide();
+            $('#addNewMedicationSection').hide();
+            $('#submitSection').hide();
+        }
+
+        function updateSelectedItems() {
+            selectedItems = [];
+            
+            $('.prescription-checkbox:checked').each(function() {
+                try {
+                    var medication = $(this).data('medication');
+                    var prescriptionDate = $(this).data('prescription-date');
+                    var prescriptionId = $(this).data('prescription-id');
+                    selectedItems.push({
+                        ...medication,
+                        prescriptionDate: prescriptionDate,
+                        prescriptionId: prescriptionId
+                    });
+                } catch (e) {
+                    console.error('Error getting medication data:', e);
+                    console.log('Raw data:', $(this).data('medication'));
+                }
+            });
+            
+            displaySelectedItems();
+        }
+
+        function displaySelectedItems() {
+            var tbody = $('#selectedItemsTableBody');
+            var section = $('#selectedItemsSection');
+            var noItemsMessage = $('#noSelectedItemsMessage');
+            var count = $('#selectedCount');
+            var submitSection = $('#submitSection');
+            
+            tbody.empty();
+            
+            if (selectedItems.length === 0) {
+                noItemsMessage.show();
+                count.text('0 items');
+                section.show();
+                submitSection.hide();
+                return;
+            }
+            
+            noItemsMessage.hide();
+            selectedItems.forEach(function(item, index) {
+                var row = '<tr data-index="' + index + '">';
+                row += '<td><button type="button" class="btn btn-sm btn-outline-danger btn-remove-selected"><i class="fas fa-times"></i></button></td>';
+                row += '<td><strong>' + item.medicationName + '</strong></td>';
+                row += '<td><span class="badge text-white" style="background: linear-gradient(135deg, #1e5631 0%, #2d5a3d 100%);">' + item.quantity + '</span></td>';
+                row += '<td><span class="badge bg-warning text-dark">' + item.frequency + '</span></td>';
+                row += '<td><span class="badge bg-secondary">' + item.repeats + '</span></td>';
+                row += '<td><small style="color: #1e5631;">' + (item.instructions || 'No instructions') + '</small></td>';
+                row += '<td><small class="text-muted">' + item.prescriptionDate + '</small></td>';
+                row += '</tr>';
+                tbody.append(row);
+            });
+            
+            count.text(selectedItems.length + ' item' + (selectedItems.length !== 1 ? 's' : ''));
+            section.show();
+            submitSection.show();
+        }
+
+        // Event handlers
+        $(document).on('change', '.prescription-checkbox', function() {
+            var isChecked = $(this).is(':checked');
+            var prescriptionLineId = $(this).data('prescription-line-id');
+            var $this = $(this);
+            
+            if (prescriptionLineId) {
+                var action = isChecked ? 'DecrementRepeat' : 'IncrementRepeat';
+                var actionText = isChecked ? 'decrement' : 'increment';
+                
+                $.ajax({
+                    url: '@Url.Action("DecrementRepeat", "WalkInCustomers")'.replace('DecrementRepeat', action),
+                    type: 'POST',
+                    data: { prescriptionLineId: prescriptionLineId },
+                    success: function(response) {
+                        if (response.success) {
+                            var $row = $this.closest('tr');
+                            var $repeatCell = $row.find('td:nth-child(7)'); // Repeats column
+                            var $repeatBadge = $repeatCell.find('.badge');
+                            
+                            // Update the repeat count display
+                            if (response.newRepeatCount === 0) {
+                                $repeatBadge.removeClass('bg-secondary').addClass('bg-danger').text('0 (No repeats)');
+                                $this.prop('disabled', true);
+                            } else {
+                                $repeatBadge.removeClass('bg-danger').addClass('bg-secondary').text(response.newRepeatCount);
+                                $this.prop('disabled', false);
+                            }
+                            
+                            // Update the medication data in the checkbox to reflect new repeat count
+                            var medication = $this.data('medication');
+                            medication.repeats = response.newRepeatCount;
+                            $this.data('medication', medication);
+                            
+                        } else {
+                            showAlert('error', response.message || 'Failed to update repeat count.');
+                            $this.prop('checked', !isChecked); // Revert the checkbox state
+                        }
+                    },
+                    error: function() {
+                        showAlert('error', 'Failed to update repeat count. Please try again.');
+                        $this.prop('checked', !isChecked); // Revert the checkbox state
+                    }
+                });
+            }
+            
+            updateSelectedItems();
+        });
+
+        $(document).on('change', '#selectAllCheckbox', function() {
+            $('.prescription-checkbox').prop('checked', $(this).is(':checked'));
+            updateSelectedItems();
+        });
+
+
+        $(document).on('click', '.btn-remove-selected', function() {
+            var index = parseInt($(this).closest('tr').data('index'));
+            var removedItem = selectedItems[index];
+            selectedItems.splice(index, 1);
+            displaySelectedItems();
+            
+            // Uncheck the corresponding checkbox
+            $('.prescription-checkbox').each(function() {
+                var medication = $(this).data('medication');
+                var prescriptionDate = $(this).data('prescription-date');
+                var isSelected = selectedItems.some(function(item) {
+                    return item.medicationId === medication.medicationId && 
+                           item.prescriptionDate === prescriptionDate;
+                });
+                $(this).prop('checked', isSelected);
+            });
+        });
+
+        $('#selectAllBtn').on('click', function() {
+            $('.prescription-checkbox').prop('checked', true);
+            $('#selectAllCheckbox').prop('checked', true);
+            updateSelectedItems();
+        });
+
+        $('#clearSelectionBtn').on('click', function() {
+            $('.prescription-checkbox').prop('checked', false);
+            $('#selectAllCheckbox').prop('checked', false);
+            updateSelectedItems();
+        });
+
+        $('#clearSelectedItems').on('click', function() {
+            selectedItems = [];
+            $('.prescription-checkbox').prop('checked', false);
+            $('#selectAllCheckbox').prop('checked', false);
+            displaySelectedItems();
+        });
+
+        // Add new item
+        $('#btnAddItem').on('click', function(){
+            var medId = $('#addMedicationSelect').val();
+            var medText = $('#addMedicationSelect option:selected').text();
+            var qty = parseInt($('#addQty').val() || '0');
+            var instr = $('#addInstructions').val().trim();
+            var freq = $('#addFrequency').val();
+            var reps = parseInt($('#addRepeats').val() || '0');
+
+            if (!medId) { showAlert('warning', 'Select a medication.'); return; }
+            if (qty <= 0) { showAlert('warning', 'Quantity must be at least 1.'); return; }
+
+            var newItem = {
+                medicationId: parseInt(medId),
+                medicationName: medText,
+                quantity: qty,
+                instructions: instr,
+                frequency: freq,
+                repeats: reps,
+                prescriptionDate: new Date().toISOString().split('T')[0]
+            };
+
+            selectedItems.push(newItem);
+            displaySelectedItems();
+
+            // Show submit section when items are added
+            $('#submitSection').show();
+
+            // Clear form
+            $('#addMedicationSelect').val('');
+            $('#addQty').val('');
+            $('#addInstructions').val('');
+            $('#addRepeats').val('');
+        });
+
+
+        // Submit prescription
+        $('#btnSubmitPrescription').on('click', function(){
+            if (!selectedCustomer) {
+                showAlert('error', 'No customer selected. Please search for a customer first.');
+                return;
+            }
+
+            // Check if any checkboxes are actually checked
+            var checkedBoxes = $('.prescription-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                showAlert('warning', 'Please select at least one medication to re-prescribe.');
+                return;
+            }
+
+            // Build items array from checked checkboxes
+            var items = [];
+            checkedBoxes.each(function() {
+                var medication = $(this).data('medication');
+                items.push({
+                    MedicationId: medication.medicationId,
+                    Quantity: medication.quantity,
+                    Instructions: medication.instructions,
+                    Frequency: medication.frequency,
+                    Repeats: medication.repeats
+                });
+            });
+
+            var btn = $('#btnSubmitPrescription');
+            if (window.confirmSwal) {
+                window.confirmSwal({ 
+                    title: 'Submit prescription?', 
+                    icon: 'warning', 
+                    confirmButtonText: 'Submit' 
+                }).then(function(r) { 
+                    if (!r.isConfirmed) return;
+                    submitPrescription(btn, selectedCustomer.customerId, items);
+                });
+            } else {
+                if (confirm('Submit prescription for ' + selectedCustomer.customerName + '?')) {
+                    submitPrescription(btn, selectedCustomer.customerId, items);
+                }
+            }
+        });
+
+        function submitPrescription(btn, customerId, items) {
+            btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>Submitting...');
+            
+            $.ajax({
+                url: '@Url.Action("SubmitRePrescription", "WalkInCustomers")',
+                type: 'POST',
+                data: { customerId: customerId, itemsJson: JSON.stringify(items) },
+                success: function(resp) {
+                    if (resp && resp.success) {
+                        showAlert('success', resp.message || 'Prescription submitted successfully!');
+                        // Clear selections
+                        selectedItems = [];
+                        $('.prescription-checkbox').prop('checked', false);
+                        displaySelectedItems();
+                        // Redirect to pending scripts
+                        setTimeout(function() {
+                            window.location.href = '@Url.Action("PendingScripts", "Prescriptions")?status=Completed';
+                        }, 2000);
+                    } else {
+                        showAlert('error', resp && resp.message ? resp.message : 'Failed to submit prescription.');
+                    }
+                },
+                error: function() { 
+                    showAlert('error', 'Failed to submit prescription. Please try again.'); 
+                },
+                complete: function() { 
+                    btn.prop('disabled', false).html('<i class="fas fa-paper-plane me-2"></i>Submit Prescription'); 
+                }
+            });
+        }
+
+        $('#searchPrescriptionsBtn').on('click', function(){
+            var searchTerm = $('#prescriptionSearchInput').val().trim();
+            if (searchTerm.length < 2) {
+                showAlert('warning', 'Please enter at least 2 characters to search.');
+                return;
+            }
+            searchPrescriptions(searchTerm);
+        });
+
+        $('#prescriptionSearchInput').on('keypress', function(e){
+            if (e.which === 13) {
+                $('#searchPrescriptionsBtn').click();
+            }
+        });
+
+        // Toggle Add Medication Form
+        $('#toggleAddMedicationBtn').on('click', function() {
+            var form = $('#addMedicationForm');
+            var btn = $(this);
+            
+            if (form.is(':visible')) {
+                form.slideUp();
+                btn.html('<i class="fas fa-plus-circle me-2"></i>Add New Medication (Optional)');
+                btn.removeClass('btn-primary').addClass('btn-outline-primary');
+            } else {
+                form.slideDown();
+                btn.html('<i class="fas fa-minus-circle me-2"></i>Hide Add Medication Form');
+                btn.removeClass('btn-outline-primary').addClass('btn-primary');
+            }
+        });
+    })();
+ </script>
+ }
+
+

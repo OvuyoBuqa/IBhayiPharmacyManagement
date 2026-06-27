@@ -1,0 +1,145 @@
+﻿@model IBhayiPharmacyManagementSystem.Models.Doctor
+
+@{
+    ViewData["Title"] = "Add New Doctor";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    .doc-main-container { background: linear-gradient(135deg, #f8f9fa, #e9ecef); min-height: 100vh; padding: 20px 0; }
+    .doc-page-header { background: #fff; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #e9ecef; border-top: 4px solid #c4a484; box-shadow: 0 4px 15px rgba(0,0,0,0.08); }
+    .doc-page-title { font-size: 1.8rem; font-weight: 700; color: #2c3e50; margin: 0; display: flex; align-items: center; }
+    .doc-page-title i { margin-right: 10px; color: #3498db; }
+    .doc-card { background: #fff; border-radius: 20px; box-shadow: 0 8px 30px rgba(0,0,0,0.1); border: 1px solid #e9ecef; border-left: 4px solid #c4a484; overflow: hidden; }
+    .doc-card-header { background: linear-gradient(135deg, #6c757d, #5a6268); color: #fff; padding: 18px 22px; border: none; }
+    .doc-card-title { font-size: 1.2rem; font-weight: 700; margin: 0; display: flex; align-items: center; }
+    .doc-card-title i { margin-right: 10px; color: #27ae60; }
+    .doc-form .form-control { border: 2px solid #e9ecef; border-radius: 10px; padding: 12px 16px; }
+    .doc-form .form-control:focus { border-color: #3498db; box-shadow: 0 0 0 0.2rem rgba(52,152,219,0.2); }
+    .doc-actions .btn-primary { background: linear-gradient(135deg, #6c757d, #5a6268); border: 1px solid #5a6268; border-radius: 10px; padding: 10px 20px; }
+    .doc-actions .btn-outline-secondary { border-radius: 10px; }
+</style>
+
+<div class="doc-main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="doc-page-header">
+                    <h1 class="doc-page-title"><i class="fas fa-user-md"></i>@ViewData["Title"]</h1>
+                </div>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <div class="doc-card">
+                    <div class="doc-card-header">
+                        <h5 class="doc-card-title"><i class="fas fa-id-card"></i>Doctor Details</h5>
+                    </div>
+                    <div class="card-body">
+                    <form asp-action="Create" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Name" class="form-control" placeholder=" " required />
+                                    <label asp-for="Name" class="form-label"></label>
+                                    <span asp-validation-for="Name" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Surname" class="form-control" placeholder=" " required />
+                                    <label asp-for="Surname" class="form-label"></label>
+                                    <span asp-validation-for="Surname" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="Email" class="form-control" placeholder=" " type="email" required />
+                                    <label asp-for="Email" class="form-label"></label>
+                                    <span asp-validation-for="Email" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="PhoneNumber" class="form-control" placeholder=" " required />
+                                    <label asp-for="PhoneNumber" class="form-label"></label>
+                                    <span asp-validation-for="PhoneNumber" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="form-floating mb-3">
+                                    <input asp-for="PracticeNumber" class="form-control" placeholder=" " required />
+                                    <label asp-for="PracticeNumber" class="form-label"></label>
+                                    <span asp-validation-for="PracticeNumber" class="text-danger small"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                                <div class="doc-actions d-flex justify-content-between mt-4">
+                                    <a asp-action="Index" class="btn btn-outline-secondary">
+                                        <i class="fas fa-arrow-left me-2"></i>Back to List
+                                    </a>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save me-2"></i>Create Doctor
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        // Enhanced validation feedback
+        (function () {
+            'use strict'
+
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation')
+
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+                .forEach(function (form) {
+                    form.addEventListener('submit', function (event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+        })()
+    </script>
+}
+
+@section Styles {
+    <style>
+        .form-floating > label {
+            padding: 1rem 1.25rem;
+        }
+
+        .card {
+            border-radius: 0.5rem;
+        }
+
+        .card-header {
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+        }
+    </style>
+}

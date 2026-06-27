@@ -1,0 +1,336 @@
+﻿@model IBhayiPharmacyManagementSystem.ViewModels.PharmacyViewModel
+
+@{
+    ViewData["Title"] = "Edit Pharmacy";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    :root {
+        --primary-color: #b3d9ff; /* light blue */
+        --primary-dark: #99ccff; /* deeper light blue */
+        --secondary-color: #6c757d; /* grey */
+        --success-color: #27ae60; /* green */
+        --warning-color: #f39c12; /* orange */
+        --danger-color: #e74c3c;
+        --info-color: #3498db;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00; /* orange accent */
+        --brown-soft: #c4a484; /* soft brown */
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        border-top: 4px solid var(--orange-accent); /* orange accent */
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--info-color);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        border-left: 4px solid var(--brown-soft); /* subtle brown edge */
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey header */
+        color: white;
+        padding: 25px 30px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: var(--white);
+    }
+
+    .card-title i {
+        margin-right: 12px;
+        font-size: 1.3rem;
+        color: var(--success-color); /* green icon accent */
+    }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--info-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        background: var(--white);
+    }
+
+    .form-label {
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey button */
+        color: white;
+        border: 1px solid #5a6268;
+        border-radius: 6px;
+        padding: 0.5rem 1.25rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6268, #495057);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid var(--secondary-color);
+        color: var(--secondary-color);
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .btn-outline-secondary:hover {
+        background: linear-gradient(135deg, var(--secondary-color), #5a6268);
+        color: var(--white);
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.3);
+        border-color: var(--secondary-color);
+    }
+
+    .alert {
+        border-radius: 15px;
+        border: none;
+        padding: 20px 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border-left: 5px solid var(--danger-color);
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--info-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--muted-text);
+        font-weight: 600;
+    }
+
+    .text-danger {
+        font-size: 0.85rem;
+    }
+
+    .card-header.bg-primary {
+        background-color: #1a6fc9 !important;
+        color: #fff;
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-clinic-medical"></i>Edit Pharmacy Information
+                    </h1>
+                    <nav aria-label="breadcrumb" class="mt-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Action("Index", "Pharmacies")">Pharmacies</a></li>
+                            <li class="breadcrumb-item active">Edit</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <!-- Content Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-pharmacy"></i>Pharmacy Details
+                        </h5>
+                    </div>
+                    <div class="card-body" style="padding: 25px;">
+                        <form asp-action="Edit">
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+                            <input type="hidden" asp-for="PharmacyId" />
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Name" class="form-label fw-bold"></label>
+                                    <input asp-for="Name" class="form-control" />
+                                    <span asp-validation-for="Name" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="HealthcareCouncilRegistrationNumber" class="form-label fw-bold"></label>
+                                    <input asp-for="HealthcareCouncilRegistrationNumber" class="form-control" />
+                                    <span asp-validation-for="HealthcareCouncilRegistrationNumber" class="text-danger"></span>
+                                </div>
+
+                                <h5 class="mt-4 mb-3">Address Details</h5>
+                                <div class="form-group mb-3">
+                                    <label asp-for="Street" class="form-label fw-bold"></label>
+                                    <input asp-for="Street" class="form-control" />
+                                    <span asp-validation-for="Street" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Suburb" class="form-label fw-bold"></label>
+                                    <input asp-for="Suburb" class="form-control" />
+                                    <span asp-validation-for="Suburb" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="City" class="form-label fw-bold"></label>
+                                    <input asp-for="City" class="form-control" />
+                                    <span asp-validation-for="City" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6">
+                                <div class="form-group mb-3">
+                                    <label asp-for="Province" class="form-label fw-bold"></label>
+                                    <input asp-for="Province" class="form-control" />
+                                    <span asp-validation-for="Province" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="ZipCode" class="form-label fw-bold"></label>
+                                    <input asp-for="ZipCode" class="form-control" />
+                                    <span asp-validation-for="ZipCode" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Country" class="form-label fw-bold"></label>
+                                    <input asp-for="Country" class="form-control" />
+                                    <span asp-validation-for="Country" class="text-danger"></span>
+                                </div>
+
+                                <h5 class="mt-4 mb-3">Contact Details</h5>
+                                <div class="form-group mb-3">
+                                    <label asp-for="ContactNumber" class="form-label fw-bold"></label>
+                                    <input asp-for="ContactNumber" class="form-control" />
+                                    <span asp-validation-for="ContactNumber" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="Email" class="form-label fw-bold"></label>
+                                    <input asp-for="Email" class="form-control" />
+                                    <span asp-validation-for="Email" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="WebsiteURL" class="form-label fw-bold">
+                                        <i class="fas fa-globe me-2 text-primary"></i>Website URL
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text">
+                                            <i class="fas fa-link text-muted"></i>
+                                        </span>
+                                        <input asp-for="WebsiteURL" class="form-control" placeholder="https://www.yourpharmacy.com" />
+                                    </div>
+                                    <small class="form-text text-muted">
+                                        <i class="fas fa-info-circle me-1"></i>Enter the full website URL including http:// or https://
+                                    </small>
+                                    <span asp-validation-for="WebsiteURL" class="text-danger"></span>
+                                </div>
+
+                                <div class="form-group mb-3">
+                                    <label asp-for="PharmacistId" class="form-label fw-bold"></label>
+                                    <select asp-for="PharmacistId" class="form-select" asp-items="Model.Pharmacists">
+                                        <option value="">-- Select Responsible Pharmacist --</option>
+                                    </select>
+                                    <span asp-validation-for="PharmacistId" class="text-danger"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group mt-4 d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Back to List
+                            </a>
+                            <button type="submit" value="Save" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>Save Changes
+                            </button>
+                        </div>
+                    </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+}

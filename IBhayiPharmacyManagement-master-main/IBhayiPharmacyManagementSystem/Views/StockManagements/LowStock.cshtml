@@ -1,0 +1,84 @@
+﻿@model List<IBhayiPharmacyManagementSystem.Models.Medication>
+
+@{
+    ViewData["Title"] = "Low Stock Medications";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<div class="container">
+    <div class="pharmacy-table-container">
+        <div class="pharmacy-table-header">
+            <i class="fas fa-exclamation-triangle text-warning"></i> @ViewData["Title"]
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="alert alert-success">
+                <i class="fas fa-check-circle"></i> All medications are above their minimum stock levels.
+            </div>
+        }
+        else
+        {
+            @foreach (var supplierGroup in Model.GroupBy(m => m.Supplier.Name).OrderBy(g => g.Key))
+            {
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">Supplier: @supplierGroup.Key</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Medication</th>
+                                        <th>Current Stock</th>
+                                        <th>Minimum Stock</th>
+                                        <th>Strength</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var item in supplierGroup.OrderBy(m => m.Name))
+                                    {
+                                        <tr class="table-warning">
+                                            <td>@item.Name</td>
+                                            <td>@item.QuantityInStock</td>
+                                            <td>@item.MinStockLevel</td>
+                                            <td>
+                                                @if (item.ActiveIngredients != null && item.ActiveIngredients.Any())
+                                                {
+                                                    @(string.Join(", ", item.ActiveIngredients.Select(ai => $"{ai.ActiveIngredient.Name} {ai.Strength}")))
+                                                }
+                                                else
+                                                {
+                                                    <span>N/A</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a asp-action="AdjustStock" asp-route-id="@item.MedicationId" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fas fa-edit"></i> Adjust
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <a asp-controller="StockOrders" asp-action="CreateGroupedOrderForSupplier" asp-route-supplierId="@supplierGroup.First().SupplierId" class="btn btn-success">
+                                <i class="fas fa-cart-plus me-2"></i> Create Order for @supplierGroup.Key
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+
+        <div class="mt-4 text-end">
+            <a asp-action="Index" class="btn btn-pharmacy-secondary">
+                <i class="fas fa-arrow-left me-2"></i> Back to Inventory
+            </a>
+        </div>
+    </div>
+</div>
+

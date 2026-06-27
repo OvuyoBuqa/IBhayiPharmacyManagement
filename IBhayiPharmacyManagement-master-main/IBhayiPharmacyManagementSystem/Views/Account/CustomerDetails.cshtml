@@ -1,0 +1,290 @@
+﻿@model IBhayiPharmacyManagementSystem.ViewModels.CustomerDetailsViewModel
+@using IBhayiPharmacyManagementSystem.Models
+@using IBhayiPharmacyManagementSystem.Enums
+@{
+    ViewData["Title"] = "Customer Details";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid">
+    <div class="row mb-3">
+        <div class="col-12">
+            <a asp-action="CustomerList" asp-controller="Account" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Customer List
+            </a>
+        </div>
+    </div>
+
+    <div id="successAlert" class="alert alert-success alert-dismissible fade show mb-3" style="display: none;">
+        <i class="fas fa-check-circle mr-2"></i> <span id="successMessage"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <div id="errorAlert" class="alert alert-danger alert-dismissible fade show mb-3" style="display: none;">
+        <i class="fas fa-exclamation-circle mr-2"></i> <span id="errorMessage"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show mb-3">
+            <i class="fas fa-check-circle mr-2"></i> @Html.Raw(TempData["SuccessMessage"])
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-gradient-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <h3 class="card-title mb-0">
+                    <i class="fas fa-user-circle mr-2"></i>Customer Details
+                </h3>
+                @if (Model.IsWalkInCustomer)
+                {
+                    <span class="badge bg-warning text-dark py-2 px-3">
+                        <i class="fas fa-walking mr-1"></i> Walk-In Customer
+                    </span>
+                }
+                else
+                {
+                    <span class="badge bg-success py-2 px-3">
+                        <i class="fas fa-user-check mr-1"></i> Registered Customer
+                    </span>
+                }
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4 text-center">
+                    <div class="profile-section mb-4">
+                        <div class="avatar-placeholder bg-light rounded-circle d-flex align-items-center justify-content-center mx-auto mb-3"
+                             style="width: 180px; height: 180px; border: 4px solid #e9ecef;">
+                            <i class="fas fa-user text-muted" style="font-size: 5rem;"></i>
+                        </div>
+                        <h4 class="font-weight-bold">@Model.FullName</h4>
+                        <p class="text-muted">
+                            <i class="far fa-calendar-alt mr-1"></i>
+                            Member since: @Model.DateCreated.ToString("dd MMMM yyyy")
+                        </p>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <div class="customer-details">
+                        <table class="table table-hover table-striped">
+                            <tbody>
+                                <tr>
+                                    <th class="w-25 bg-light">Customer ID</th>
+                                    <td><span class="font-weight-bold">@Model.CustomerId</span></td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">Email</th>
+                                    <td>
+                                        <a href="mailto:@Model.Email" class="text-primary">
+                                            <i class="fas fa-envelope mr-1"></i> @Model.Email
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">ID Number</th>
+                                    <td>@Model.IDNumber</td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">Phone</th>
+                                    <td>
+                                        <a href="tel:@Model.CellPhoneNumber" class="text-primary">
+                                            <i class="fas fa-phone mr-1"></i> @Model.CellPhoneNumber
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">Address</th>
+                                    <td>
+                                        <i class="fas fa-map-marker-alt mr-1 text-danger"></i> @Model.FullAddress
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <th class="bg-light">Account Type</th>
+                                    <td>
+                                        @if (Model.IsWalkInCustomer)
+                                        {
+                                            <span class="badge bg-warning text-dark py-2 px-3">
+                                                <i class="fas fa-walking mr-1"></i> Walk-In Customer
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success py-2 px-3">
+                                                <i class="fas fa-user-check mr-1"></i> Registered Customer
+                                            </span>
+                                        }
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Customer Allergy History Section -->
+    <div class="card shadow-lg mb-4">
+        <div class="card-header bg-light">
+            <div class="d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-history text-info mr-2"></i>Customer Allergy History
+                </h5>@* 
+                <a href="@Url.Action("CustomerAllergyRecords", "CustomerAllergies", new { customerId = Model.CustomerId })" 
+                   class="btn btn-outline-info btn-sm">
+                    <i class="fas fa-eye mr-1"></i> View Full History
+                </a> *@
+            </div>
+        </div>
+        <div class="card-body">
+            @if (Model.Allergies.Any())
+            {
+                <div class="row">
+                    @foreach (var allergy in Model.Allergies.Take(3))
+                    {
+                        <div class="col-md-4 mb-3">
+                            <div class="card border-left-danger">
+                                <div class="card-body">
+                                    <h6 class="card-title">
+                                        <i class="fas fa-exclamation-triangle text-danger mr-1"></i>
+                                        @allergy.ActiveIngredient?.Name
+                                    </h6>
+                                    <p class="card-text">
+                                        <span class="badge @GetSeverityBadgeClass(allergy.Severity)">@allergy.Severity</span>
+                                        @if (!string.IsNullOrEmpty(allergy.Description))
+                                        {
+                                            <br><small class="text-muted">@allergy.Description</small>
+                                        }
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                @if (Model.Allergies.Count > 3)
+                {
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            Showing 3 of @Model.Allergies.Count allergies. 
+                            <a href="@Url.Action("CustomerAllergyRecords", "CustomerAllergies", new { customerId = Model.CustomerId })" 
+                               class="text-primary">View all allergies</a>
+                        </small>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="alert alert-info mb-0">
+                    <i class="fas fa-info-circle mr-1"></i> No allergies recorded for this customer.
+                </div>
+            }
+        </div>
+    </div>
+
+</div>
+
+@functions {
+    string GetSeverityBadgeClass(string severity)
+    {
+        return severity switch
+        {
+            "Mild" => "bg-info",
+            "Moderate" => "bg-warning",
+            "Severe" => "bg-danger",
+            "Life-threatening" => "bg-dark",
+            _ => "bg-secondary"
+        };
+    }
+}
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .profile-section {
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .avatar-placeholder {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
+        }
+
+        .table {
+            border-radius: 0.5rem;
+            overflow: hidden;
+        }
+
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #3e2a1f 0%, #1f0d07 100%);
+        }
+
+        #prescriptionItemsTable tr:last-child {
+            background-color: #f8f9fa;
+        }
+
+            #prescriptionItemsTable tr:last-child td {
+                padding: 0.5rem;
+            }
+
+            #prescriptionItemsTable tr:last-child .form-control,
+            #prescriptionItemsTable tr:last-child .form-select {
+                font-size: 0.875rem;
+                padding: 0.25rem 0.5rem;
+            }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Show success message
+            function showSuccessMessage(message) {
+                $('#successMessage').text(message);
+                $('#successAlert').fadeIn().delay(5000).fadeOut();
+            }
+
+            // Show error message
+            function showErrorMessage(message) {
+                $('#errorMessage').text(message);
+                $('#errorAlert').fadeIn().delay(5000).fadeOut();
+            }
+
+
+            // Helper function to get severity badge class
+            function getSeverityBadgeClass(severity) {
+                switch (severity) {
+                    case 'Mild': return 'bg-info';
+                    case 'Moderate': return 'bg-warning';
+                    case 'Severe': return 'bg-danger';
+                    case 'Life-threatening': return 'bg-dark';
+                    default: return 'bg-secondary';
+                }
+            }
+        });
+    </script>
+}

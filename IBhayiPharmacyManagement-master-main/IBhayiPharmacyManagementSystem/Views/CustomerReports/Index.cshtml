@@ -1,0 +1,408 @@
+@{
+    ViewData["Title"] = "Customer Reports";
+    Layout = "_LayoutCustomer";
+}
+
+<style>
+    /* Professional, warm beige color palette - matching other pages */
+    :root {
+        --primary-color: #d4b896;
+        --primary-dark: #b8a082;
+        --secondary-color: #8b7355;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --info-color: #d4b896;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+    }
+
+    .content-header {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        color: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .content-header h1 {
+        color: white;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .content-header h1 i {
+        margin-right: 10px;
+        font-size: 1.5rem;
+    }
+
+    .card {
+        border: none;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #495057);
+        color: white;
+        border-radius: 12px 12px 0 0 !important;
+        border: none;
+        padding: 1.25rem 1.5rem;
+    }
+
+    .card-title {
+        color: white;
+        font-weight: 600;
+        margin: 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .card-title i {
+        margin-right: 10px;
+        font-size: 1.2rem;
+    }
+
+    .form-control {
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        padding: 0.75rem 1rem;
+        font-size: 14px;
+        transition: all 0.2s ease;
+        background: white;
+    }
+
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(212, 184, 150, 0.25);
+        background: white;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: var(--dark-text);
+        margin-bottom: 0.5rem;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        border: none;
+        border-radius: 6px;
+        padding: 0.75rem 2rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+        box-shadow: 0 4px 15px rgba(212, 184, 150, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, var(--primary-dark), var(--primary-color));
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(212, 184, 150, 0.4);
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-color);
+        border-color: var(--primary-color);
+    }
+
+    .form-check-input:focus {
+        box-shadow: 0 0 0 0.2rem rgba(212, 184, 150, 0.25);
+    }
+
+    .form-check-label {
+        font-weight: 500;
+        color: var(--dark-text);
+    }
+
+    .form-text {
+        color: var(--muted-text);
+        font-size: 12px;
+        margin-top: 4px;
+    }
+
+    /* Enhanced form styling */
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-check {
+        padding: 1rem;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+        background: white;
+    }
+
+    .form-check:hover {
+        border-color: var(--primary-color);
+        box-shadow: 0 2px 8px rgba(212, 184, 150, 0.1);
+    }
+
+    .form-check-input {
+        margin-top: 0.25rem;
+    }
+
+    .form-check-label {
+        display: flex;
+        align-items: center;
+        font-weight: 500;
+    }
+
+    .form-check-label i {
+        margin-right: 8px;
+        font-size: 1.1rem;
+    }
+
+    /* Responsive improvements */
+    @@media (max-width: 768px) {
+        .content-header {
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .content-header h1 {
+            font-size: 1.5rem;
+        }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 1rem;
+        }
+    }
+</style>
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">
+                    <a asp-controller="Home" asp-action="Customer" class="btn btn-outline-secondary btn-sm mr-2">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    Generate Reports
+                </h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary shadow-lg">
+                     <div class="card-header">
+                         <h3 class="card-title text-white">
+                             <i class="fas fa-chart-bar mr-2"></i>Report Configuration
+                         </h3>
+                     </div>
+                    <div class="card-body">
+
+                        <!-- Report Form -->
+                        <div class="row justify-content-center">
+                            <div class="col-lg-8">
+                                <form asp-action="GenerateReport" method="post" id="reportForm">
+                                            <!-- Date Range Selection -->
+                                            <div class="row mb-4">
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="startDate" class="form-label">Start Date:</label>
+                                                        <input type="date" id="startDate" name="startDate" class="form-control" 
+                                                               value="@DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd")" required>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <div class="form-group">
+                                                        <label for="endDate" class="form-label">End Date:</label>
+                                                        <input type="date" id="endDate" name="endDate" class="form-control" 
+                                                               value="@DateTime.Today.ToString("yyyy-MM-dd")" required>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Report Type Selection -->
+                                            <div class="form-group mb-4">
+                                                <label class="form-label">Select Report Types:</label>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="includePrescriptions" name="includePrescriptions" value="true">
+                                                            <label class="form-check-label" for="includePrescriptions">
+                                                                <i class="fas fa-pills mr-2" style="color: var(--warning-color);"></i>Dispensed Prescriptions
+                                                            </label>
+                                                            <small class="form-text">All dispensed medications (repeats and non-repeats)</small>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" id="includeOrders" name="includeOrders" value="true">
+                                                            <label class="form-check-label" for="includeOrders">
+                                                                <i class="fas fa-shopping-cart mr-2" style="color: var(--info-color);"></i>Orders
+                                                            </label>
+                                                            <small class="form-text">All orders (pending, ready, completed, collected)</small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Group By Selection -->
+                                            <div class="form-group mb-4">
+                                                <label for="groupBy" class="form-label">Group By:</label>
+                                                <select id="groupBy" name="groupBy" class="form-control" required>
+                                                    <option value="">-- Select Grouping --</option>
+                                                    <option value="doctor">Doctor</option>
+                                                    <option value="medication">Medication</option>
+                                                </select>
+                                            </div>
+
+                                            <!-- Generate Button -->
+                                            <div class="form-group text-center">
+                                                <button type="submit" class="btn btn-primary btn-lg" id="generateBtn">
+                                                    <i class="fas fa-download mr-2"></i>Generate Report
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        $(document).ready(function () {
+            // Set default dates
+            var defaultStartDate = '@DateTime.Today.AddMonths(-1).ToString("yyyy-MM-dd")';
+            var defaultEndDate = '@DateTime.Today.ToString("yyyy-MM-dd")';
+            
+            $('#startDate').val(defaultStartDate);
+            $('#endDate').val(defaultEndDate);
+            
+            // Form validation with SweetAlert2
+            $('#reportForm').on('submit', function(e) {
+                var hasSelection = $('#includePrescriptions').is(':checked') || 
+                                 $('#includeOrders').is(':checked');
+                
+                if (!hasSelection) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Selection Required!',
+                        html: `
+                            <div style="text-align: center; margin: 20px 0;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #f39c12; margin-bottom: 15px;"></i>
+                                <p style="font-size: 16px; color: #2c3e50;">Please select at least one report type.</p>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        confirmButtonColor: '#f39c12',
+                        confirmButtonText: '<i class="fas fa-check mr-2"></i>OK',
+                        customClass: {
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            confirmButton: 'swal2-confirm-custom'
+                        }
+                    });
+                    return false;
+                }
+                
+                var groupBy = $('#groupBy').val();
+                if (!groupBy) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: 'Grouping Required!',
+                        html: `
+                            <div style="text-align: center; margin: 20px 0;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #f39c12; margin-bottom: 15px;"></i>
+                                <p style="font-size: 16px; color: #2c3e50;">Please select a grouping option.</p>
+                            </div>
+                        `,
+                        icon: 'warning',
+                        confirmButtonColor: '#f39c12',
+                        confirmButtonText: '<i class="fas fa-check mr-2"></i>OK',
+                        customClass: {
+                            popup: 'swal2-popup-custom',
+                            title: 'swal2-title-custom',
+                            confirmButton: 'swal2-confirm-custom'
+                        }
+                    });
+                    return false;
+                }
+            });
+            
+            // Check for TempData messages and show SweetAlert2 modals
+            @if (TempData["InfoMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    title: 'Information',
+                    html: `
+                        <div style="text-align: center; margin: 20px 0;">
+                            <i class="fas fa-info-circle" style="font-size: 48px; color: #3498db; margin-bottom: 15px;"></i>
+                            <p style="font-size: 16px; color: #2c3e50;">@Html.Raw(TempData["InfoMessage"])</p>
+                        </div>
+                    `,
+                    icon: 'info',
+                    confirmButtonColor: '#3498db',
+                    confirmButtonText: '<i class="fas fa-check mr-2"></i>OK',
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom'
+                    }
+                });
+                </text>
+            }
+        });
+    </script>
+    
+    <style>
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup-custom {
+            border-radius: 15px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            border: none !important;
+        }
+        
+        .swal2-title-custom {
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 24px !important;
+        }
+        
+        .swal2-confirm-custom {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-confirm-custom:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+        }
+        
+        .swal2-html-container {
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+        }
+    </style>
+}
+

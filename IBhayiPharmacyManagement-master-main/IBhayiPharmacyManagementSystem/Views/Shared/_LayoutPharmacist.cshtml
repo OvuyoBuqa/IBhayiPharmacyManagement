@@ -1,0 +1,573 @@
+﻿
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pharmacy Management System</title>
+
+    <!-- Google Font: Source Sans Pro -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="~/AdminLTE/plugins/fontawesome-free/css/all.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Tempusdominus Bootstrap 4 -->
+    <link rel="stylesheet" href="~/AdminLTE/plugins/tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="~/AdminLTE/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- JQVMap -->
+    <link rel="stylesheet" href="~/AdminLTE/plugins/jqvmap/jqvmap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="~/AdminLTE/dist/css/adminlte.min.css">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="~/AdminLTE/plugins/overlayScrollbars/css/OverlayScrollbars.min.css">
+    <!-- Daterange picker -->
+    <link rel="stylesheet" href="~/AdminLTE/plugins/daterangepicker/daterangepicker.css">
+    <!-- summernote -->
+    <link rel="stylesheet" href="~/AdminLTE/plugins/summernote/summernote-bs4.min.css">
+    <!-- DataTables -->
+    <link rel="stylesheet" href="~/AdminLTE/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="~/AdminLTE/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <!-- Removed missing HighCharts.css and hummingbird-treeview.css to avoid 404s -->
+
+    <!-- ADD THIS LINE FOR YOUR STYLES SECTION -->
+        @RenderSection("Styles", required: false)
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.min.css">
+    <style>
+        :root {
+            --clr-bg: #f8f9fa; /* light background */
+            --clr-surface: #ffffff; /* white card surface */
+            --clr-primary: #0a1f14; /* dashboard green */
+            --clr-secondary: #1b4332; /* lighter green */
+            --clr-success: #0a1f14; /* dashboard green */
+            --clr-info: #748287;
+            --clr-muted: #787475;
+            --clr-olive: #0a1f14; /* dashboard green */
+            --clr-tan: Tan;
+            --clr-text: #020101; /* dark text for contrast */
+        }
+        /* Global background/text */
+        body, .content-wrapper { background-color: var(--clr-bg); color: var(--clr-text); }
+        a { color: var(--clr-info); }
+        a:hover { color: var(--clr-text); }
+
+        /* Navbar and Sidebar */
+        .main-header.navbar { background-image: linear-gradient(180deg, var(--clr-primary) 0%, var(--clr-secondary) 70%) !important; color: #fff !important; }
+        .main-header.navbar .nav-link { color: #fff !important; }
+        .main-sidebar { background-image: linear-gradient(180deg, var(--clr-primary) 0%, var(--clr-secondary) 60%) !important; }
+        .nav-sidebar .nav-link { color: #fff; }
+        .nav-sidebar .nav-link.active { background-color: var(--clr-secondary) !important; color: #fff !important; }
+
+        /* Cards and tables */
+        .card { background-color: var(--clr-surface); color: var(--clr-text); border-color: var(--clr-secondary); }
+        .card-header { background-color: var(--clr-primary) !important; color: #fff !important; border-bottom-color: var(--clr-secondary); }
+        .table { color: var(--clr-text); }
+        .table thead.table-light { background-color: #f8f9fa !important; color: var(--clr-text) !important; }
+        .table-hover tbody tr:hover { background-color: rgba(10,31,20,.08); }
+
+        /* Buttons */
+        .btn-primary { background-color: var(--clr-primary); border-color: var(--clr-primary); }
+        .btn-primary:hover { filter: brightness(1.1); }
+        .btn-secondary { background-color: var(--clr-secondary); border-color: var(--clr-secondary); }
+        .btn-success { background-color: var(--clr-success); border-color: var(--clr-success); }
+        .btn-outline-primary { color: var(--clr-text); border-color: var(--clr-primary); }
+        .btn-outline-primary:hover { background-color: var(--clr-primary); border-color: var(--clr-primary); }
+
+        /* Badges */
+        .badge.bg-info { background-color: var(--clr-info) !important; color: #fff; }
+        .badge.bg-success { background-color: var(--clr-success) !important; color: #fff; }
+        .badge.bg-warning { background-color: var(--clr-tan) !important; color: #000; }
+        .badge.bg-secondary { background-color: var(--clr-secondary) !important; color: #fff; }
+        .badge.bg-primary { background-color: var(--clr-primary) !important; color: #fff; }
+
+        /* Alerts */
+        .alert-info { background-color: #e9f3f6; color: var(--clr-text); border-color: var(--clr-info); }
+        .alert-warning { background-color: #fff3e0; color: var(--clr-text); border-color: var(--clr-tan); }
+
+        .swal2-popup { background: #ffffff !important; color: var(--clr-text) !important; border: 1px solid var(--clr-secondary); }
+        .swal2-title { color: var(--clr-text) !important; }
+        .swal2-html-container { color: var(--clr-text) !important; }
+        .swal2-styled.swal2-confirm { background: var(--clr-primary) !important; }
+        .swal2-styled.swal2-cancel { background: var(--clr-secondary) !important; }
+    </style>
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+    <div class="wrapper">
+
+      @*   <!-- Preloader -->
+        <div class="preloader flex-column justify-content-center align-items-center">
+            <img class="animation__shake" src="~/AdminLTE/dist/img/avatar3.png" alt="PharmacistAvatar" height="60" width="60">
+        </div> *@
+
+        <!-- Navbar -->
+        <nav class="main-header navbar navbar-expand navbar-white navbar-light fixed-top" style="background-image: linear-gradient(180deg, #3e2a1f 0%, #1f0d07 70%) !important; z-index: 1030;">
+
+
+
+            <!-- Left navbar links -->
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+                </li>
+
+                <li class="nav-link" style="color: white;">PHARMACY MANAGEMENT SYSTEM</li>
+
+            </ul>
+
+            <!-- Right navbar links -->
+            <ul class="navbar-nav ml-auto">
+                <!-- Notifications Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link" data-toggle="dropdown" href="#" id="notificationDropdown" style="color: white !important;">
+                        <i class="far fa-bell" style="color: white !important;"></i>
+                        <span class="badge badge-warning navbar-badge" id="notificationBadge">0</span>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" id="notificationMenu">
+                        <span class="dropdown-item dropdown-header">Notifications</span>
+                        <div class="dropdown-divider"></div>
+                        <div id="notificationContent">
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-info-circle mr-2"></i> No new notifications
+                            </a>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item dropdown-footer" onclick="markAllAsRead()">Mark all as read</a>
+                    </div>
+                </li>
+
+                <!-- Profile Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: white !important;">
+                        <i class="fas fa-user-circle" style="color: white !important;"></i>
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
+                        <div class="dropdown-header text-center">
+                            <strong>@User.Identity?.Name</strong><br>
+                            <small class="text-muted">@User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value</small><br>
+                            <small class="text-muted">Role: @(User.IsInRole("Customer") ? "Customer" : User.IsInRole("Pharmacist") ? "Pharmacist" : User.IsInRole("PharmacyManager") ? "Pharmacy Manager" : "Admin")</small>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <a class="dropdown-item" href="@Url.Action("Profile", "Pharmacists")">
+                            <i class="fas fa-user-cog mr-2"></i> Profile Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+                            <button type="submit" class="dropdown-item text-danger logout-btn">
+                                <i class="fas fa-sign-out-alt mr-2"></i> 
+                                <span class="logout-text">Sign Out</span>
+                                <span class="logout-spinner" style="display: none;"></span>
+                            </button>
+                        </form>
+                    </div>
+                </li>
+
+                <!-- Optional: Add role-based navigation if needed -->
+                @if (User.IsInRole("Admin"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-controller="Home" asp-action="Admin"></a>
+                    </li>
+                }
+                @if (User.IsInRole("Customer"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-controller="Home" asp-action="Customer"></a>
+                    </li>
+                }
+                @if (User.IsInRole("Pharmacist"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-controller="Home" asp-action="Pharmacist"></a>
+                    </li>
+                }
+                @if (User.IsInRole("PharmacyManager"))
+                {
+                    <li class="nav-item">
+                        <a class="nav-link text-light" asp-controller="Home" asp-action="PharmacyManager"></a>
+                    </li>
+                }
+
+            </ul>
+        </nav>
+        <!-- /.navbar -->
+        <!-- Main Sidebar Container -->
+        <aside class="main-sidebar sidebar-dark-primary elevation-4" style="background-image: linear-gradient(180deg, #3e2a1f 0%, #1f0d07 50%) !important">
+
+            <!-- Brand Logo -->
+            @*  <a href="index3.html" class="brand-link">
+                    <img src="~/AdminLTE/dist/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3" style="opacity: .8">
+                    <span class="brand-text font-weight-light"> Pharmacy Management </span>
+                </a> *@
+
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Sidebar user panel (optional) -->
+                <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                    <div class="image">
+                        <img src="~/AdminLTE/dist/img/avatar3.png" class="img-circle elevation-2" alt="PharmacistAvatar">
+                    </div>
+                    <div class="info">
+                        <p class="user-name mb-0" style="color: white;">@User.Identity?.Name!</p>
+
+                    </div>
+                </div>
+                <!-- Sidebar Menu -->
+                <nav class="mt-2">
+                    <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                        <!-- Add icons to the links using the .nav-icon class
+                             with font-awesome or any other icon font library -->
+
+                        <li class="nav-item menu-open">
+                            <a asp-controller="Home" asp-action="Pharmacist" class="nav-link active" style="background-color: #d56d2f;">
+                                <i class="nav-icon fas fa-tachometer-alt"></i>
+                                <p>
+                                    Dashboard
+
+                                </p>
+                            </a>
+
+                        </li>
+                        <li class="nav-item">
+                            <a href="javascript:;" class="nav-link has-arrow">
+                                <i class="nav-icon fas fa-prescription-bottle-alt"></i>
+                                <p>
+                                    Prescription Management
+                                    <i class="right fas fa-angle-left"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item" style="background-color: #7b3804;">
+                                    <a asp-action="PendingScripts" asp-controller="Prescriptions" class="nav-link">
+                                        <i class="fas fa-file-prescription nav-icon"></i>
+                                        <p>All Prescriptions</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item" style="background-color: #7b3804;">
+                                    <a asp-action="SearchExistingPrescriptions" asp-controller="WalkInCustomers" class="nav-link">
+                                        <i class="fas fa-file-prescription nav-icon"></i>
+                                        <p>Existing Prescriptions</p>
+                                    </a>
+                                </li>
+
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="WalkInCustomers" class="nav-link">
+                                <i class="fas fa-user-plus nav-icon"></i>
+                                <p>Uploads Scripts </p>
+                            </a>
+                        </li>
+
+
+                        <li class="nav-item">
+                            <a asp-action="Review" asp-controller="Orders" class="nav-link">
+                                <i class="fas fa-list-alt nav-icon"></i>
+                                <p>Orders</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="OrderTracking" class="nav-link">
+                                <i class="fas fa-truck nav-icon"></i>
+                                <p>Order Tracking</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-action="Index" asp-controller="DispensationRequests" class="nav-link">
+                                <i class="fas fa-redo nav-icon"></i>
+                                <p>Repeat Requests</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-action="Profile" asp-controller="Pharmacists" class="nav-link">
+                                <i class="fas fa-prescription-bottle-alt nav-icon"></i> <!-- Changed from notes-medical -->
+                                <p>Profile</p>
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a asp-action="Reports" asp-controller="Pharmacists" class="nav-link">
+                                <i class="fas fa-chart-bar nav-icon"></i>
+                                <p>Reports</p>
+                            </a>
+                        </li>
+
+                        <!-- Logout Button -->
+                        <li class="nav-item" style="margin-top: auto;">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="logout-form">
+                                <button type="submit" class="nav-link logout-btn" style="background-color: #dc3545; color: white; border: none; width: 100%; text-align: left; padding: 0.5rem 1rem;">
+                                    <i class="nav-icon fas fa-sign-out-alt"></i>
+                                    <span class="logout-text">Sign Out</span>
+                                    <span class="logout-spinner" style="display: none;"></span>
+                                </button>
+                            </form>
+                        </li>
+
+                    </ul>
+
+                </nav>
+                <!-- /.sidebar-menu -->
+            </div>
+            <!-- /.sidebar -->
+        </aside>
+
+
+        <!-- Content Wrapper. Contains page content -->
+        <!--start content-->
+        <main class="content-wrapper" style="padding-top: 80px;">
+            <section class="content">
+                <div class="container-fluid">
+                    @if (TempData["MESSAGE"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="icon fas fa-check"></i> @TempData["MESSAGE"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="icon fas fa-times"></i> @TempData["Error"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+                    @RenderBody()
+                </div>
+            </section>
+        </main>
+
+        <!-- /.content-wrapper -->
+        <footer class="main-footer text-center" style="padding: 12px 15px; font-size: 12px; color: #6c757d; background: #f1f3f5;">
+            <div><strong>&copy; @DateTime.Now.Year IBhayi Pharmacy Management System.</strong> All rights reserved.</div>
+            <div style="font-size: 11px; margin-top: 4px;">Designed and Developed by Michelle, Ovuyo & Nosibabalo</div>
+        </footer>
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-dark">
+            <!-- Control sidebar content goes here -->
+        </aside>
+        <!-- /.control-sidebar -->
+    </div>
+    <!-- ./wrapper -->
+    <!-- jQuery -->
+    <script src="~/AdminLTE/plugins/jquery/jquery.min.js"></script>
+    <!-- Console Error Fixes -->
+    <script src="~/js/console-error-fixes.js"></script>
+    <!-- jQuery UI 1.11.4 -->
+    <script src="~/AdminLTE/plugins/jquery-ui/jquery-ui.min.js"></script>
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <script>
+        $.widget.bridge('uibutton', $.ui.button)
+    </script>
+    <!-- Bootstrap 4 -->
+    <script src="~/AdminLTE/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- ChartJS -->
+    <script src="~/AdminLTE/plugins/chart.js/Chart.min.js"></script>
+    <!-- Sparkline -->
+    <script src="~/AdminLTE/plugins/sparklines/sparkline.js"></script>
+    <!-- JQVMap -->
+    <script src="~/AdminLTE/plugins/jqvmap/jquery.vmap.min.js"></script>
+    <script src="~/AdminLTE/plugins/jqvmap/maps/jquery.vmap.usa.js"></script>
+    <!-- jQuery Knob Chart -->
+    <script src="~/AdminLTE/plugins/jquery-knob/jquery.knob.min.js"></script>
+    <!-- daterangepicker -->
+    <script src="~/AdminLTE/plugins/moment/moment.min.js"></script>
+    <script src="~/AdminLTE/plugins/daterangepicker/daterangepicker.js"></script>
+    <!-- Tempusdominus Bootstrap 4 -->
+    <script src="~/AdminLTE/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+    <!-- Summernote -->
+    <script src="~/AdminLTE/plugins/summernote/summernote-bs4.min.js"></script>
+    <!-- overlayScrollbars -->
+    <script src="~/AdminLTE/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+    <!-- AdminLTE App -->
+    <script src="~/AdminLTE/dist/js/adminlte.js"></script>
+    <!-- AdminLTE dashboard demo (only load on dashboard views) -->
+    @if (ViewData["Title"] != null && ViewData["Title"].ToString().Contains("Dashboard"))
+    {
+        <script src="~/AdminLTE/dist/js/pages/dashboard.js"></script>
+    }
+    <!-- DataTables  & Plugins -->
+    <script src="~/AdminLTE/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="~/AdminLTE/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="~/AdminLTE/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="~/AdminLTE/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="~/AdminLTE/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="~/AdminLTE/plugins/jszip/jszip.min.js"></script>
+    <script src="~/AdminLTE/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="~/AdminLTE/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="~/AdminLTE/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
+    <!-- Removed hummingbird-treeview script (file not present) -->
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/modules/series-label.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://code.highcharts.com/modules/accessibility.js"></script>
+    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.12.4/dist/sweetalert2.all.min.js"></script>
+    <script>
+        (function(){
+            const palette = {
+                bg: getComputedStyle(document.documentElement).getPropertyValue('--clr-bg').trim(),
+                text: getComputedStyle(document.documentElement).getPropertyValue('--clr-text').trim(),
+                primary: getComputedStyle(document.documentElement).getPropertyValue('--clr-primary').trim(),
+                secondary: getComputedStyle(document.documentElement).getPropertyValue('--clr-secondary').trim()
+            };
+            const swalBase = Swal.mixin({
+                background: palette.bg,
+                color: palette.text,
+                confirmButtonColor: palette.primary,
+                cancelButtonColor: palette.secondary,
+                buttonsStyling: true
+            });
+            function showAlert(type, message, title){
+                const map = { success:'success', error:'error', danger:'error', warning:'warning', info:'info' };
+                return swalBase.fire({ icon: map[type] || 'info', title: title || '', html: message, showCloseButton: true });
+            }
+            function confirmSwal(opts){
+                return swalBase.fire(Object.assign({ title:'Are you sure?', icon:'warning', showCancelButton:true }, opts||{}));
+            }
+            window.showAlert = showAlert;
+            window.confirmSwal = confirmSwal;
+        })();
+    </script>
+    <script>
+        $(function () {
+            $("#example1").DataTable({
+                "responsive": true, "lengthChange": false, "autoWidth": false,
+            }).buttons().container().appendTo('#example1_wrapper .col-md-6:eq(0)');
+            $('#example2').DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+            });
+        });
+    </script>
+    <!-- Notification System -->
+    <script>
+        $(document).ready(function() {
+            loadNotifications();
+            
+            // Refresh notifications every 30 seconds
+            setInterval(loadNotifications, 30000);
+        });
+
+        function loadNotifications() {
+            $.get('@Url.Action("GetNotifications", "Notifications")', function(data) {
+                updateNotificationBadge(data.count);
+                updateNotificationContent(data.notifications);
+            }).fail(function() {
+                console.log('Failed to load notifications');
+            });
+        }
+
+        function updateNotificationBadge(count) {
+            const badge = $('#notificationBadge');
+            if (count > 0) {
+                badge.text(count).show();
+            } else {
+                badge.hide();
+            }
+        }
+
+        function updateNotificationContent(notifications) {
+            const content = $('#notificationContent');
+            const header = $('.dropdown-header');
+            
+            if (notifications.length === 0) {
+                content.html('<a href="#" class="dropdown-item"><i class="fas fa-info-circle mr-2"></i> No new notifications</a>');
+                header.text('Notifications');
+            } else {
+                header.text(`${notifications.length} Notifications`);
+                let html = '';
+                notifications.forEach(function(notification) {
+                    html += `<a href="${notification.link}" class="dropdown-item">
+                        <i class="${notification.icon} mr-2"></i> ${notification.message}
+                        <span class="float-right text-muted text-sm">${notification.time}</span>
+                    </a><div class="dropdown-divider"></div>`;
+                });
+                content.html(html);
+            }
+        }
+
+        function markAllAsRead() {
+            $.post('@Url.Action("MarkAllAsRead", "Notifications")', function(data) {
+                if (data.success) {
+                    loadNotifications();
+                }
+            });
+        }
+    </script>
+
+    <!-- Logout Loading Overlay -->
+    <div class="logout-overlay" id="logoutOverlay">
+        <div class="logout-overlay-content">
+            <div class="logout-overlay-spinner"></div>
+            <div class="logout-overlay-text">Signing out...</div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const logoutForms = document.querySelectorAll('.logout-form');
+        
+        logoutForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                const button = form.querySelector('.logout-btn');
+                const text = button.querySelector('.logout-text');
+                const spinner = button.querySelector('.logout-spinner');
+                const overlay = document.getElementById('logoutOverlay');
+                
+                // Show loading state
+                button.classList.add('logout-loading');
+                text.style.display = 'none';
+                spinner.style.display = 'inline-block';
+                overlay.classList.add('show');
+                
+                // Add a small delay to show the loading state
+                setTimeout(function() {
+                    // The form will submit naturally after this
+                }, 500);
+            });
+        });
+    });
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

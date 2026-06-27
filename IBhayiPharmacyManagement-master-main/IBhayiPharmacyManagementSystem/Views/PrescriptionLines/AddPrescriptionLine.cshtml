@@ -1,0 +1,185 @@
+﻿@model IBhayiPharmacyManagementSystem.Models.PrescriptionLine
+@{
+    ViewData["Title"] = "Add Prescription Item";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Add New Prescription Item</h4>
+                </div>
+
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            @TempData["SuccessMessage"]
+                            <button type="button" class="btn-close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <form asp-action="AddPrescriptionLine" class="needs-validation" novalidate>
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                        <input type="hidden" asp-for="PrescriptionId" value="@ViewBag.UnprocessedScriptId" />
+
+                        <div class="form-row">
+                            <div class="form-group col-md-6">
+                                <label asp-for="MedicationId" class="font-weight-bold"></label>
+                                <select asp-for="MedicationId" class="form-control select2" asp-items="ViewBag.MedicationId" required>
+                                    <option value="">-- Select Medication --</option>
+                                </select>
+                                <span asp-validation-for="MedicationId" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label asp-for="Quantity" class="font-weight-bold"></label>
+                                <input asp-for="Quantity" class="form-control" min="1" required />
+                                <span asp-validation-for="Quantity" class="text-danger"></span>
+                            </div>
+
+                            <div class="form-group col-md-3">
+                                <label asp-for="Frequency" class="font-weight-bold"></label>
+                                <select asp-for="Frequency" class="form-control" required>
+                                    <option value="">-- Select Frequency --</option>
+                                    @foreach (var freq in Html.GetEnumSelectList<IBhayiPharmacyManagementSystem.Enums.DosageFrequency>())
+                                    {
+                                        <option value="@freq.Value">@freq.Text</option>
+                                    }
+                                </select>
+                                <span asp-validation-for="Frequency" class="text-danger"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label asp-for="Instructions" class="font-weight-bold"></label>
+                            <textarea asp-for="Instructions" class="form-control" rows="3" placeholder="e.g. Take with food"></textarea>
+                            <span asp-validation-for="Instructions" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group text-right mt-4">
+                            <a asp-controller="Pharmacist" asp-action="Process" asp-route-id="@ViewBag.UnprocessedScriptId" class="btn btn-outline-secondary mr-2">
+                                <i class="fas fa-arrow-left"></i> Back to Prescription
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Save Prescription Item
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            border: none;
+            margin-top: 2rem;
+        }
+
+        .card-header {
+            border-radius: 0.5rem 0.5rem 0 0 !important;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .select2-container--default .select2-selection--single {
+            height: calc(2.25rem + 2px);
+            padding: 0.375rem 0.75rem;
+            border: 1px solid #ced4da;
+            border-radius: 0.25rem;
+        }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                height: 2.25rem;
+            }
+
+            .form-control:focus, .select2-container--default .select2-selection--single:focus {
+                border-color: #80bdff;
+                box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            }
+
+        .btn-primary {
+            background-color: #4e73df;
+            border-color: #4e73df;
+        }
+    </style>
+}
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('.select2').select2({
+                width: '100%',
+                placeholder: $(this).data('placeholder')
+            });
+
+            // Prevent duplicate medication selections
+            function updateMedicationDropdowns() {
+                const selectedMedications = [];
+                
+                // Collect all currently selected medication IDs
+                $('select[name="MedicationId"]').each(function() {
+                    const selectedValue = $(this).val();
+                    if (selectedValue && selectedValue !== '') {
+                        selectedMedications.push(selectedValue);
+                    }
+                });
+                
+                // Update all medication dropdowns to disable selected options
+                $('select[name="MedicationId"]').each(function() {
+                    const currentSelect = $(this);
+                    const currentValue = currentSelect.val();
+                    
+                    // Reset all options to enabled
+                    currentSelect.find('option').prop('disabled', false);
+                    
+                    // Disable selected options in other dropdowns
+                    selectedMedications.forEach(function(medId) {
+                        if (medId !== currentValue) {
+                            currentSelect.find(`option[value="${medId}"]`).prop('disabled', true);
+                        }
+                    });
+                });
+            }
+
+            // Call on page load
+            updateMedicationDropdowns();
+
+            // Call when medication selection changes
+            $(document).on('change', 'select[name="MedicationId"]', function() {
+                updateMedicationDropdowns();
+            });
+
+            // Enable Bootstrap validation
+            (function() {
+                'use strict';
+                window.addEventListener('load', function() {
+                    var forms = document.getElementsByClassName('needs-validation');
+                    Array.prototype.filter.call(forms, function(form) {
+                        form.addEventListener('submit', function(event) {
+                            if (form.checkValidity() === false) {
+                                event.preventDefault();
+                                event.stopPropagation();
+                            }
+                            form.classList.add('was-validated');
+                        }, false);
+                    });
+                }, false);
+            })();
+        });
+    </script>
+}

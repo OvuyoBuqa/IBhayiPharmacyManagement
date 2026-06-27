@@ -1,0 +1,64 @@
+﻿@using Microsoft.AspNetCore.Identity;
+
+@inject SignInManager<Users> signInManager;
+<ul class="navbar-nav ms-auto align-items-center">
+    @if (signInManager.IsSignedIn(User))
+    {
+        <li class="nav-item">
+            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline logout-form">
+                @Html.AntiForgeryToken()
+                <button type="submit" class="btn btn-link nav-link text-light p-0 logout-btn">
+                    <span class="logout-text">Logout</span>
+                    <span class="logout-spinner" style="display: none;"></span>
+                </button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-light" asp-controller="Account" asp-action="Login">
+                Login
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" asp-controller="Account" asp-action="Register">
+                Register
+            </a>
+        </li>
+    }
+</ul>
+
+<!-- Logout Loading Overlay -->
+<div class="logout-overlay" id="logoutOverlay">
+    <div class="logout-overlay-content">
+        <div class="logout-overlay-spinner"></div>
+        <div class="logout-overlay-text">Signing out...</div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const logoutForms = document.querySelectorAll('.logout-form');
+    
+    logoutForms.forEach(function(form) {
+        form.addEventListener('submit', function(e) {
+            const button = form.querySelector('.logout-btn');
+            const text = button.querySelector('.logout-text');
+            const spinner = button.querySelector('.logout-spinner');
+            const overlay = document.getElementById('logoutOverlay');
+            
+            // Show loading state
+            button.classList.add('logout-loading');
+            text.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            overlay.classList.add('show');
+            
+            // Add a small delay to show the loading state
+            setTimeout(function() {
+                // The form will submit naturally after this
+            }, 500);
+        });
+    });
+});
+</script>

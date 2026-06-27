@@ -1,0 +1,897 @@
+@model IBhayiPharmacyManagementSystem.ViewModels.PrescriptionHistoryViewModel
+@{
+    ViewData["Title"] = "Unprocessed Scripts";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">
+                    <a asp-controller="Home" asp-action="Customer" class="btn btn-outline-secondary btn-sm mr-2">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                    Unprocessed Scripts
+                </h1>
+            </div>
+            <div class="col-sm-6">
+                <div class="float-right">
+                    <a asp-action="ProcessedScripts" class="btn btn-success mr-2">
+                        <i class="fas fa-check-circle"></i> View Processed Scripts
+                    </a>
+                    <a asp-action="Load" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Upload New Prescription
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<section class="content">
+    <div class="container-fluid">
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary shadow-lg">
+                    <div class="card-header bg-gradient-primary">
+                        <h3 class="card-title text-white">
+                            <i class="fas fa-clock mr-2"></i>Your Unprocessed Prescription Records
+                        </h3>
+                        <div class="card-tools">
+                            <div class="input-group input-group-sm" style="width: 400px;">
+                                <input type="text" id="liveSearchInput" class="form-control" 
+                                       placeholder="Search by reference, date, status, dispensation..." 
+                                       value="@Model.SearchTerm">
+                                <div class="input-group-append">
+                                    <button type="button" id="clearSearchBtn" class="btn btn-outline-light" style="display: none;">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-light" disabled>
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card-body table-responsive p-0">
+                        @if (Model.Prescriptions.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover table-striped">
+                                    <thead class="thead-dark">
+                                        <tr>
+                                            <th class="text-center">
+                                                <i class="fas fa-hashtag mr-1"></i>Reference #
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-calendar mr-1"></i>Upload Date
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-info-circle mr-1"></i>Status
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-pills mr-1"></i>Dispensation
+                                            </th>
+                                            <th class="text-center">
+                                                <i class="fas fa-cogs mr-1"></i>Actions
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var item in Model.Prescriptions)
+                                        {
+                                            <tr class="align-middle" 
+                                                data-reference="@item.UnploadId"
+                                                data-date="@item.UploadDate.ToString("MMM dd, yyyy")"
+                                                data-date-alt="@item.UploadDate.ToString("yyyy-MM-dd")"
+                                                data-date-alt2="@item.UploadDate.ToString("dd/MM/yyyy")"
+                                                data-date-alt3="@item.UploadDate.ToString("MM/dd/yyyy")"
+                                                data-date-alt4="@item.UploadDate.ToString("dd-MM-yyyy")"
+                                                data-date-alt5="@item.UploadDate.ToString("MM-dd-yyyy")"
+                                                data-status="@item.Status.ToString().ToLower()"
+                                                data-dispensation="@(item.RequestDispensation ? "yes" : "no")"
+                                                data-dispensation-alt="@(item.RequestDispensation ? "true" : "false")">
+                                                <td class="text-center font-weight-bold">#@item.UnploadId</td>
+                                                <td class="text-center">@item.UploadDate.ToString("MMM dd, yyyy")</td>
+                                                <td class="text-center">
+                                                    <span class="badge @GetStatusBadgeClass(item.Status) badge-lg">
+                                                        @item.Status
+                                                    </span>
+                                                    @if (item.Status == UnprocessedScript.PrescriptionStatus.Rejected && !string.IsNullOrEmpty(item.RejectionReason))
+                                                    {
+                                                        <small class="d-block text-danger mt-1">@item.RejectionReason</small>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    @if (item.RequestDispensation)
+                                                    {
+                                                        <span class="badge badge-info badge-lg">
+                                                            <i class="fas fa-check mr-1"></i>Yes
+                                                        </span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge badge-secondary badge-lg">
+                                                            <i class="fas fa-times mr-1"></i>No
+                                                        </span>
+                                                    }
+                                                </td>
+                                                <td class="text-center">
+                                                    <div class="btn-group" role="group">
+                                                        <button type="button" class="btn btn-outline-primary btn-sm dropdown-toggle" 
+                                                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                            <i class="fas fa-cog"></i> Actions
+                                                        </button>
+                                                        <div class="dropdown-menu dropdown-menu-right shadow">
+                                                            <a class="dropdown-item" asp-action="ViewDetails" asp-route-id="@item.UnploadId" asp-route-source="UnprocessedScripts">
+                                                                <i class="fas fa-eye text-info mr-2"></i>View Details
+                                                            </a>
+                                                            @if (item.Status == UnprocessedScript.PrescriptionStatus.Pending)
+                                                            {
+                                                                <div class="dropdown-divider"></div>
+                                                                <a class="dropdown-item" asp-action="Edit" asp-route-id="@item.UnploadId">
+                                                                    <i class="fas fa-edit text-warning mr-2"></i>Edit
+                                                                </a>
+                                                                <a href="@Url.Action("Delete", new { id = item.UnploadId })" 
+                                                                   class="dropdown-item text-danger delete-prescription" 
+                                                                   data-prescription-id="@item.UnploadId">
+                                                                    <i class="fas fa-trash mr-2"></i>Delete
+                                                                </a>
+                                                            }
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div id="noResultsMessage" class="text-center py-5" style="display: none;">
+                                <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                                <h5 class="text-muted">No matching prescriptions found</h5>
+                                <p class="text-muted">Try adjusting your search criteria.</p>
+                                <button type="button" id="clearSearchFromNoResults" class="btn btn-outline-primary">
+                                    <i class="fas fa-times mr-2"></i>Clear Search
+                                </button>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-5">
+                                @if (!string.IsNullOrEmpty(Model.SearchTerm))
+                                {
+                                    <div class="mb-4">
+                                        <i class="fas fa-search fa-4x text-muted mb-3"></i>
+                                        <h4 class="text-muted">No unprocessed prescriptions found</h4>
+                                        <p class="text-muted">No prescriptions match your search term "@Model.SearchTerm"</p>
+                                    </div>
+                                    <a asp-action="UnprocessedScripts" class="btn btn-outline-primary">
+                                        <i class="fas fa-arrow-left mr-2"></i>View All Unprocessed Scripts
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div class="mb-4">
+                                        <i class="fas fa-clock fa-4x text-primary mb-3"></i>
+                                        <h4 class="text-muted">No unprocessed prescriptions</h4>
+                                        <p class="text-muted">You don't have any pending or processing prescriptions at the moment.</p>
+                                    </div>
+                                    <a asp-action="Load" class="btn btn-primary btn-lg">
+                                        <i class="fas fa-plus mr-2"></i>Upload Your First Prescription
+                                    </a>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @if (Model.TotalPages > 1)
+                    {
+                        <div class="card-footer bg-light border-top">
+                            <div class="row align-items-center">
+                                <div class="col-md-6">
+                                    <div class="pagination-info">
+                                        <i class="fas fa-info-circle text-primary mr-2"></i>
+                                        <span class="text-muted">
+                                            Showing <strong>@((Model.CurrentPage - 1) * Model.PageSize + 1)</strong> to 
+                                            <strong>@Math.Min(Model.CurrentPage * Model.PageSize, Model.TotalItems)</strong> of 
+                                            <strong>@Model.TotalItems</strong> prescriptions
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <nav aria-label="Prescription pagination" class="d-flex justify-content-end">
+                                        <ul class="pagination pagination-sm mb-0">
+                                            @if (Model.HasPreviousPage)
+                                            {
+                                                <li class="page-item">
+                                                    <a class="page-link" asp-action="UnprocessedScripts" asp-route-page="1" asp-route-searchTerm="@Model.SearchTerm" 
+                                                       title="First Page" aria-label="First Page">
+                                                        <i class="fas fa-angle-double-left"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link" asp-action="UnprocessedScripts" asp-route-page="@(Model.CurrentPage - 1)" asp-route-searchTerm="@Model.SearchTerm" 
+                                                       title="Previous Page" aria-label="Previous Page">
+                                                        <i class="fas fa-angle-left"></i>
+                                                    </a>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">
+                                                        <i class="fas fa-angle-double-left"></i>
+                                                    </span>
+                                                </li>
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">
+                                                        <i class="fas fa-angle-left"></i>
+                                                    </span>
+                                                </li>
+                                            }
+
+                                            @for (int i = Model.StartPage; i <= Model.EndPage; i++)
+                                            {
+                                                <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                                                    <a class="page-link" asp-action="UnprocessedScripts" asp-route-page="@i" asp-route-searchTerm="@Model.SearchTerm" 
+                                                       title="Page @i" aria-label="Page @i">@i</a>
+                                                </li>
+                                            }
+
+                                            @if (Model.HasNextPage)
+                                            {
+                                                <li class="page-item">
+                                                    <a class="page-link" asp-action="UnprocessedScripts" asp-route-page="@(Model.CurrentPage + 1)" asp-route-searchTerm="@Model.SearchTerm" 
+                                                       title="Next Page" aria-label="Next Page">
+                                                        <i class="fas fa-angle-right"></i>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item">
+                                                    <a class="page-link" asp-action="UnprocessedScripts" asp-route-page="@Model.TotalPages" asp-route-searchTerm="@Model.SearchTerm" 
+                                                       title="Last Page" aria-label="Last Page">
+                                                        <i class="fas fa-angle-double-right"></i>
+                                                    </a>
+                                                </li>
+                                            }
+                                            else
+                                            {
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">
+                                                        <i class="fas fa-angle-right"></i>
+                                                    </span>
+                                                </li>
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">
+                                                        <i class="fas fa-angle-double-right"></i>
+                                                    </span>
+                                                </li>
+                                            }
+                                        </ul>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+@functions {
+    string GetStatusBadgeClass(UnprocessedScript.PrescriptionStatus status)
+    {
+        return status switch
+        {
+            UnprocessedScript.PrescriptionStatus.Pending => "badge-secondary",
+            UnprocessedScript.PrescriptionStatus.Processing => "badge-warning",
+            UnprocessedScript.PrescriptionStatus.Rejected => "badge-danger",
+            UnprocessedScript.PrescriptionStatus.Completed => "badge-success",
+            _ => "badge-info"
+        };
+    }
+}
+
+@section Scripts {
+    <!-- SweetAlert2 CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+    /* Professional, warm beige color palette */
+    :root {
+        --primary-color: #d4b896;
+        --primary-dark: #b8a082;
+        --secondary-color: #8b7355;
+        --success-color: #27ae60;
+        --warning-color: #f39c12;
+        --danger-color: #e74c3c;
+        --info-color: #d4b896;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+    }
+
+        .badge-lg {
+            font-size: 0.85em;
+            padding: 0.5em 0.8em;
+            border-radius: 15px;
+            font-weight: 500;
+        }
+        
+        .table th {
+            background: linear-gradient(135deg, #34495e, #2c3e50);
+            color: white;
+            font-weight: 600;
+            border: none;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 0.5px;
+        }
+        
+        .table td {
+            vertical-align: middle;
+            border-color: #e9ecef;
+            padding: 1rem 0.75rem;
+        }
+        
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: rgba(73, 80, 87, 0.02);
+        }
+        
+        .table-hover tbody tr:hover {
+            background-color: rgba(74, 108, 247, 0.08);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        /* Ensure dropdown button group has proper positioning and stacking */
+        .btn-group {
+            position: relative;
+            z-index: 10;
+        }
+        
+        .btn-group.show {
+            z-index: 99999 !important;
+        }
+        
+        .btn-group .dropdown-toggle {
+            position: relative;
+            z-index: 99998 !important;
+        }
+        
+        .btn-group.show .dropdown-toggle {
+            z-index: 99998 !important;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+        
+        .card-header {
+            border-radius: 12px 12px 0 0 !important;
+            border: none;
+            padding: 1.25rem 1.5rem;
+        }
+        
+        /* Ensure table containers allow dropdown overflow */
+        .table-responsive {
+            overflow: visible !important;
+        }
+        
+        .card-body {
+            overflow: visible !important;
+        }
+        
+        .table {
+            overflow: visible !important;
+        }
+        
+        .table tbody {
+            overflow: visible !important;
+        }
+        
+        .table tbody tr {
+            overflow: visible !important;
+        }
+        
+        .table tbody tr td {
+            overflow: visible !important;
+        }
+        
+        /* Ensure dropdown button group has proper positioning and stacking */
+        
+        /* Button group positioning already defined above */
+        
+        .btn-group .dropdown-menu {
+            position: absolute !important;
+            top: 0 !important;
+            left: auto !important;
+            right: 100% !important;
+            z-index: 99999 !important;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+            min-width: 180px;
+            padding: 0.5rem 0;
+            background: white;
+            margin-right: 10px;
+        }
+        
+        .btn-group .dropdown-menu.show {
+            display: block !important;
+        }
+        
+        .btn-group.show .dropdown-menu {
+            display: block !important;
+        }
+        
+        .dropdown-item {
+            padding: 0.75rem 1.25rem;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            color: var(--dark-text);
+        }
+        
+        .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: var(--primary-color);
+            transform: translateX(3px);
+        }
+        
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+        
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+        }
+        
+        .bg-gradient-info {
+            background: linear-gradient(135deg, var(--info-color), #17a2b8);
+        }
+        
+        .bg-gradient-warning {
+            background: linear-gradient(135deg, var(--warning-color), #fd7e14);
+        }
+        
+        /* Professional status badges */
+        .badge-secondary {
+            background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+            color: white;
+        }
+        
+        .badge-warning {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+        }
+        
+        .badge-success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            color: white;
+        }
+        
+        .badge-danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+        
+        .badge-info {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+        
+        /* Button improvements */
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(74, 108, 247, 0.3);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success-color), #1e7e34);
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning-color), #e55a00);
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1.25rem;
+            font-weight: 500;
+            color: white;
+        }
+        
+        .btn-outline-secondary {
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 0.4rem 1rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            color: var(--muted-text);
+        }
+        
+        /* Actions button hover styling */
+        .btn-outline-primary:hover {
+            background-color: transparent !important;
+            border-color: #007bff !important;
+            color: #000000 !important;
+        }
+        
+        .btn-outline-primary:focus {
+            background-color: transparent !important;
+            border-color: #007bff !important;
+            color: #000000 !important;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
+        }
+        
+        .btn-outline-primary:active {
+            background-color: transparent !important;
+            border-color: #007bff !important;
+            color: #000000 !important;
+        }
+        
+        /* Search bar improvements */
+        .input-group .form-control {
+            border-radius: 6px 0 0 6px;
+            border: 1px solid #ced4da;
+            padding: 0.5rem 1rem;
+        }
+        
+        .input-group .btn {
+            border-radius: 0 6px 6px 0;
+            border: 1px solid #ced4da;
+            border-left: none;
+        }
+        
+        /* Content header */
+        .content-header h1 {
+            color: var(--dark-text);
+            font-weight: 600;
+        }
+        
+        /* Search highlighting */
+        .search-highlight {
+            background-color: #fff3cd !important;
+            border-left: 4px solid #ffc107 !important;
+            box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3) !important;
+        }
+        
+        .search-highlight td {
+            background-color: transparent !important;
+        }
+        
+        /* Enhanced pagination styling */
+        .pagination .page-link {
+            color: var(--primary-color);
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            margin: 0 2px;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .pagination .page-link:hover {
+            color: white;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-color: var(--primary-color);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(44, 62, 80, 0.3);
+        }
+        
+        .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            border-color: var(--primary-color);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .pagination .page-item.disabled .page-link {
+            color: #6c757d;
+            background-color: #f8f9fa;
+            border-color: #dee2e6;
+            cursor: not-allowed;
+        }
+        
+        .pagination-info {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+        
+        .pagination-info strong {
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        /* Responsive fixes */
+        @@media (max-width: 768px) {
+            .btn-group .dropdown-menu {
+                right: auto !important;
+                left: 0 !important;
+                min-width: 160px;
+            }
+        }
+
+        /* SweetAlert2 Custom Styling */
+        .swal2-popup-custom {
+            border-radius: 15px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2) !important;
+            border: none !important;
+        }
+        
+        .swal2-title-custom {
+            color: #2c3e50 !important;
+            font-weight: 600 !important;
+            font-size: 24px !important;
+        }
+        
+        .swal2-confirm-custom {
+            background: linear-gradient(135deg, #28a745, #20c997) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-confirm-custom:hover {
+            background: linear-gradient(135deg, #20c997, #17a2b8) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4) !important;
+        }
+        
+        .swal2-cancel-custom {
+            background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 12px 24px !important;
+            font-weight: 500 !important;
+            font-size: 16px !important;
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .swal2-cancel-custom:hover {
+            background: linear-gradient(135deg, #5a6268, #495057) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 16px rgba(108, 117, 125, 0.4) !important;
+        }
+        
+        .swal2-html-container {
+            font-size: 16px !important;
+            line-height: 1.5 !important;
+        }
+    </style>
+    
+    <script>
+        $(document).ready(function() {
+            // Enable tooltips
+            $('[title]').tooltip();
+
+            // Simple dropdown handling - let Bootstrap handle the click, just prevent hover
+            $('.dropdown-toggle').on('mouseenter mouseleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            });
+            
+            // Ensure dropdowns close when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('.btn-group').length) {
+                    $('.dropdown-menu').removeClass('show');
+                    $('.btn-group').removeClass('show');
+                    $('.dropdown-toggle').attr('aria-expanded', 'false');
+                }
+            });
+
+            // Handle delete confirmation with proper event prevention
+            $('form[action*="Delete"]').submit(function(e) {
+                if (!confirm('Are you sure you want to delete this prescription?')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                return true;
+            });
+
+            // Live search functionality
+            $('#liveSearchInput').on('input', function() {
+                var searchTerm = $(this).val().toLowerCase().trim();
+                var $rows = $('tbody tr[data-reference]');
+                var matchCount = 0;
+                
+                if (searchTerm === '') {
+                    // Remove all highlighting and show all rows
+                    $rows.removeClass('search-highlight').show();
+                    $('#noResultsMessage').hide();
+                    $('#clearSearchBtn').hide();
+                } else {
+                    // Highlight matching rows and hide non-matching ones
+                    $rows.each(function() {
+                        var $row = $(this);
+                        var reference = $row.data('reference').toString();
+                        var date = $row.data('date').toLowerCase();
+                        var dateAlt = $row.data('date-alt').toLowerCase();
+                        var dateAlt2 = $row.data('date-alt2').toLowerCase();
+                        var dateAlt3 = $row.data('date-alt3').toLowerCase();
+                        var dateAlt4 = $row.data('date-alt4').toLowerCase();
+                        var dateAlt5 = $row.data('date-alt5').toLowerCase();
+                        var status = $row.data('status');
+                        var dispensation = $row.data('dispensation');
+                        var dispensationAlt = $row.data('dispensation-alt');
+                        
+                        // Check if search term matches any of the data attributes
+                        var matches = 
+                            reference.includes(searchTerm) ||
+                            date.includes(searchTerm) ||
+                            dateAlt.includes(searchTerm) ||
+                            dateAlt2.includes(searchTerm) ||
+                            dateAlt3.includes(searchTerm) ||
+                            dateAlt4.includes(searchTerm) ||
+                            dateAlt5.includes(searchTerm) ||
+                            status.includes(searchTerm) ||
+                            dispensation.includes(searchTerm) ||
+                            dispensationAlt.includes(searchTerm);
+                        
+                        if (matches) {
+                            $row.addClass('search-highlight').show();
+                            matchCount++;
+                        } else {
+                            $row.removeClass('search-highlight').hide();
+                        }
+                    });
+                    
+                    // Show/hide no results message
+                    if (matchCount === 0) {
+                        $('#noResultsMessage').show();
+                    } else {
+                        $('#noResultsMessage').hide();
+                    }
+                    
+                    // Show clear button
+                    $('#clearSearchBtn').show();
+                }
+            });
+
+            // Clear search functionality
+            $('#clearSearchBtn, #clearSearchFromNoResults').click(function(e) {
+                e.preventDefault();
+                $('#liveSearchInput').val('').trigger('input');
+            });
+
+            // Initialize clear button visibility
+            if ($('#liveSearchInput').val().trim() !== '') {
+                $('#clearSearchBtn').show();
+            }
+
+            // Check for success message and show SweetAlert2 modal
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    title: 'Upload Successful!',
+                    html: `
+                        <div style="text-align: center; margin: 20px 0;">
+                            <i class="fas fa-check-circle" style="font-size: 64px; color: #28a745; margin-bottom: 20px;"></i>
+                            <p style="font-size: 18px; margin-bottom: 15px; color: #2c3e50;">@Html.Raw(TempData["SuccessMessage"])</p>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #007bff; margin: 15px 0;">
+                                <p style="margin: 0; color: #6c757d; font-size: 14px;">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    Your prescription has been submitted for processing. You will be notified once it's reviewed.
+                                </p>
+                            </div>
+                        </div>
+                    `,
+                    icon: 'success',
+                    confirmButtonColor: '#28a745',
+                    confirmButtonText: '<i class="fas fa-check mr-2"></i>OK',
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom'
+                    }
+                });
+                </text>
+            }
+
+            // Check for error message and show SweetAlert2 modal
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <text>
+                Swal.fire({
+                    title: 'Error!',
+                    html: `
+                        <div style="text-align: center; margin: 20px 0;">
+                            <i class="fas fa-exclamation-triangle" style="font-size: 64px; color: #dc3545; margin-bottom: 20px;"></i>
+                            <p style="font-size: 18px; margin-bottom: 15px; color: #2c3e50;">@Html.Raw(TempData["ErrorMessage"])</p>
+                        </div>
+                    `,
+                    icon: 'error',
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: '<i class="fas fa-times mr-2"></i>OK',
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom'
+                    }
+                });
+                </text>
+            }
+
+            // Handle delete confirmation with SweetAlert2
+            $('.delete-prescription').on('click', function(e) {
+                e.preventDefault();
+                var deleteUrl = $(this).attr('href');
+                var prescriptionId = $(this).data('prescription-id');
+                
+                Swal.fire({
+                    title: 'Delete Prescription?',
+                    html: `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p style="margin-bottom: 15px; font-size: 16px;">Are you sure you want to delete prescription reference:</p>
+                            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid #dc3545;">
+                                <strong style="color: #2c3e50; font-size: 18px;">#${prescriptionId}</strong>
+                            </div>
+                            <p style="margin-top: 15px; color: #6c757d; font-size: 14px;">
+                                <i class="fas fa-exclamation-triangle mr-2"></i>
+                                This action cannot be undone.
+                            </p>
+                        </div>
+                    `,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#dc3545',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fas fa-trash mr-2"></i>Yes, Delete',
+                    cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                    reverseButtons: true,
+                    focusCancel: true,
+                    customClass: {
+                        popup: 'swal2-popup-custom',
+                        title: 'swal2-title-custom',
+                        confirmButton: 'swal2-confirm-custom',
+                        cancelButton: 'swal2-cancel-custom'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading modal
+                        Swal.fire({
+                            title: 'Deleting...',
+                            html: '<div style="text-align: center; margin: 20px 0;"><i class="fas fa-spinner fa-spin" style="font-size: 48px; color: #007bff; margin-bottom: 15px;"></i><p style="font-size: 16px; color: #2c3e50;">Please wait while we delete the prescription.</p></div>',
+                            allowOutsideClick: false,
+                            allowEscapeKey: false,
+                            showConfirmButton: false,
+                            customClass: {
+                                popup: 'swal2-popup-custom',
+                                title: 'swal2-title-custom'
+                            }
+                        });
+                        
+                        // Redirect to delete URL
+                        window.location.href = deleteUrl;
+                    }
+                });
+            });
+        });
+    </script>
+}

@@ -1,0 +1,442 @@
+﻿@model IEnumerable<IBhayiPharmacyManagementSystem.Models.StockOrder>
+
+@{
+    ViewData["Title"] = "Stock Orders";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    :root {
+        --primary-color: #b3d9ff; /* light blue */
+        --primary-dark: #99ccff; /* deeper light blue */
+        --secondary-color: #6c757d; /* grey */
+        --success-color: #27ae60; /* green */
+        --warning-color: #f39c12; /* orange */
+        --danger-color: #e74c3c;
+        --info-color: #3498db;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00; /* orange accent */
+        --brown-soft: #c4a484; /* soft brown */
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        border-top: 4px solid var(--orange-accent); /* orange accent */
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--info-color);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        border-left: 4px solid var(--brown-soft); /* subtle brown edge */
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey header */
+        color: white;
+        padding: 25px 30px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: var(--white);
+    }
+
+    .card-title i {
+        margin-right: 12px;
+        font-size: 1.3rem;
+        color: var(--success-color); /* green icon accent */
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey button */
+        color: white;
+        border: 1px solid #5a6268;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6268, #495057);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+
+    .btn-info {
+        background: linear-gradient(135deg, var(--info-color), #2980b9);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .btn-info:hover {
+        background: linear-gradient(135deg, #2980b9, var(--info-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        color: white;
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, var(--warning-color), #e67e22);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+    }
+
+    .btn-warning:hover {
+        background: linear-gradient(135deg, #e67e22, var(--warning-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        color: white;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--danger-color), #c0392b);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+    }
+
+    .btn-danger:hover {
+        background: linear-gradient(135deg, #c0392b, var(--danger-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(231, 76, 60, 0.4);
+        color: white;
+    }
+
+    .btn-outline-secondary {
+        background: transparent;
+        color: var(--secondary-color);
+        border: 2px solid var(--secondary-color);
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-secondary:hover {
+        background: var(--secondary-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .table {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+        border: none;
+        font-size: 0.9rem;
+        padding: 15px 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table td {
+        font-size: 0.9rem;
+        padding: 12px;
+        vertical-align: middle;
+        border-color: #e9ecef;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+        transition: all 0.3s ease;
+    }
+
+    .alert {
+        border-radius: 15px;
+        border: none;
+        padding: 20px 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border-left: 5px solid var(--success-color);
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border-left: 5px solid var(--danger-color);
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--info-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--muted-text);
+        font-weight: 600;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    .me-2 {
+        margin-right: 12px !important;
+    }
+
+    .badge {
+        padding: 8px 16px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .bg-warning {
+        background: linear-gradient(135deg, var(--warning-color), #e67e22) !important;
+    }
+
+    .bg-success {
+        background: linear-gradient(135deg, var(--success-color), #229954) !important;
+    }
+
+    .bg-info {
+        background: linear-gradient(135deg, var(--info-color), #2980b9) !important;
+    }
+
+    .form-control {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+    .form-control:focus {
+        border-color: var(--info-color);
+        box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        background: var(--white);
+    }
+
+   
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-shopping-cart"></i>Stock Orders & Quotes
+                    </h1>
+                    <nav aria-label="breadcrumb" class="mt-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Action("PharmacyManager", "Home")">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Stock Orders</li>
+                        </ol>
+                    </nav>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+                    <div class="alert alert-success alert-dismissible fade show">
+                        <i class="fas fa-check-circle me-2"></i>
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+                    <div class="alert alert-danger alert-dismissible fade show">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+                <!-- Stock Orders Management Card -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h5 class="card-title">
+                            <i class="fas fa-shopping-cart"></i>All Stock Orders
+                        </h5>
+                        <div class="ms-auto">
+                            <a asp-action="Create" class="btn btn-primary">
+                                <i class="fas fa-plus-circle me-2"></i>Request Quote
+                            </a>
+                        </div>
+        </div>
+                    <div class="card-body" style="padding: 25px;">
+            <div class="row mb-3">
+                <div class="col-md-6 offset-md-6">
+                    <div class="input-group">
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search orders..." />
+                                    <button class="btn btn-outline-secondary" type="button">
+                                        <i class="fas fa-search"></i>
+                                    </button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                            <table class="table table-hover" id="stockOrdersTable">
+                    <thead>
+                        <tr>
+                            <th>Order #</th>
+                            <th>Supplier</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Quote Amount</th>
+                            <th>Items</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td>@order.StockOrderId</td>
+                                <td>@order.Supplier?.Name</td>
+                                <td>@order.StockOrderDate.ToShortDateString()</td>
+                                <td>
+                                    <span class="badge bg-@(order.StockOrderStatus == IBhayiPharmacyManagementSystem.Enums.StockOrderStatusEnum.Pending ? "warning" :
+                                                                                                 order.StockOrderStatus == IBhayiPharmacyManagementSystem.Enums.StockOrderStatusEnum.Confirmed ? "success" : "info")">
+                                    @order.StockOrderStatus
+                                </span>
+                            </td>
+                            <td>@(order.QuoteAmount?.ToString("C") ?? "Pending Quote")</td>
+                            <td>@order.StockOrderItems.Count()</td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <a asp-action="Details" asp-route-id="@order.StockOrderId" class="btn btn-sm btn-info me-2" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@order.StockOrderId" class="btn btn-sm btn-danger" title="Delete Order">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                                                }
+                    </tbody>
+                </table>
+            </div>
+            @if (!Model.Any())
+            {
+                <p class="text-center text-muted">No stock orders found.</p>
+            }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize DataTables
+            var table = $('#stockOrdersTable').DataTable({
+                "paging": true,
+                "lengthChange": true,
+                "searching": true, // Enable DataTables built-in searching
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true
+            });
+
+            // Apply the custom search input
+            $('#searchInput').on('keyup', function () {
+                table.search(this.value).draw();
+            });
+
+            // Hide the default DataTables search input
+            $('#stockOrdersTable_filter').hide();
+        });
+    </script>
+}
+

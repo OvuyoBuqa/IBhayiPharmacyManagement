@@ -1,0 +1,272 @@
+@model IBhayiPharmacyManagementSystem.Models.PrescriptionRepeat
+
+@{
+    ViewData["Title"] = "Prescription Repeat Details";
+    Layout = "_LayoutCustomer";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-info-circle mr-2"></i>Prescription Repeat Details
+                    </h3>
+                    <div class="card-tools">
+                        <a asp-action="Index" class="btn btn-secondary btn-sm">
+                            <i class="fas fa-arrow-left mr-1"></i>Back to List
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Medication Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Medication:</strong></td>
+                                    <td>@Model.PrescriptionLine.Medication.Name</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Description:</strong></td>
+                                    <td>@Model.PrescriptionLine.Medication.Description</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Instructions:</strong></td>
+                                    <td>@Model.PrescriptionLine.Instructions</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Frequency:</strong></td>
+                                    <td>@Model.PrescriptionLine.Frequency</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Quantity:</strong></td>
+                                    <td>@Model.PrescriptionLine.Quantity</td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Prescription Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Prescription Date:</strong></td>
+                                    <td>@Model.PrescriptionLine.Prescription.PrescriptionDate.ToString("dd/MM/yyyy")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Doctor:</strong></td>
+                                    <td>
+                                        @if (Model.PrescriptionLine.Prescription.Doctor != null)
+                                        {
+                                            <span>@Model.PrescriptionLine.Prescription.Doctor.FullName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not specified</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Customer:</strong></td>
+                                    <td>@Model.PrescriptionLine.Prescription.Customer.FullName</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5>Repeat Information</h5>
+                            <table class="table table-borderless">
+                                <tr>
+                                    <td><strong>Total Repeats:</strong></td>
+                                    <td><span class="badge badge-info">@Model.TotalRepeats</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Remaining Repeats:</strong></td>
+                                    <td><span class="badge badge-success">@Model.RemainingRepeats</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Dispensed Count:</strong></td>
+                                    <td><span class="badge badge-warning">@Model.DispensedCount</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Created Date:</strong></td>
+                                    <td>@Model.CreatedDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Last Dispensed:</strong></td>
+                                    <td>
+                                        @if (Model.LastDispensedDate.HasValue)
+                                        {
+                                            <span>@Model.LastDispensedDate.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Never</span>
+                                        }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Status:</strong></td>
+                                    <td>
+                                        @if (Model.IsActive)
+                                        {
+                                            <span class="badge badge-success">Active</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-danger">Inactive</span>
+                                        }
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Actions</h5>
+                            @if (Model.RemainingRepeats > 0 && Model.IsActive)
+                            {
+                                <form asp-action="RequestDispensation" asp-route-id="@Model.PrescriptionRepeatId" method="post" id="dispensationForm">
+                                    @Html.AntiForgeryToken()
+                                    <div class="form-group">
+                                        <label for="notes">Additional Notes (Optional):</label>
+                                        <textarea name="notes" id="notes" class="form-control" rows="3" 
+                                                  placeholder="Any additional information for the pharmacist..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-lg" id="requestBtn">
+                                        <i class="fas fa-pills mr-2"></i>Request Dispensation
+                                    </button>
+                                </form>
+                            }
+                            else if (!Model.IsActive)
+                            {
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-triangle mr-2"></i>
+                                    This prescription repeat is no longer active.
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning">
+                                    <i class="fas fa-info-circle mr-2"></i>
+                                    No repeats remaining for this prescription.
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Handle dispensation form submission with AJAX
+            $('#dispensationForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                var form = $(this);
+                var button = $('#requestBtn');
+                var remainingBadge = $('.badge-success');
+                var dispensedBadge = $('.badge-warning');
+
+                Swal.fire({
+                    title: 'Request Dispensation?',
+                    html: `
+                        <div style="text-align: left; margin: 20px 0;">
+                            <p style="margin-bottom: 15px; font-size: 16px;">Are you sure you want to request dispensation for this repeat?</p>
+                            <p style="margin-top: 15px; color: #6c757d; font-size: 14px;">
+                                This will reduce your remaining repeats by 1.
+                            </p>
+                        </div>
+                    `,
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#28a745',
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: '<i class="fas fa-pills mr-2"></i>Yes, Request Dispensation',
+                    cancelButtonText: '<i class="fas fa-times mr-2"></i>Cancel',
+                    reverseButtons: true,
+                    focusCancel: true
+                }).then((result) => {
+                    if (!result.isConfirmed) {
+                        return;
+                    }
+
+                    // Disable button and show loading
+                    button.prop('disabled', true);
+                    button.html('<i class="fas fa-spinner fa-spin mr-2"></i>Processing...');
+
+                    $.ajax({
+                        url: form.attr('action'),
+                        type: 'POST',
+                        data: form.serialize(),
+                        success: function(response) {
+                            // Update the counts immediately
+                            var currentRemaining = parseInt(remainingBadge.text());
+                            var currentDispensed = parseInt(dispensedBadge.text());
+                            var newRemaining = currentRemaining - 1;
+                            var newDispensed = currentDispensed + 1;
+
+                            remainingBadge.text(newRemaining);
+                            dispensedBadge.text(newDispensed);
+
+                            // Update the form area
+                            if (newRemaining <= 0) {
+                                $('#dispensationForm').replaceWith(`
+                                    <div class="alert alert-warning">
+                                        <i class="fas fa-info-circle mr-2"></i>
+                                        No repeats remaining for this prescription.
+                                    </div>
+                                `);
+                            } else {
+                                // Re-enable for further requests
+                                button.prop('disabled', false);
+                                button.html('<i class="fas fa-pills mr-2"></i>Request Dispensation');
+                            }
+
+                            // SweetAlert2 success
+                            Swal.fire({
+                                title: 'Success!',
+                                html: `
+                                    <div style="text-align: center; margin: 20px 0;">
+                                        <i class="fas fa-check-circle" style="font-size: 48px; color: #28a745; margin-bottom: 15px;"></i>
+                                        <p style="font-size: 16px; margin-bottom: 10px;">Dispensation request submitted successfully!</p>
+                                        <p style="color: #6c757d; font-size: 14px;">${newRemaining} repeats remaining</p>
+                                    </div>
+                                `,
+                                icon: 'success',
+                                confirmButtonColor: '#28a745',
+                                confirmButtonText: '<i class="fas fa-check mr-2"></i>OK'
+                            });
+                        },
+                        error: function(xhr) {
+                            // Re-enable button
+                            button.prop('disabled', false);
+                            button.html('<i class="fas fa-pills mr-2"></i>Request Dispensation');
+
+                            // SweetAlert2 error
+                            Swal.fire({
+                                title: 'Error!',
+                                html: `
+                                    <div style="text-align: center; margin: 20px 0;">
+                                        <i class="fas fa-exclamation-triangle" style="font-size: 48px; color: #dc3545; margin-bottom: 15px;"></i>
+                                        <p style="font-size: 16px;">Error submitting request. Please try again.</p>
+                                    </div>
+                                `,
+                                icon: 'error',
+                                confirmButtonColor: '#dc3545',
+                                confirmButtonText: '<i class="fas fa-times mr-2"></i>OK'
+                            });
+                        }
+                    });
+                });
+            });
+        });
+        
+    </script>
+}

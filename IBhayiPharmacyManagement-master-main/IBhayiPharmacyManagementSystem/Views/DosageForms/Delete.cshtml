@@ -1,0 +1,104 @@
+﻿@model IBhayiPharmacyManagementSystem.Models.DosageForm
+
+@{
+    ViewData["Title"] = "Delete Dosage Form";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    .delete-container {
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 91, 187, 0.1);
+        padding: 25px;
+        border-top: 4px solid #dc3545;
+        margin-top: 20px;
+    }
+
+    .delete-header {
+        color: #dc3545;
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f5c6cb;
+    }
+
+    .btn-pharmacy-danger {
+        background-color: #dc3545;
+        border-color: #c82333;
+        color: white;
+    }
+
+        .btn-pharmacy-danger:hover {
+            background-color: #c82333;
+            border-color: #bd2130;
+            color: white;
+        }
+
+    .btn-pharmacy-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        color: white;
+    }
+
+        .btn-pharmacy-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+            color: white;
+        }
+</style>
+
+<div class="container">
+    <div class="delete-container">
+        <h2 class="delete-header">
+            <i class="fas fa-trash-alt mr-2"></i> @ViewData["Title"]
+        </h2>
+
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle mr-2"></i>
+            <strong>Warning:</strong> Are you sure you want to delete this dosage form? This action cannot be undone.
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">Dosage Form Details</h5>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">
+                        @Html.DisplayNameFor(model => model.Type)
+                    </dt>
+                    <dd class="col-sm-9">
+                        <span class="badge badge-primary">@Html.DisplayFor(model => model.Type)</span>
+                    </dd>
+
+                    <dt class="col-sm-3">
+                        @Html.DisplayNameFor(model => model.Description)
+                    </dt>
+                    <dd class="col-sm-9">
+                        @if (!string.IsNullOrEmpty(Model.Description))
+                        {
+                            @Html.DisplayFor(model => model.Description)
+                        }
+                        else
+                        {
+                            <span class="text-muted">No description provided</span>
+                        }
+                    </dd>
+                </dl>
+            </div>
+        </div>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="DosageFormId" />
+            <div class="form-group">
+                <button type="submit" class="btn btn-pharmacy-danger">
+                    <i class="fas fa-trash-alt mr-1"></i> Confirm Delete
+                </button>
+                <a asp-action="DosageForm" class="btn btn-pharmacy-secondary">
+                    <i class="fas fa-arrow-left mr-1"></i> Back to List
+                </a>
+            </div>
+        </form>
+    </div>
+</div>

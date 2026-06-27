@@ -1,0 +1,90 @@
+﻿@{
+    ViewData["Title"] = "Admin Dashboard";
+    Layout = "_LayoutAdmin";
+}
+
+<!-- Content Header (Page header) -->
+<div class="content-header">
+    <div class="container-fluid">
+        <div class="row mb-2">
+            <div class="col-sm-6">
+                <h1 class="m-0">Admin Dashboard</h1>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-right">
+                    <li class="breadcrumb-item"><a href="#">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main content -->
+<section class="content">
+    <div class="container-fluid">
+        <!-- Welcome Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-primary card-outline">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <h3 class="mb-2">Welcome to Admin Dashboard</h3>
+                                <p class="text-muted mb-3">
+                                    Register pharmacy managers and import data to manage your pharmacy system effectively.
+                                </p>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <i class="fas fa-user-shield fa-6x text-primary opacity-25"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Actions -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-primary card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-user-plus mr-2"></i>Register Pharmacy Manager
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Register a new pharmacy manager to manage pharmacies and oversee operations.</p>
+                        <a class="btn btn-primary btn-lg btn-block" asp-controller="Account" asp-action="RegisterPharmacyManager">
+                            <i class="fas fa-user-plus mr-2"></i>Register Pharmacy Manager
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="card card-info card-outline">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-file-upload mr-2"></i>Import Data
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted">Import medications, active ingredients, and dosage forms into the system.</p>
+                        <a class="btn btn-info btn-lg btn-block" asp-controller="DataImport" asp-action="Index">
+                            <i class="fas fa-file-upload mr-2"></i>Import Data
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Add any dashboard-specific scripts here
+        });
+    </script>
+}

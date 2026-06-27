@@ -1,0 +1,319 @@
+﻿@model List<IBhayiPharmacyManagementSystem.Models.Medication>
+
+@{
+    ViewData["Title"] = "Stock Management";
+    Layout = "_LayoutPharmacyManger";
+}
+
+<style>
+    :root {
+        --primary-color: #b3d9ff; /* light blue */
+        --primary-dark: #99ccff; /* deeper light blue */
+        --secondary-color: #6c757d; /* grey */
+        --success-color: #27ae60; /* green */
+        --warning-color: #f39c12; /* orange */
+        --danger-color: #e74c3c;
+        --info-color: #3498db;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00; /* orange accent */
+        --brown-soft: #c4a484; /* soft brown */
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        border-top: 4px solid var(--orange-accent); /* orange accent */
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .page-title i {
+        margin-right: 12px;
+        font-size: 1.8rem;
+        color: var(--info-color);
+    }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        border-left: 4px solid var(--brown-soft); /* subtle brown edge */
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey header */
+        color: white;
+        padding: 25px 30px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: var(--white);
+    }
+
+    .card-title i {
+        margin-right: 12px;
+        font-size: 1.3rem;
+        color: var(--success-color); /* green icon accent */
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey button */
+        color: white;
+        border: 1px solid #5a6268;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(135deg, #5a6268, #495057);
+        color: white;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+    }
+
+    .btn-warning {
+        background: linear-gradient(135deg, var(--warning-color), #e67e22);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+    }
+
+    .btn-warning:hover {
+        background: linear-gradient(135deg, #e67e22, var(--warning-color));
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(243, 156, 18, 0.4);
+        color: white;
+    }
+
+    .btn-outline-primary {
+        background: transparent;
+        color: var(--info-color);
+        border: 2px solid var(--info-color);
+        border-radius: 8px;
+        padding: 6px 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-outline-primary:hover {
+        background: var(--info-color);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    }
+
+    .table {
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .table thead th {
+        background: linear-gradient(135deg, #6c757d, #5a6268);
+        color: white;
+        border: none;
+        font-size: 0.9rem;
+        padding: 15px 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .table td {
+        font-size: 0.9rem;
+        padding: 12px;
+        vertical-align: middle;
+        border-color: #e9ecef;
+    }
+
+    .table tbody tr:hover {
+        background-color: #f8f9fa;
+        transform: scale(1.01);
+        transition: all 0.3s ease;
+    }
+
+    .table-warning {
+        background-color: rgba(243, 156, 18, 0.1) !important;
+        border-left: 4px solid var(--warning-color);
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--info-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+    .breadcrumb-item a:hover {
+        color: var(--primary-color);
+        text-decoration: underline;
+    }
+
+    .breadcrumb-item.active {
+        color: var(--muted-text);
+        font-weight: 600;
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        border-radius: 8px;
+    }
+
+    .w-100 {
+        width: 100% !important;
+    }
+
+    .mb-3 {
+        margin-bottom: 1rem !important;
+    }
+
+    
+        
+        .page-title {
+            font-size: 1.8rem;
+        }
+    }
+</style>
+
+<div class="main-container">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1 class="page-title">
+                        <i class="fas fa-boxes"></i>@ViewData["Title"]
+                    </h1>
+                    <nav aria-label="breadcrumb" class="mt-3">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="@Url.Action("PharmacyManager", "Home")">Dashboard</a></li>
+                            <li class="breadcrumb-item active">Stock Management</li>
+                        </ol>
+                    </nav>
+                </div>
+
+                <div class="row">
+                    <!-- Inventory Table -->
+                    <div class="col-md-8">
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h5 class="card-title">
+                                    <i class="fas fa-boxes"></i>Current Inventory
+                                </h5>
+                            </div>
+                            <div class="card-body" style="padding: 0;">
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead>
+                                            <tr>
+                                                <th>Medication</th>
+                                                <th>Stock Level</th>
+                                                <th>Min Level</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @if (Model == null || !Model.Any())
+                                            {
+                                                <tr>
+                                                    <td colspan="4" class="text-center text-muted">
+                                                        No inventory data found. You can start by creating a new purchase order.
+                                                    </td>
+                                                </tr>
+                                            }
+                                            else
+                                            {
+                                                foreach (var item in Model)
+                                                {
+                                                    <tr class="@(item.QuantityInStock <= item.MinStockLevel ? "table-warning" : "")">
+                                                        <td>@item.Name</td>
+                                                        <td>@item.QuantityInStock</td>
+                                                        <td>@item.MinStockLevel</td>
+                                                        <td>
+                                                            <a asp-action="AdjustStock" asp-route-id="@item.MedicationId" class="btn btn-sm btn-outline-primary">
+                                                                <i class="fas fa-edit"></i> Adjust
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                }
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions Panel -->
+                    <div class="col-md-4">
+                        <div class="content-card">
+                            <div class="card-header">
+                                <h5 class="card-title">
+                                    <i class="fas fa-bolt"></i>Quick Actions
+                                </h5>
+                            </div>
+                            <div class="card-body" style="padding: 25px;">
+                                <a asp-action="LowStock" class="btn btn-warning w-100 mb-3">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>View Low Stock Items
+                                </a>
+                                <a asp-action="Create" asp-controller="StockOrders" class="btn btn-primary w-100">
+                                    <i class="fas fa-plus-circle me-2"></i>Create New Order
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

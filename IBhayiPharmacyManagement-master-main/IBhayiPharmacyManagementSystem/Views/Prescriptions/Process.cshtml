@@ -1,0 +1,1544 @@
+﻿@model IBhayiPharmacyManagementSystem.Models.UnprocessedScript
+@using IBhayiPharmacyManagementSystem.Models
+@using IBhayiPharmacyManagementSystem.Enums
+@using System.Reflection
+@using System.ComponentModel.DataAnnotations
+@using PrescriptionStatus = IBhayiPharmacyManagementSystem.Models.UnprocessedScript.PrescriptionStatus
+@{
+    ViewData["Title"] = "Process Prescription";
+    Layout = "_LayoutPharmacist";
+}
+
+@Html.AntiForgeryToken()
+
+<div class="container-fluid px-4 py-3">
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-bottom-0 py-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <h1 class="h4 mb-0">
+                    <i class="fas fa-prescription-bottle-alt text-primary me-2"></i>Process Prescription #@Model.UnploadId
+                </h1>
+                <a asp-action="PendingScripts" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                </a>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <!-- Alert placeholder for dynamic messages -->
+            <div id="ajaxAlertContainer"></div>
+
+            <!-- Allergy Alerts Container -->
+            <div id="allergyAlertsContainer" class="mb-4" style="display: none;">
+                <div class="alert alert-danger border-danger">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                        <div>
+                            <h5 class="alert-heading mb-2">
+                                <i class="fas fa-allergies me-2"></i>ALLERGY ALERTS DETECTED!
+                            </h5>
+                            <div id="allergyAlertMessages"></div>
+                            <hr class="my-3">
+                            <p class="mb-0 fw-bold text-danger">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Please review these medications carefully before dispensing!
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show mb-4">
+                    <i class="fas fa-check-circle me-2"></i> @TempData["SuccessMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+            @if (TempData["ErrorMessage"] != null)
+            {
+                <div class="alert alert-danger alert-dismissible fade show mb-4">
+                    <i class="fas fa-exclamation-circle me-2"></i> @TempData["ErrorMessage"]
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            }
+
+            <div class="row">
+                <!-- Prescription Details -->
+                <div class="col-md-6">
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-info-circle text-primary me-2"></i>Prescription Details
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <dl class="row">
+                                <dt class="col-sm-4">Reference #</dt>
+                                <dd class="col-sm-8">@Model.UnploadId</dd>
+
+                                <dt class="col-sm-4">Patient</dt>
+                                <dd class="col-sm-8">@Model.Customer?.Name @Model.Customer?.Surname (ID: @Model.Customer?.IDNumber)</dd>
+
+                                <dt class="col-sm-4">Status</dt>
+                                <dd class="col-sm-8">
+                                    <span class="badge @GetStatusBadgeClass(Model.Status)">
+                                        <i class="@GetStatusIcon(Model.Status) me-1"></i> @Model.Status
+                                    </span>
+                                </dd>
+
+                                <dt class="col-sm-4">Upload Date</dt>
+                                <dd class="col-sm-8">@Model.UploadDate.ToString("MMM dd, yyyy")</dd>
+
+                                <dt class="col-sm-4">Doctor</dt>
+                                    <dd class="col-sm-8" id="currentDoctorDisplay">
+                                        @if (Model.Prescription?.Doctor != null)
+                                        {
+                                            @Model.Prescription.Doctor.Name @Model.Prescription.Doctor.Surname
+                                            <span class="text-muted">(Practice #@Model.Prescription.Doctor.PracticeNumber)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Not specified</span>
+                                        }
+                                    </dd>
+                                @if (!string.IsNullOrEmpty(Model.RejectionReason))
+                                {
+                                    <dt class="col-sm-4">Rejection Reason</dt>
+                                    <dd class="col-sm-8 text-danger">@Model.RejectionReason</dd>
+                                }
+
+                                @if (!string.IsNullOrEmpty(Model.ProcessingNotes))
+                                {
+                                    <dt class="col-sm-4">Processing Notes</dt>
+                                    <dd class="col-sm-8">@Model.ProcessingNotes</dd>
+                                }
+                            </dl>
+                        </div>
+                    </div>
+
+                    <!-- Customer Allergies Section -->
+                    <div class="card mb-4">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-exclamation-triangle text-warning me-2"></i>Customer Allergies
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            @if (Model.Customer?.Allergies != null && Model.Customer.Allergies.Any())
+                            {
+                                <div class="alert alert-warning border-warning">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <i class="fas fa-exclamation-triangle fa-lg me-2"></i>
+                                        <strong>Known Allergies:</strong>
+                                    </div>
+                                    <div class="allergies-display-area">
+                                        @foreach (var allergy in Model.Customer.Allergies)
+                                        {
+                                            <div class="allergy-item-card @allergy.Severity.ToLower()">
+                                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                                    <span class="ingredient-badge">@allergy.ActiveIngredient?.Name</span>
+                                                    <span class="severity-badge @allergy.Severity.ToLower()">@allergy.Severity</span>
+                                                </div>
+                                                @if (!string.IsNullOrEmpty(allergy.Description) && allergy.Description.StartsWith("CUSTOM_ALLERGEN:"))
+                                                {
+                                                    var customDescription = allergy.Description.Replace("CUSTOM_ALLERGEN:", "").Trim();
+                                                    <small class="text-muted">Custom: @customDescription</small>
+                                                }
+                                                else if (!string.IsNullOrEmpty(allergy.Description))
+                                                {
+                                                    <small class="text-muted">@allergy.Description</small>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-info border-info">
+                                    <i class="fas fa-info-circle me-2"></i>
+                                    <strong>No known allergies recorded</strong> for this customer.
+                                </div>
+                            }
+                        </div>
+                    </div>
+
+                   
+
+                    <!-- Doctor Assignment Section -->
+                    <div class="card">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-user-md text-primary me-2"></i>Assign Doctor
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="assignDoctorForm" asp-controller="Prescriptions" asp-action="AssignDoctor" method="post">
+                                <input type="hidden" name="id" value="@Model.UnploadId" />
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium">Select Doctor</label>
+                                    <select name="doctorId" class="form-select select2-doctor" id="doctorSelect">
+                                        <option value="0">-- Select Doctor --</option>
+                                        @foreach (var doctor in ViewBag.Doctors as IEnumerable<Doctor>)
+                                        {
+                                            <option value="@doctor.DoctorId" 
+                                                    selected="@(Model.Prescription?.DoctorId == doctor.DoctorId)">
+                                                @doctor.Name @doctor.Surname (Practice #@doctor.PracticeNumber)
+                                            </option>
+                                        }
+                                    </select>
+                                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" id="addNewDoctorBtn" data-toggle="modal" data-target="#newDoctorModal">
+                                        <i class="fas fa-plus"></i> Add New Doctor
+                                    </button>
+                                </div>
+
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div id="currentDoctorInfo">
+                                        @if (Model.Prescription?.Doctor != null)
+                                        {
+                                            <span class="text-success">
+                                                <i class="fas fa-check-circle"></i> Currently assigned: 
+                                                @Model.Prescription.Doctor.Name @Model.Prescription.Doctor.Surname 
+                                                (Practice #@Model.Prescription.Doctor.PracticeNumber)
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">
+                                                <i class="fas fa-info-circle"></i> No doctor currently assigned
+                                            </span>
+                                        }
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prescription File Section -->
+                <div class="col-md-6">
+                    <div class="card h-100">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-file-prescription text-primary me-2"></i>Prescription Document
+                            </h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            @if (!string.IsNullOrEmpty(Model.ScriptImagePath) || Model.FileContent != null)
+                            {
+                                var fileExtension = System.IO.Path.GetExtension(Model.ScriptImagePath).ToLower();
+                                var isImage = new[] { ".jpg", ".jpeg", ".png", ".heic" }.Contains(fileExtension);
+
+                                <div class="text-center mb-3">
+                                    @if (isImage)
+                                    {
+                                        <img src="@Url.Action("ServePrescriptionFile", "Prescriptions", new { id = Model.UnploadId })" class="img-fluid rounded border" 
+                                             alt="Prescription image" style="max-height: 60vh;" 
+                                             onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+                                        <div class="alert alert-warning" style="display: none;">
+                                            <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                                            <p class="mb-0">Image could not be loaded. Please try downloading the file.</p>
+                                        </div>
+                                    }
+                                    else if (fileExtension == ".pdf")
+                                    {
+                                        <div class="pdf-container">
+                                            <iframe src="@Url.Action("ServePrescriptionFile", "Prescriptions", new { id = Model.UnploadId })" 
+                                                    style="width: 100%; height: 60vh; border: 1px solid #dee2e6; border-radius: 0.375rem;"
+                                                    title="Prescription PDF"
+                                                    onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                                                <p>Your browser does not support PDF viewing. 
+                                                <a href="@Url.Action("ServePrescriptionFile", "Prescriptions", new { id = Model.UnploadId })" target="_blank">Click here to download</a> the PDF.</p>
+                                            </iframe>
+                                            <div class="alert alert-warning" style="display: none;">
+                                                <i class="fas fa-exclamation-triangle fa-2x text-warning mb-2"></i>
+                                                <p class="mb-0">PDF could not be loaded. Please try downloading the file.</p>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="alert alert-warning">
+                                            <i class="far fa-file-alt fa-3x text-secondary mb-2"></i>
+                                            <p>File type cannot be previewed.</p>
+                                        </div>
+                                    }
+                                </div>
+
+                                <div class="mt-auto text-center">
+                                    <a href="@Url.Action("ServePrescriptionFile", "Prescriptions", new { id = Model.UnploadId })" 
+                                       class="btn btn-primary" target="_blank">
+                                        <i class="fas fa-download me-1"></i> Download File
+                                    </a>
+                                    <small class="d-block text-muted mt-2">
+                                        File: @(Model.FileName ?? System.IO.Path.GetFileName(Model.ScriptImagePath))
+                                    </small>
+                                </div>
+                            }
+                            else
+                            {
+                                <div class="alert alert-warning text-center">
+                                    <i class="fas fa-exclamation-triangle fa-2x mb-2"></i>
+                                    <p class="mb-0">No prescription file available.</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Prescription Items Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card shadow-sm">
+                        <div class="card-header bg-light">
+                            <h5 class="mb-0">
+                                <i class="fas fa-prescription-bottle-alt text-primary me-2"></i>Prescription Items
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover" id="prescriptionItemsTable">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Medication</th>
+                                            <th>Quantity</th>
+                                                                                                <th>Instructions</th>
+                                                    <th>Frequency</th>
+                                                    <th>Repeats</th>
+                                                    <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @if (Model.Prescription?.PrescriptionLines != null && Model.Prescription.PrescriptionLines.Any())
+                                        {
+                                            foreach (var item in Model.Prescription.PrescriptionLines)
+                                            {
+                                                <tr data-line-id="@item.PrescriptionLineId" data-medication-id="@item.MedicationId">
+                                                    <td>
+                                                        @item.Medication?.Name 
+                                                        @item.Medication?.DosageForm
+                                                        @(item.Medication?.ActiveIngredients?.Any() == true ? $"({string.Join(", ", item.Medication.ActiveIngredients.Select(ai => $"{ai.ActiveIngredient.Name} {ai.Strength}"))})" : "")
+                                                    </td>
+                                                    <td>@item.Quantity</td>
+                                                    <td>@item.Instructions</td>
+                                                    <td>@item.Frequency</td>
+                                                    <td>@item.TotalRepeats</td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" 
+                                                                data-prescription-line-id="@item.PrescriptionLineId">
+                                                            <i class="fas fa-trash-alt"></i> Delete
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            }
+                                        }
+                                        <!-- Add New Item Row -->
+                                        <tr class="bg-light">
+                                            <form id="addItemForm" asp-controller="PrescriptionLines" asp-action="AddPrescriptionLine" method="post">
+                                                <input type="hidden" name="PrescriptionId" value="@Model.Prescription?.PrescriptionId" />
+                                                <input type="hidden" name="UnprocessedScriptId" value="@Model.UnploadId" />
+                                                
+                                                <td>
+                                                    <select name="MedicationId" class="form-select form-select-sm" required>
+                                                        <option value="">Select Medication</option>
+                                                        @if (ViewBag.Medications != null)
+                                                        {
+                                                            foreach (var med in ViewBag.Medications as IEnumerable<Medication>)
+                                                            {
+                                                                <option value="@med.MedicationId">
+                                                                    @med.Name - @med.DosageForm @(med.ActiveIngredients?.Any() == true ? $"({string.Join(", ", med.ActiveIngredients.Select(ai => $"{ai.ActiveIngredient.Name} {ai.Strength}"))})" : "")
+                                                                </option>
+                                                            }
+                                                        }
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="Quantity" class="form-control form-control-sm" min="1" required placeholder="Qty">
+                                                </td>
+                                                <td>
+                                                    <input type="text" name="Instructions" class="form-control form-control-sm" required placeholder="Instructions">
+                                                </td>
+                                                <td>
+                                                    <select name="Frequency" class="form-select form-select-sm" required>
+                                                        <option value="">Frequency</option>
+                                                        @foreach (DosageFrequency freq in Enum.GetValues(typeof(DosageFrequency)))
+                                                        {
+                                                            var fieldInfo = typeof(DosageFrequency).GetField(freq.ToString());
+                                                            var displayAttribute = fieldInfo?.GetCustomAttributes(typeof(DisplayAttribute), false)
+                                                                .FirstOrDefault() as DisplayAttribute;
+                                                            <option value="@freq">@(displayAttribute?.Name ?? freq.ToString())</option>
+                                                        }
+                                                    </select>
+                                                </td>
+                                                <td>
+                                                    <input type="number" name="TotalRepeats" class="form-control form-control-sm" min="0" value="0" placeholder="Repeats">
+                                                </td>
+                                                <td>
+                                                    <button type="submit" class="btn btn-sm btn-success">
+                                                        <i class="fas fa-plus"></i> Add
+                                                    </button>
+                                                </td>
+                                            </form>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submit Prescription Section -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card border-primary">
+                        <div class="card-header bg-primary text-white">
+                            <h5 class="mb-0">
+                                <i class="fas fa-check-circle me-2"></i>Complete Prescription
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <form id="completePrescriptionForm" asp-controller="Prescriptions" asp-action="CompletePrescription" method="post">
+                                <input type="hidden" name="id" value="@Model.UnploadId" />
+                                
+                                <div class="mb-3">
+                                    <label class="form-label fw-medium">Final Notes (Optional)</label>
+                                    <textarea name="finalNotes" class="form-control" rows="3" 
+                                              placeholder="Add any final notes for the customer..."></textarea>
+                                </div>
+                                
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="submit" class="btn btn-success" id="completePrescriptionBtn">
+                                        <i class="fas fa-check-circle me-1"></i> Submit Prescription
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="newDoctorModal" tabindex="-1" aria-labelledby="newDoctorModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newDoctorModalLabel">Add New Doctor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="newDoctorForm" method="post">
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label for="NewDoctorName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="NewDoctorName" name="NewDoctorName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="NewDoctorSurname" class="form-label">Surname</label>
+                        <input type="text" class="form-control" id="NewDoctorSurname" name="NewDoctorSurname" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="NewDoctorPracticeNumber" class="form-label">Practice Number</label>
+                        <input type="number" class="form-control" id="NewDoctorPracticeNumber" name="NewDoctorPracticeNumber" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="NewDoctorEmail" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="NewDoctorEmail" name="NewDoctorEmail">
+                    </div>
+                    <div class="mb-3">
+                        <label for="NewDoctorPhone" class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="NewDoctorPhone" name="NewDoctorPhone" 
+                               pattern="[0-9]{10}" maxlength="10"
+                               data-val="true" data-val-regex="Phone number must be exactly 10 digits" data-val-regex-pattern="^[0-9]{10}$" />
+                        <span class="field-validation-valid text-danger" data-valmsg-for="NewDoctorPhone" data-valmsg-replace="true"></span>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeDoctorModal">Close</button>
+                    <button type="submit" class="btn btn-primary" id="registerDoctorBtn">Register Doctor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Allergy Conflict Modal -->
+<div class="modal fade" id="allergyConflictModal" tabindex="-1" aria-labelledby="allergyConflictModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="allergyConflictModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Allergy Conflict Detected
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-info-circle me-2"></i>Customer Allergy Warning</h6>
+                    <p class="mb-0">The customer has allergies to ingredients in the selected medications. Please review the conflicts below and select safe alternatives.</p>
+                </div>
+
+                <!-- Conflicting Medications Section -->
+                <div class="mb-4">
+                    <h6 class="text-danger"><i class="fas fa-ban me-2"></i>Conflicting Medications</h6>
+                    <div id="conflictingMedicationsList" class="row">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Safe Alternatives Section -->
+                <div class="mb-4">
+                    <h6 class="text-success"><i class="fas fa-shield-alt me-2"></i>Safe Alternative Medications</h6>
+                    
+                    <!-- Search Box -->
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <input type="text" id="medicationSearchInput" class="form-control" placeholder="Search for safe medications...">
+                            <button class="btn btn-outline-primary" type="button" id="searchMedicationsBtn">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Search Results -->
+                    <div id="medicationSearchResults" class="row mb-3" style="display: none;">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+
+                    <!-- Pre-loaded Safe Alternatives -->
+                    <div id="safeAlternativesList" class="row">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="proceedWithAlternativesBtn" style="display: none;">
+                    <i class="fas fa-check me-1"></i>Proceed with Selected Alternatives
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    string GetStatusBadgeClass(PrescriptionStatus status)
+    {
+        return status switch
+        {
+            PrescriptionStatus.Pending => "bg-secondary",
+            PrescriptionStatus.Processing => "bg-warning text-dark",
+            PrescriptionStatus.Rejected => "bg-danger",
+            PrescriptionStatus.Completed => "bg-success",
+            _ => "bg-info"
+        };
+    }
+
+    string GetStatusIcon(PrescriptionStatus status)
+    {
+        return status switch
+        {
+            PrescriptionStatus.Pending => "fas fa-clock",
+            PrescriptionStatus.Processing => "fas fa-spinner fa-pulse",
+            PrescriptionStatus.Rejected => "fas fa-ban",
+            PrescriptionStatus.Completed => "fas fa-check-circle",
+            _ => "fas fa-info-circle"
+        };
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" />
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+        .badge {
+            font-size: 0.875em;
+            padding: 0.35em 0.65em;
+        }
+        dt {
+            font-weight: 500;
+        }
+        .img-preview {
+            max-height: 60vh;
+            width: auto;
+            margin: 0 auto;
+            display: block;
+        }
+        .table-responsive {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .table th {
+            position: sticky;
+            top: 0;
+            background-color: #f8f9fa;
+            z-index: 10;
+        }
+        .btn-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
+        .select2-container .select2-selection--single {
+            height: 38px;
+            padding: 6px 12px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 36px;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 36px;
+        }
+        .modal-header {
+            border-bottom: none;
+        }
+        #prescriptionItemsTable tr:last-child {
+            background-color: #f8f9fa;
+        }
+        #prescriptionItemsTable tr:last-child td {
+            padding: 0.5rem;
+        }
+        #prescriptionItemsTable tr:last-child .form-control,
+        #prescriptionItemsTable tr:last-child .form-select {
+            font-size: 0.875rem;
+            padding: 0.25rem 0.5rem;
+        }
+        #ajaxAlertContainer {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1050;
+            min-width: 300px;
+        }
+
+        /* Style for disabled medication options */
+        .select2-results__option[aria-disabled="true"] {
+            color: #6c757d !important;
+            background-color: #f8f9fa !important;
+            cursor: not-allowed !important;
+        }
+
+        .select2-results__option[aria-disabled="true"]:before {
+            content: "✓ ";
+            color: #28a745;
+            font-weight: bold;
+        }
+        #currentDoctorInfo {
+            font-size: 0.9rem;
+            padding: 0.5rem 0;
+        }
+        #assignDoctorBtn {
+            min-width: 120px;
+        }
+        #completePrescriptionBtn {
+            min-width: 200px;
+        }
+        .prescription-image {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        
+        .prescription-image:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .prescription-image:active {
+            transform: scale(0.98);
+        }
+        
+        .modal-xl {
+            max-width: 90%;
+        }
+        
+        .modal-body img {
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        .allergies-display-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px; /* Increased gap for better spacing */
+        }
+        .allergy-item-card {
+            flex: 1 1 calc(50% - 12px); /* Two cards per row on wider screens, adjust for gap */
+            min-width: 280px; /* Minimum width to prevent squishing */
+            max-width: calc(50% - 12px);
+            background-color: #fff;
+            border-left: 5px solid;
+            transition: all 0.2s ease-in-out;
+        }
+        .allergy-item-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 .25rem .75rem rgba(0,0,0,.1);
+        }
+        /* Severity based border and text colors */
+        .allergy-item-card .mild {
+            border-color: #28a745; /* Green */
+        }
+        .allergy-item-card .moderate {
+            border-color: #ffc107; /* Yellow */
+        }
+        .allergy-item-card .severe {
+            border-color: #fd7e14; /* Orange */
+        }
+        .allergy-item-card ."life-threatening" {
+            border-color: #dc3545; /* Red */
+        }
+        .ingredient-badge {
+            background-color: #e9ecef;
+            color: #495057;
+            font-weight: 600;
+            padding: 0.3em 0.6em;
+            border-radius: 0.25rem;
+            font-size: 0.9em;
+        }
+        .severity-badge {
+            font-size: 0.75em;
+            padding: 0.2em 0.5em;
+            border-radius: 0.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .severity-badge.mild {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .severity-badge.moderate {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+        .severity-badge.severe {
+            background-color: #fce5d1;
+            color: #8a3801;
+        }
+        .severity-badge."life-threatening" {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .text-muted {
+            font-size: 0.8em;
+        }
+
+        @@media (max-width: 768px) {
+            .allergy-item-card {
+                flex: 1 1 100%;
+                max-width: 100%;
+            }
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- jQuery Validation -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script>
+        // Add anti-forgery token for AJAX requests
+        $(document).ready(function() {
+            // Add anti-forgery token to all AJAX requests
+            $.ajaxSetup({
+                beforeSend: function(xhr, settings) {
+                    if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("RequestVerificationToken", $('input[name="__RequestVerificationToken"]').val());
+                    }
+                }
+            });
+            // Phone number validation for doctor form
+            $('#NewDoctorPhone').on('input', function () {
+                const phone = $(this).val().replace(/\D/g, ''); // Remove non-digits
+                $(this).val(phone); // Update the field with only digits
+                
+                // Validate length
+                if (phone.length > 10) {
+                    $(this).val(phone.substring(0, 10)); // Limit to 10 digits
+                }
+            });
+
+            // Initialize Select2 for doctor dropdown
+            $('.select2-doctor').select2({
+                placeholder: "Search doctor...",
+                width: '100%'
+            });
+
+            // Prevent duplicate medication selections
+            function updateMedicationDropdowns() {
+                const selectedMedications = [];
+                
+                // Collect all currently selected medication IDs from existing prescription lines
+                // Look for data-medication-id attributes on existing rows
+                $('#prescriptionItemsTable tbody tr:not(.bg-light)').each(function() {
+                    const medicationId = $(this).data('medication-id');
+                    if (medicationId) {
+                        selectedMedications.push(medicationId.toString());
+                    }
+                });
+                
+                console.log('Selected medications:', selectedMedications);
+                
+                // Update the add form medication dropdown to disable selected options
+                const addFormSelect = $('#addItemForm select[name="MedicationId"]');
+                const currentValue = addFormSelect.val();
+                
+                // Reset all options to enabled
+                addFormSelect.find('option').prop('disabled', false);
+                
+                // Disable selected options
+                selectedMedications.forEach(function(medId) {
+                    if (medId !== currentValue) {
+                        addFormSelect.find(`option[value="${medId}"]`).prop('disabled', true);
+                    }
+                });
+                
+                // Refresh Select2 to show disabled options
+                addFormSelect.trigger('change');
+            }
+
+            // Call on page load
+            updateMedicationDropdowns();
+
+            // Call when medication selection changes in the add form
+            $('#addItemForm select[name="MedicationId"]').on('change', function() {
+                updateMedicationDropdowns();
+            });
+
+            // Initialize Select2 for medication dropdown in the table
+            $('#addItemForm select[name="MedicationId"]').select2({
+                placeholder: "Select medication...",
+                width: '100%',
+                dropdownParent: $('#prescriptionItemsTable')
+            });
+
+            // Initialize Select2 for frequency dropdown in the table
+            $('#addItemForm select[name="Frequency"]').select2({
+                placeholder: "Select frequency...",
+                width: '100%',
+                dropdownParent: $('#prescriptionItemsTable')
+            });
+
+            // Handle form submission via AJAX
+            $('#addItemForm').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var submitBtn = form.find('button[type="submit"]');
+                
+                submitBtn.prop('disabled', true);
+                submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i> Adding...');
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            showAlert('success', response.message);
+                            
+                            // Check for allergy alerts
+                            if (response.allergyAlerts && response.allergyAlerts.length > 0) {
+                                displayAllergyAlerts(response.allergyAlerts, response.alertMessages);
+                            } else {
+                                hideAllergyAlerts();
+                            }
+                            
+                            // Add item to table if available
+                            if (response.item) {
+                                addItemToTable(response.item);
+                                // Update medication dropdowns to disable the newly added medication
+                                updateMedicationDropdowns();
+                            }
+                            
+                            form.trigger('reset');
+                            form.find('select').val('').trigger('change');
+                        } else {
+                            showAlert('danger', response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        showAlert('danger', 'An error occurred: ' + xhr.responseText);
+                    },
+                    complete: function() {
+                        submitBtn.prop('disabled', false);
+                        submitBtn.html('<i class="fas fa-plus me-1"></i> Add');
+                    }
+                });
+            });
+
+            // Handle delete button clicks with proper validation
+            $('#prescriptionItemsTable').on('click', '.remove-item', function(e) {
+                e.preventDefault();
+                var button = $(this);
+                var row = button.closest('tr');
+                var prescriptionLineId = button.data('prescription-line-id');
+                var medicationName = row.find('td:first').text().trim();
+                
+                // Use SweetAlert for confirmation like WalkInCustomers
+                Swal.fire({
+                    title: 'Delete Prescription Item?',
+                    html: `Are you sure you want to delete <strong>${medicationName}</strong>?<br><small class="text-muted">This action cannot be undone.</small>`,
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'Cancel'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Show loading state
+                        button.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Deleting...');
+                        
+                        $.ajax({
+                            url: '@Url.Action("Delete", "PrescriptionLines")',
+                            type: 'POST',
+                            data: {
+                                id: prescriptionLineId,
+                                unprocessedScriptId: @Model.UnploadId
+                            },
+                            headers: {
+                                'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            },
+                            success: function(response) {
+                                if (response.success) {
+                                    showAlert('success', response.message);
+                                    row.fadeOut(300, function() {
+                                        row.remove();
+                                        updateItemsCount();
+                                        // Re-enable the medication option in dropdown
+                                        updateMedicationDropdowns();
+                                    });
+                                } else {
+                                    showAlert('danger', response.message);
+                                    button.prop('disabled', false).html('<i class="fas fa-trash"></i>');
+                                }
+                            },
+                            error: function(xhr) {
+                                console.log('Delete error:', xhr);
+                                showAlert('danger', 'An error occurred while deleting the item: ' + (xhr.responseJSON?.message || xhr.statusText));
+                                button.prop('disabled', false).html('<i class="fas fa-trash"></i>');
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Handle doctor assignment form submission
+            $('#assignDoctorForm').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var submitBtn = form.find('#assignDoctorBtn');
+                
+                if (submitBtn && submitBtn.length) {
+                    submitBtn.prop('disabled', true);
+                    submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i> Assigning...');
+                }
+
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function(response) {
+                        if (response.success) {
+                            showAlert('success', response.message);
+                            
+                            // Update the current doctor info display
+                            if (response.doctorName) {
+                                $('#currentDoctorInfo').html(`
+                                    <span class="text-success">
+                                        <i class="fas fa-check-circle"></i> Currently assigned: 
+                                        ${response.doctorName} (Practice #${response.practiceNumber})
+                                    </span>
+                                `);
+                                $('#currentDoctorDisplay').html(`
+                                    ${response.doctorName} 
+                                    <span class="text-muted">(Practice #${response.practiceNumber})</span>
+                                `);
+                            } else {
+                                $('#currentDoctorInfo').html(`
+                                    <span class="text-muted">
+                                        <i class="fas fa-info-circle"></i> No doctor currently assigned
+                                    </span>
+                                `);
+                                $('#currentDoctorDisplay').html('<span class="text-muted">Not specified</span>');
+                            }
+                        } else {
+                            showAlert('danger', response.message);
+                        }
+                    },
+                    error: function(xhr) {
+                        showAlert('danger', 'An error occurred: ' + xhr.responseText);
+                    },
+                    complete: function() {
+                        if (submitBtn && submitBtn.length) {
+                            submitBtn.prop('disabled', false);
+                            submitBtn.html('<i class="fas fa-save me-1"></i> Assign Doctor');
+                        }
+                    }
+                });
+            });
+
+            // Auto-assign when a doctor is selected or a new one is added
+            $('#doctorSelect').on('change', function () {
+                var doctorId = $(this).val();
+                if (doctorId && doctorId !== '0') {
+                    $('#assignDoctorForm').trigger('submit');
+                }
+            });
+
+            // Handle complete prescription form submission
+            $('#completePrescriptionForm').on('submit', function(e) {
+                e.preventDefault();
+                var form = $(this);
+                var submitBtn = form.find('#completePrescriptionBtn');
+
+                confirmSwal({ title:'Complete prescription?', html:'This action cannot be undone.', icon:'warning', confirmButtonText:'Yes, complete' })
+                    .then(function(res){ if(!res.isConfirmed){ return; }
+                        submitBtn.prop('disabled', true);
+                        submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i> Completing...');
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: 'POST',
+                            data: form.serialize(),
+                            success: function(response) {
+                                if (response.success) {
+                                    showAlert('success', response.message);
+                                    $('.badge')
+                                        .removeClass('bg-warning bg-secondary bg-danger')
+                                        .addClass('bg-success')
+                                        .html('<i class="fas fa-check-circle me-1"></i> Completed');
+                                    setTimeout(function() { window.location.href = response.redirectUrl; }, 3000);
+                                } else if (response.hasAllergyConflict) {
+                                    // Handle allergy conflict
+                                    showAllergyConflictModal(response.conflictingMedications, response.safeAlternatives);
+                                    submitBtn.prop('disabled', false);
+                                    submitBtn.html('<i class="fas fa-check-circle me-1"></i> Submit Prescription');
+                                } else {
+                                    showAlert('danger', response.message);
+                                    submitBtn.prop('disabled', false);
+                                    submitBtn.html('<i class="fas fa-check-circle me-1"></i> Submit Prescription');
+                                }
+                            },
+                            error: function(xhr) {
+                                showAlert('danger', 'An error occurred: ' + xhr.responseText);
+                                submitBtn.prop('disabled', false);
+                                submitBtn.html('<i class="fas fa-check-circle me-1"></i> Submit Prescription');
+                            }
+                        });
+                    });
+            });
+        });
+
+        function showAlert(type, message) {
+            var alertId = 'alert-' + Math.random().toString(36).substr(2, 9);
+            var alertHtml = `
+                <div id="${alertId}" class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} me-2"></i> 
+                    ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            
+            // Add the new alert
+            $('#ajaxAlertContainer').append(alertHtml);
+            
+            // Auto-close after 5 seconds
+            setTimeout(function() {
+                $('#' + alertId).alert('close');
+            }, 5000);
+        }
+
+        function addItemToTable(item) {
+            var frequencyDisplay = item.frequency.replace(/([A-Z])/g, ' $1').trim();
+            
+            var newRow = `
+                <tr data-line-id="${item.lineId}" data-medication-id="${item.medicationId}">
+                    <td>
+                        ${item.medicationName} 
+                        ${item.dosageForm ? item.dosageForm : ''}
+                        ${item.ingredients && item.ingredients.length > 0 ? `(${item.ingredients.map(i => `${i.name} ${i.strength}`).join(', ')})` : ''}
+                    </td>
+                    <td>${item.quantity}</td>
+                    <td>${item.instructions}</td>
+                    <td>${frequencyDisplay}</td>
+                    <td>${item.totalRepeats || 0}</td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-item" 
+                                data-prescription-line-id="${item.lineId}">
+                            <i class="fas fa-trash-alt"></i> Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+            
+            // Insert the new row before the add-form row
+            $('#prescriptionItemsTable tbody tr:last').before(newRow);
+        }
+
+        function displayAllergyAlerts(allergyAlerts, alertMessages) {
+            var messagesHtml = '';
+            allergyAlerts.forEach(function(alert, index) {
+                var alertClass = alert.alertLevel === 'DANGER' ? 'text-danger' : 
+                               alert.alertLevel === 'WARNING' ? 'text-warning' : 'text-info';
+                var iconClass = alert.alertLevel === 'DANGER' ? 'fa-exclamation-triangle' : 
+                              alert.alertLevel === 'WARNING' ? 'fa-exclamation-circle' : 'fa-info-circle';
+                
+                messagesHtml += `
+                    <div class="mb-2 p-2 border-start border-${alert.alertLevel === 'DANGER' ? 'danger' : 
+                                                                    alert.alertLevel === 'WARNING' ? 'warning' : 'info'} border-3">
+                        <div class="fw-bold ${alertClass}">
+                            <i class="fas ${iconClass} me-2"></i>
+                            ${alert.medicationName} - ${alert.activeIngredientName}
+                        </div>
+                        <div class="small">
+                            <strong>Allergy Level:</strong> ${alert.allergySeverity}<br>
+                            <strong>Description:</strong> ${alert.allergyDescription}
+                        </div>
+                    </div>
+                `;
+            });
+            
+            $('#allergyAlertMessages').html(messagesHtml);
+            $('#allergyAlertsContainer').show();
+        }
+
+        function hideAllergyAlerts() {
+            $('#allergyAlertsContainer').hide();
+            $('#allergyAlertMessages').empty();
+        }
+
+        // Register new doctor
+        $('#newDoctorForm').submit(function (e) {
+            e.preventDefault();
+            console.log("Doctor form submission triggered");
+
+            $('.is-invalid').removeClass('is-invalid');
+            $('.invalid-feedback').remove();
+
+            const formData = new FormData(this);
+            const token = $('input[name="__RequestVerificationToken"]').val();
+            if (token) {
+                formData.append('__RequestVerificationToken', token);
+            }
+
+            const nameValue = $('#NewDoctorName').val();
+            const surnameValue = $('#NewDoctorSurname').val();
+            const practiceNumberValue = $('#NewDoctorPracticeNumber').val();
+
+            const hasName = nameValue && nameValue.trim() !== '';
+            const hasSurname = surnameValue && surnameValue.trim() !== '';
+            const hasPracticeNumber = practiceNumberValue && practiceNumberValue.trim() !== '';
+
+            if (!hasName || !hasSurname || !hasPracticeNumber) {
+                alert('Please fill in all required fields (Name, Surname, Practice Number)');
+                $('#registerDoctorBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Register Doctor');
+                return false;
+            }
+
+            formData.set('NewDoctorName', nameValue);
+            formData.set('NewDoctorSurname', surnameValue);
+            formData.set('NewDoctorPracticeNumber', practiceNumberValue);
+            formData.set('NewDoctorEmail', $('#NewDoctorEmail').val() || '');
+            formData.set('NewDoctorPhone', $('#NewDoctorPhone').val() || '');
+
+            $('#registerDoctorBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Registering...');
+
+            // Proceed directly to registration
+            console.log('Proceeding with doctor registration...');
+
+            $.ajax({
+                url: '@Url.Action("RegisterDoctor", "Prescriptions")',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                success: function (response) {
+                    console.log("Doctor AJAX success response:", response);
+                    if (response.success) {
+                        // Show success message
+                        alert(response.message);
+                        
+                        // Add doctor to dropdown
+                        const newOption = new Option(`${response.doctorName} (New)`, response.doctorId, true, true);
+                        $('#doctorSelect').append(newOption).trigger('change');
+
+                        // Close modal and reset form
+                        $('#newDoctorModal').modal('hide');
+                        $('#newDoctorForm')[0].reset();
+                        resetDoctorForm();
+                    } else {
+                        // Handle validation errors
+                        if (response.errors) {
+                            Object.keys(response.errors).forEach(field => {
+                                const input = $(`[name*="${field}"]`).first();
+                                if (input.length) {
+                                    input.addClass('is-invalid');
+                                    input.after(`<div class="invalid-feedback">${response.errors[field][0]}</div>`);
+                                }
+                            });
+                        } else {
+                            alert(response.message || 'Error registering doctor');
+                        }
+                        // Reset button state
+                        resetDoctorForm();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("Doctor AJAX failed:", xhr.status, xhr.responseText, status, error);
+                    alert("Doctor registration failed: " + (xhr.responseJSON?.message || error));
+                    
+                    // Reset the form after error
+                    resetDoctorForm();
+                }
+            });
+        });
+
+        // Function to update items count
+        function updateItemsCount() {
+            var itemCount = $('#prescriptionItemsTable tbody tr').length;
+            console.log('Updated items count:', itemCount);
+            // You can add visual feedback here if needed
+        }
+
+        // Function to reset the doctor form
+        function resetDoctorForm() {
+            // Reset the form
+            $('#newDoctorForm')[0].reset();
+            
+            // Clear any validation errors
+            $('#newDoctorForm .is-invalid').removeClass('is-invalid');
+            $('#newDoctorForm .invalid-feedback').remove();
+            
+            // Reset the register button state
+            $('#registerDoctorBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Register Doctor');
+            
+            // Clear any alert messages in the modal
+            $('#ajaxAlertContainer').empty();
+            
+            console.log('Doctor form reset successfully');
+        }
+
+        // Add form reset functionality when Close button is clicked
+        $('#closeDoctorModal').on('click', function() {
+            resetDoctorForm();
+        });
+
+        // Reset form when modal is hidden (closed by any means)
+        $('#newDoctorModal').on('hidden.bs.modal', function() {
+            resetDoctorForm();
+        });
+
+        // Allergy Conflict Modal Functions
+        function showAllergyConflictModal(conflictingMedications, safeAlternatives) {
+            // Populate conflicting medications
+            populateConflictingMedications(conflictingMedications);
+            
+            // Populate safe alternatives
+            populateSafeAlternatives(safeAlternatives);
+            
+            // Show the modal
+            $('#allergyConflictModal').modal('show');
+        }
+
+        function populateConflictingMedications(conflictingMedications) {
+            var container = $('#conflictingMedicationsList');
+            container.empty();
+            
+            conflictingMedications.forEach(function(medication) {
+                var medicationCard = `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-header bg-danger text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>${medication.medicationName}
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="text-danger">Conflicting Ingredients:</h6>
+                                <ul class="list-unstyled mb-0">
+                                    ${medication.conflictingIngredients.map(function(ingredient) {
+                                        return `<li class="mb-1">
+                                            <span class="badge bg-danger me-2">${ingredient.severity}</span>
+                                            <strong>${ingredient.ingredientName}</strong>
+                                            ${ingredient.description ? `<br><small class="text-muted">${ingredient.description}</small>` : ''}
+                                        </li>`;
+                                    }).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(medicationCard);
+            });
+        }
+
+        function populateSafeAlternatives(safeAlternatives) {
+            var container = $('#safeAlternativesList');
+            container.empty();
+            
+            if (safeAlternatives.length === 0) {
+                container.html('<div class="col-12"><div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No safe alternatives found. Please search for specific medications.</div></div>');
+                return;
+            }
+            
+            safeAlternatives.forEach(function(medication) {
+                var medicationCard = `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-success h-100">
+                            <div class="card-header bg-success text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-shield-alt me-2"></i>${medication.name}
+                                </h6>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <p class="card-text flex-grow-1">${medication.description || 'No description available'}</p>
+                                <div class="mt-auto">
+                                    <div class="row text-muted small mb-2">
+                                        <div class="col-6"><strong>Form:</strong> ${medication.dosageForm}</div>
+                                        <div class="col-6"><strong>Price:</strong> R${medication.price.toFixed(2)}</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong class="text-success">Safe Ingredients:</strong>
+                                        <div class="mt-1">
+                                            ${medication.activeIngredients.map(function(ingredient) {
+                                                return `<span class="badge bg-success me-1 mb-1">${ingredient.name} (${ingredient.strength})</span>`;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-success btn-sm w-100" onclick="selectAlternativeForAnyConflict(${medication.medicationId}, '${medication.name}')">
+                                        <i class="fas fa-plus me-1"></i>Select as Alternative
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(medicationCard);
+            });
+        }
+
+        function selectAlternativeMedication(medicationId, medicationName, prescriptionLineId) {
+            // Show loading state
+            showAlert('info', `Replacing medication with "${medicationName}"...`);
+            
+            $.ajax({
+                url: '@Url.Action("ReplacePrescriptionMedication", "Prescriptions")',
+                type: 'POST',
+                data: { 
+                    prescriptionLineId: prescriptionLineId, 
+                    newMedicationId: medicationId 
+                },
+                success: function(response) {
+                    if (response.success) {
+                        showAlert('success', response.message);
+                        
+                        // Refresh the prescription items table to show the updated medication
+                        refreshPrescriptionItems();
+                        
+                        // Close the allergy conflict modal
+                        $('#allergyConflictModal').modal('hide');
+                        
+                        // Check if there are any remaining conflicts
+                        setTimeout(function() {
+                            checkForRemainingConflicts();
+                        }, 1000);
+                    } else {
+                        showAlert('danger', response.message);
+                    }
+                },
+                error: function(xhr) {
+                    showAlert('danger', 'Error replacing medication: ' + xhr.responseText);
+                }
+            });
+        }
+
+        // Medication search functionality
+        $('#searchMedicationsBtn').on('click', function() {
+            var searchTerm = $('#medicationSearchInput').val().trim();
+            var customerId = @Model.CustomerId;
+            
+            if (!searchTerm) {
+                showAlert('warning', 'Please enter a search term');
+                return;
+            }
+            
+            var searchBtn = $(this);
+            searchBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+            
+            $.ajax({
+                url: '@Url.Action("SearchSafeMedications", "Prescriptions")',
+                type: 'POST',
+                data: { searchTerm: searchTerm, customerId: customerId },
+                success: function(response) {
+                    if (response.success) {
+                        displaySearchResults(response.medications);
+                    } else {
+                        showAlert('danger', response.message);
+                    }
+                },
+                error: function(xhr) {
+                    showAlert('danger', 'Error searching medications: ' + xhr.responseText);
+                },
+                complete: function() {
+                    searchBtn.prop('disabled', false).html('<i class="fas fa-search"></i>');
+                }
+            });
+        });
+
+        function displaySearchResults(medications) {
+            var container = $('#medicationSearchResults');
+            container.empty();
+            
+            if (medications.length === 0) {
+                container.html('<div class="col-12"><div class="alert alert-warning"><i class="fas fa-search me-2"></i>No medications found matching your search.</div></div>').show();
+                return;
+            }
+            
+            medications.forEach(function(medication) {
+                var medicationCard = `
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-primary h-100">
+                            <div class="card-header bg-primary text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-search me-2"></i>${medication.name}
+                                </h6>
+                            </div>
+                            <div class="card-body d-flex flex-column">
+                                <p class="card-text flex-grow-1">${medication.description || 'No description available'}</p>
+                                <div class="mt-auto">
+                                    <div class="row text-muted small mb-2">
+                                        <div class="col-6"><strong>Form:</strong> ${medication.dosageForm}</div>
+                                        <div class="col-6"><strong>Price:</strong> R${medication.price.toFixed(2)}</div>
+                                    </div>
+                                    <div class="mb-2">
+                                        <strong class="text-primary">Safe Ingredients:</strong>
+                                        <div class="mt-1">
+                                            ${medication.activeIngredients.map(function(ingredient) {
+                                                return `<span class="badge bg-primary me-1 mb-1">${ingredient.name} (${ingredient.strength})</span>`;
+                                            }).join('')}
+                                        </div>
+                                    </div>
+                                    <button class="btn btn-primary btn-sm w-100" onclick="selectAlternativeForAnyConflict(${medication.medicationId}, '${medication.name}')">
+                                        <i class="fas fa-plus me-1"></i>Select as Alternative
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.append(medicationCard);
+            });
+            
+            container.show();
+        }
+
+        // Clear search results when modal is closed
+        $('#allergyConflictModal').on('hidden.bs.modal', function() {
+            $('#medicationSearchResults').hide().empty();
+            $('#medicationSearchInput').val('');
+        });
+
+        // Function to select alternative for any conflicting medication
+        function selectAlternativeForAnyConflict(medicationId, medicationName) {
+            if (conflictingMedicationsData.length === 0) {
+                showAlert('warning', 'No conflicting medications found');
+                return;
+            }
+
+            // If there's only one conflicting medication, replace it directly
+            if (conflictingMedicationsData.length === 1) {
+                selectAlternativeMedication(medicationId, medicationName, conflictingMedicationsData[0].prescriptionLineId);
+                return;
+            }
+
+            // If there are multiple conflicting medications, show a selection dialog
+            var options = conflictingMedicationsData.map(function(conflict) {
+                return `<option value="${conflict.prescriptionLineId}">${conflict.medicationName}</option>`;
+            }).join('');
+
+            var dialogHtml = `
+                <div class="modal fade" id="selectConflictModal" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Select Medication to Replace</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>You have multiple conflicting medications. Which one would you like to replace with "${medicationName}"?</p>
+                                <select class="form-select" id="conflictSelect">
+                                    ${options}
+                                </select>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="button" class="btn btn-primary" onclick="confirmReplacement(${medicationId}, '${medicationName}')">Replace</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Remove any existing modal
+            $('#selectConflictModal').remove();
+            
+            // Add the modal to the page
+            $('body').append(dialogHtml);
+            
+            // Show the modal
+            $('#selectConflictModal').modal('show');
+        }
+
+        // Function to confirm the replacement
+        function confirmReplacement(medicationId, medicationName) {
+            var prescriptionLineId = $('#conflictSelect').val();
+            if (prescriptionLineId) {
+                $('#selectConflictModal').modal('hide');
+                selectAlternativeMedication(medicationId, medicationName, parseInt(prescriptionLineId));
+            }
+        }
+
+        // Function to refresh prescription items table
+        function refreshPrescriptionItems() {
+            // Reload the page to get updated prescription data
+            window.location.reload();
+        }
+
+        // Function to check for remaining conflicts after replacement
+        function checkForRemainingConflicts() {
+            // Trigger the complete prescription form submission to check for any remaining conflicts
+            $('#completePrescriptionForm').trigger('submit');
+        }
+
+        // Store conflicting medications data globally for access in selectAlternativeMedication
+        var conflictingMedicationsData = [];
+
+        // Update showAllergyConflictModal to store the data globally
+        function showAllergyConflictModal(conflictingMedications, safeAlternatives) {
+            // Store the conflicting medications data globally
+            conflictingMedicationsData = conflictingMedications;
+            
+            // Populate conflicting medications
+            populateConflictingMedications(conflictingMedications);
+            
+            // Populate safe alternatives
+            populateSafeAlternatives(safeAlternatives);
+            
+            // Show the modal
+            $('#allergyConflictModal').modal('show');
+        }
+
+    </script>
+}

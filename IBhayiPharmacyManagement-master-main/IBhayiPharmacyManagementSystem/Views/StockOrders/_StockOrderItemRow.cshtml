@@ -1,0 +1,59 @@
+@model Tuple<IBhayiPharmacyManagementSystem.ViewModels.CreateStockOrderItemViewModel, List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>, int>
+
+@{ 
+    var item = Model.Item1;
+    var medications = Model.Item2;
+    var index = Model.Item3;
+}
+
+<div class="row mb-3 border-bottom pb-3">
+    <div class="col-md-5">
+        @if (item.IsNewMedication)
+        {
+            <label class="form-label">Medication Name</label>
+            <input type="text" name="StockOrderItems[@index].Name" value="@item.Name" class="form-control" readonly />
+            <input type="hidden" name="StockOrderItems[@index].MedicationId" value="0" /> <!-- Dummy ID for new medications -->
+            <input type="hidden" name="StockOrderItems[@index].IsNewMedication" value="true" />
+            <input type="hidden" name="StockOrderItems[@index].Schedule" value="@item.Schedule" />
+            <input type="hidden" name="StockOrderItems[@index].Description" value="@item.Description" />
+            
+            <input type="hidden" name="StockOrderItems[@index].MinStockLevel" value="@item.MinStockLevel" />
+            <input type="hidden" name="StockOrderItems[@index].QuantityInStock" value="@item.QuantityInStock" />
+            <input type="hidden" name="StockOrderItems[@index].DosageFormId" value="@item.DosageFormId" />
+
+            @if (item.ActiveIngredients != null)
+            {
+                for (int i = 0; i < item.ActiveIngredients.Count; i++)
+                {
+                    <input type="hidden" name="StockOrderItems[@index].ActiveIngredients[@i].ActiveIngredientId" value="@item.ActiveIngredients[i].ActiveIngredientId" />
+                    <input type="hidden" name="StockOrderItems[@index].ActiveIngredients[@i].Strength" value="@item.ActiveIngredients[i].Strength" />
+                }
+            }
+        }
+        else
+        {
+            <label asp-for="@item.MedicationId" class="form-label">Medication</label>
+            <select asp-for="@item.MedicationId" name="StockOrderItems[@index].MedicationId" class="form-select medication-select" asp-items="medications">
+                <option value="">-- Select Medication --</option>
+            </select>
+            <input type="hidden" name="StockOrderItems[@index].IsNewMedication" value="false" />
+            @if (item.MedicationId > 0)
+            {
+                <input type="hidden" name="StockOrderItems[@index].MedicationId" value="@item.MedicationId" />
+            }
+        }
+        <span asp-validation-for="@item.MedicationId" class="text-danger"></span>
+    </div>
+    <div class="col-md-2">
+        <label asp-for="@item.QuantityOrdered" class="form-label">Quantity</label>
+        <input asp-for="@item.QuantityOrdered" name="StockOrderItems[@index].QuantityOrdered" value="@(item.QuantityOrdered > 0 ? item.QuantityOrdered : 1)" min="1" class="form-control quantity-input" />
+        <span asp-validation-for="@item.QuantityOrdered" class="text-danger"></span>
+    </div>
+    <div class="col-md-4">
+        <label asp-for="@item.Notes" class="form-label">Notes</label>
+        <input asp-for="@item.Notes" name="StockOrderItems[@index].Notes" value="@item.Notes" class="form-control" placeholder="Optional notes" />
+    </div>
+    <div class="col-md-1 d-flex align-items-end">
+        <button type="button" class="btn btn-danger remove-item-btn"><i class="bi bi-x-circle"></i></button>
+    </div>
+</div> 

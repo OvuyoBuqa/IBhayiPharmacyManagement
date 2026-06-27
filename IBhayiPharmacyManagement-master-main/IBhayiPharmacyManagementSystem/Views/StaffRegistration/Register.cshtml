@@ -1,0 +1,412 @@
+﻿@using IBhayiPharmacyManagementSystem.ViewModels;
+@model RegisterStaffViewModel
+@{
+    ViewData["Title"] = "Register Pharmacy Staff";
+    Layout = "_LayoutPharmacyManger";
+}
+<style>
+    :root {
+        --primary-color: #b3d9ff; /* light blue */
+        --primary-dark: #99ccff; /* deeper light blue */
+        --secondary-color: #6c757d; /* grey */
+        --success-color: #27ae60; /* green */
+        --warning-color: #f39c12; /* orange */
+        --danger-color: #e74c3c;
+        --info-color: #3498db;
+        --light-bg: #f8f9fa;
+        --dark-text: #2c3e50;
+        --muted-text: #7f8c8d;
+        --white: #ffffff;
+        --orange-accent: #FF8C00; /* orange accent */
+        --brown-soft: #c4a484; /* soft brown */
+    }
+
+    .main-container {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .page-header {
+        background: var(--white);
+        padding: 25px;
+        border-radius: 15px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        border: 1px solid #e9ecef;
+        border-top: 4px solid var(--orange-accent); /* orange accent */
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        color: var(--dark-text);
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+        .page-title i {
+            margin-right: 12px;
+            font-size: 1.8rem;
+            color: var(--info-color);
+        }
+
+    .content-card {
+        background: var(--white);
+        border-radius: 20px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+        border: 1px solid #e9ecef;
+        border-left: 4px solid var(--brown-soft); /* subtle brown edge */
+        overflow: hidden;
+        margin-bottom: 25px;
+    }
+
+    .card-header {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey header */
+        color: white;
+        padding: 25px 30px;
+        border: none;
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        color: var(--white);
+    }
+
+        .card-title i {
+            margin-right: 12px;
+            font-size: 1.3rem;
+            color: var(--success-color); /* green icon accent */
+        }
+
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 12px 16px;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        background: var(--white);
+    }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--info-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            background: var(--white);
+        }
+
+    .form-label {
+        font-weight: 700;
+        color: var(--dark-text);
+        margin-bottom: 8px;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #6c757d, #5a6268); /* lighter grey button */
+        color: white;
+        border: 1px solid #5a6268;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+    }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #5a6268, #495057);
+            color: white;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+    .btn-secondary {
+        background: linear-gradient(135deg, #7f8c8d, #6c7b7d);
+        border: none;
+        border-radius: 10px;
+        padding: 12px 24px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+    }
+
+        .btn-secondary:hover {
+            background: linear-gradient(135deg, #6c7b7d, #7f8c8d);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--success-color), #229954);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+    }
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, #229954, var(--success-color));
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+            color: white;
+        }
+
+    .input-group-text {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        color: var(--muted-text);
+        border: 2px solid #e9ecef;
+        border-radius: 10px 0 0 10px;
+        font-weight: 600;
+    }
+
+    .alert {
+        border-radius: 15px;
+        border: none;
+        padding: 20px 25px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda, #c3e6cb);
+        color: #155724;
+        border-left: 5px solid var(--success-color);
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da, #f5c6cb);
+        color: #721c24;
+        border-left: 5px solid var(--danger-color);
+    }
+
+    .alert-info {
+        background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+        color: #0c5460;
+        border-left: 5px solid var(--info-color);
+    }
+
+    .breadcrumb {
+        background: transparent;
+        padding: 0;
+        margin: 0;
+    }
+
+    .breadcrumb-item a {
+        color: var(--info-color);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+
+        .breadcrumb-item a:hover {
+            color: var(--primary-color);
+            text-decoration: underline;
+        }
+
+    .breadcrumb-item.active {
+        color: var(--muted-text);
+        font-weight: 600;
+    }
+
+    /* Active Ingredients Styles */
+    .ingredients-container {
+        border: 2px solid #e9ecef;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 25px;
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    }
+
+    .ingredients-header {
+        color: var(--dark-text);
+        font-weight: 700;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        font-size: 1.1rem;
+    }
+
+        .ingredients-header i {
+            margin-right: 10px;
+            color: var(--info-color);
+        }
+
+    .ingredient-checkbox {
+        margin-right: 12px;
+        transform: scale(1.2);
+    }
+
+    .ingredient-label {
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border-radius: 10px;
+        margin-bottom: 8px;
+        background: var(--white);
+        border: 2px solid transparent;
+    }
+
+        .ingredient-label:hover {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border-color: var(--info-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+    .ingredients-list {
+        max-height: 250px;
+        overflow-y: auto;
+        padding: 10px;
+        border-radius: 10px;
+        background: var(--white);
+    }
+
+    .no-ingredients {
+        color: var(--muted-text);
+        font-style: italic;
+        padding: 20px;
+        text-align: center;
+        background: var(--white);
+        border-radius: 10px;
+    }
+
+    .ingredient-search-container {
+        margin-bottom: 20px;
+    }
+
+    .ingredient-search-input {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+    }
+
+    .ingredient-strength {
+        margin-left: 15px;
+        color: var(--muted-text);
+        font-size: 0.9rem;
+        font-style: italic;
+        background: linear-gradient(135deg, var(--orange-accent), #e67e22);
+        color: white;
+        padding: 4px 8px;
+        border-radius: 15px;
+        font-weight: 600;
+    }
+
+    .ingredient-item {
+        border-bottom: 1px solid #e9ecef;
+        padding: 8px 0;
+    }
+
+        .ingredient-item:last-child {
+            border-bottom: none;
+        }
+
+    .validation-message {
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+
+
+    .page-title {
+        font-size: 1.8rem;
+    }
+
+    .ingredients-container {
+        padding: 15px;
+    }
+
+    }
+</style>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white py-3">
+            <h2 class="h5 mb-0"><i class="fas fa-user-plus me-2"></i> @ViewData["Title"]</h2>
+        </div>
+        <div class="card-body">
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="FullName" class="form-control form-control-lg" placeholder="Full Name" />
+                    <label asp-for="FullName">Full Name</label>
+                    <span asp-validation-for="FullName" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input asp-for="Email" class="form-control form-control-lg" placeholder="Email" />
+                    <label asp-for="Email">Email Address</label>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <select asp-for="Role" class="form-select form-select-lg" id="Role">
+                        <option value="">-- Select Position --</option>
+                        @foreach (var role in Model.AvailableRoles)
+                        {
+                            <option value="@role">@role</option>
+                        }
+                    </select>
+                    <label asp-for="Role">Position</label>
+                    <span asp-validation-for="Role" class="text-danger"></span>
+                </div>
+
+                <div id="pharmacistFields" class="mt-3" style="display: none;">
+                    <h5 class="card-title mb-3" style="color: #2c3e50 !important;">Pharmacist Details</h5>
+                    <div class="form-floating mb-3">
+                        <input asp-for="IDNumber" class="form-control form-control-lg" placeholder="ID Number" />
+                        <label asp-for="IDNumber">ID Number</label>
+                        <span asp-validation-for="IDNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="CellPhoneNumber" class="form-control form-control-lg" placeholder="Cell Phone Number" />
+                        <label asp-for="CellPhoneNumber">Cell Phone Number</label>
+                        <span asp-validation-for="CellPhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input asp-for="RegistrationNumber" class="form-control form-control-lg" placeholder="Health Council Registration Number" />
+                        <label asp-for="RegistrationNumber">Health Council Registration Number</label>
+                        <span asp-validation-for="RegistrationNumber" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">Register Staff</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var roleSelect = document.getElementById('Role');
+            var pharmacistFields = document.getElementById('pharmacistFields');
+
+            function togglePharmacistFields() {
+                if (roleSelect.value === 'Pharmacist') {
+                    pharmacistFields.style.display = 'block';
+                } else {
+                    pharmacistFields.style.display = 'none';
+                }
+            }
+
+            togglePharmacistFields();
+            roleSelect.addEventListener('change', togglePharmacistFields);
+        });
+    </script>
+}

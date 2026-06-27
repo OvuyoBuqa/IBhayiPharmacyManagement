@@ -1,0 +1,124 @@
+.pharmacy-form-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 91, 187, 0.1);
+    padding: 30px;
+    border-top: 4px solid #1a6fc9;
+    margin-top: 20px;
+}
+
+.pharmacy-form-header {
+    color: #1a6fc9;
+    font-weight: 600;
+    margin-bottom: 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e1f0ff;
+}
+
+.form-control {
+    border: 1px solid #d6e7ff;
+    border-radius: 4px;
+}
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(38, 143, 255, 0.25);
+    }
+
+.btn-pharmacy-primary {
+    background-color: #1a6fc9;
+    border-color: #1560b0;
+    color: white;
+    padding: 8px 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+}
+
+    .btn-pharmacy-primary:hover {
+        background-color: #145ba7;
+        border-color: #12539a;
+    }
+
+.btn-pharmacy-secondary {
+    background-color: #f8f9fa;
+    border-color: #d6e7ff;
+    color: #1a6fc9;
+    padding: 8px 20px;
+    font-weight: 500;
+}
+
+    .btn-pharmacy-secondary:hover {
+        background-color: #e9f2ff;
+        border-color: #c2d9ff;
+    }
+
+.control-label {
+    color: #2d5985;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.input-group-text {
+    background-color: #e9f2ff;
+    color: #2d5985;
+    border: 1px solid #d6e7ff;
+}
+
+.validation-message {
+    font-size: 0.8rem;
+}
+
+select.form-control {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: none;
+}
+
+.ingredients-container {
+    border: 1px solid #d6e7ff;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+    background-color: #f8fafd;
+}
+
+.ingredients-header {
+    color: #1a6fc9;
+    font-weight: 600;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+    .ingredients-header i {
+        margin-right: 10px;
+    }
+
+.ingredient-checkbox {
+    margin-right: 8px;
+}
+
+.ingredient-label {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+    .ingredient-label:hover {
+        background-color: #e9f2ff;
+    }
+
+.ingredients-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.no-ingredients {
+    color: #6c757d;
+    font-style: italic;
+    padding: 10px 0;
+}

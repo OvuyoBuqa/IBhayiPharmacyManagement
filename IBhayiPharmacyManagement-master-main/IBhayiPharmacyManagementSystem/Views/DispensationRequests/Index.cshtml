@@ -1,0 +1,159 @@
+@model IEnumerable<IBhayiPharmacyManagementSystem.Models.DispensationRequest>
+@{
+    ViewData["Title"] = "Dispensation Requests";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="fas fa-pills mr-2"></i>Prescription Repeat Dispensation Requests
+                    </h3>
+                    <div class="card-tools">
+                        <span class="badge badge-warning badge-lg">@Model.Count() Pending</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle mr-2"></i>@TempData["SuccessMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle mr-2"></i>@TempData["ErrorMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    @if (!Model.Any())
+                    {
+                        <div class="text-center py-4">
+                            <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                            <h5 class="text-success">All Caught Up!</h5>
+                            <p class="text-muted">No pending dispensation requests at the moment.</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Request ID</th>
+                                        <th>Customer</th>
+                                        <th>Medication</th>
+                                        <th>Doctor</th>
+                                        <th>Request Date</th>
+                                        <th>Notes</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var request in Model)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <strong>#@request.DispensationRequestId</strong>
+                                            </td>
+                                            <td>
+                                                <strong>@request.Customer.FullName</strong>
+                                                <br>
+                                                <small class="text-muted">ID: @request.Customer.IDNumber</small>
+                                            </td>
+                                            <td>
+                                                <strong>@request.PrescriptionRepeat.PrescriptionLine.Medication.Name</strong>
+                                                <br>
+                                                <small class="text-muted">
+                                                    Qty: @request.PrescriptionRepeat.QuantityPerRepeat | 
+                                                    Repeats Left: @request.PrescriptionRepeat.RemainingRepeats
+                                                </small>
+                                            </td>
+                                            <td>
+                                                @if (request.PrescriptionRepeat.PrescriptionLine.Prescription.Doctor != null)
+                                                {
+                                                    <span>@request.PrescriptionRepeat.PrescriptionLine.Prescription.Doctor.FullName</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Not specified</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                @request.RequestDate.ToString("dd/MM/yyyy HH:mm")
+                                                <br>
+                                                <small class="text-muted">@((DateTime.UtcNow - request.RequestDate).TotalHours.ToString("F1"))h ago</small>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(request.Notes))
+                                                {
+                                                    <span>@request.Notes</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">No notes</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <div class="btn-group" role="group">
+                                                    <a asp-action="Details" asp-route-id="@request.DispensationRequestId" 
+                                                       class="btn btn-info btn-sm" title="View Details">
+                                                        <i class="fas fa-eye"></i>
+                                                    </a>
+                                                    
+                                                    <form asp-action="Process" asp-route-id="@request.DispensationRequestId" 
+                                                          method="post" style="display: inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="status" value="Ready" />
+                                                        <button type="submit" class="btn btn-success btn-sm" 
+                                                                onclick="return confirm('Mark as Ready for Collection?')"
+                                                                title="Mark as Ready">
+                                                            <i class="fas fa-check"></i> Ready
+                                                        </button>
+                                                    </form>
+                                                    
+                                                    <form asp-action="Process" asp-route-id="@request.DispensationRequestId" 
+                                                          method="post" style="display: inline;">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="status" value="Dispensed" />
+                                                        <button type="submit" class="btn btn-primary btn-sm" 
+                                                                onclick="return confirm('Mark as Dispensed?')"
+                                                                title="Mark as Dispensed">
+                                                            <i class="fas fa-pills"></i> Dispensed
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function () {
+                $('.alert').fadeOut('slow');
+            }, 5000);
+        });
+    </script>
+}

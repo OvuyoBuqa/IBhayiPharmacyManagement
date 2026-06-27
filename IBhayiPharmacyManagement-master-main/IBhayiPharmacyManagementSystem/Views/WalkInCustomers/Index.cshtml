@@ -1,0 +1,2146 @@
+@model IBhayiPharmacyManagementSystem.ViewModels.WalkInCustomerViewModel
+
+@{
+    ViewData["Title"] = "Walk-in Customer Service";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="fas fa-user-plus"></i> Walk-in Customer Service</h4>
+                </div>
+                <div class="card-body">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-triangle"></i> @TempData["ErrorMessage"]
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    }
+
+                    <form asp-action="UploadPrescription" method="post" enctype="multipart/form-data" id="walkInForm" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <!-- Workflow Steps Indicator -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card border-0 bg-light">
+                                    <div class="card-body py-3">
+                                        <div class="row text-center">
+                                            <div class="col-md-4 progress-step">
+                                                <div class="step-indicator active">
+                                                    <div class="step-circle bg-primary text-white">
+                                                        <i class="fas fa-user"></i>
+                                                    </div>
+                                                    <div class="step-label mt-2">
+                                                        <strong>1. Customer Selection</strong>
+                                                        <br><small class="text-muted">Select patient details</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <div class="step-indicator">
+                                                    <div class="step-circle bg-secondary text-white">
+                                                        <i class="fas fa-file-prescription"></i>
+                                                    </div>
+                                                    <div class="step-label mt-2">
+                                                        <strong>2. Process Prescription</strong>
+                                                        <br><small class="text-muted">Upload and manage items</small>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 1: Customer Selection -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card shadow-sm border-primary">
+                                    <div class="card-header bg-primary text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-user-check me-2"></i>
+                                            Step 1: Customer Selection
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <!-- Customer Selection -->
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="card border-info h-100">
+                                                    <div class="card-header bg-info text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-users me-2"></i>Customer Selection
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="mb-3">
+                                                            <label for="SelectedCustomerId" class="form-label fw-semibold">
+                                                                Choose Registered Customer
+                                                                <small class="text-muted">
+                                                                    <i class="fas fa-search me-1"></i>Type to search
+                                                                </small>
+                                                            </label>
+                                                            <select class="form-select form-select-lg" id="SelectedCustomerId" name="SelectedCustomerId" asp-items="Model.Customers">
+                                                                <option value="">-- Select Customer --</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="text-center">
+                                                            <button type="button" class="btn btn-outline-primary btn-lg w-100" id="addCustomerBtn" data-toggle="modal" data-target="#newCustomerModal">
+                                                                <i class="fas fa-plus-circle me-2"></i>Add New Customer
+                                                            </button>
+                                                            <div class="mt-2">
+                                                                <small class="text-muted">Register a new walk-in customer</small>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Customer Details -->
+                                            <div class="col-lg-6 mb-4">
+                                                <div class="card border-success h-100" id="customerDetailsCard" style="display: none;">
+                                                    <div class="card-header bg-success text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-id-card me-2"></i>Customer Details
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div id="customerDetailsContent">
+                                                            <div class="text-center py-4">
+                                                                <i class="fas fa-user-circle fa-3x text-muted mb-3"></i>
+                                                                <p class="text-muted mb-0">Select a customer to view details</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Prescription Processing -->
+                        <div class="row mb-5">
+                            <div class="col-12">
+                                <div class="card shadow-sm border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-file-upload me-2"></i>
+                                            Step 2: Prescription Processing
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <!-- Upload Section -->
+                                            <div class="col-lg-5 mb-4">
+                                                <div class="card border-primary h-100">
+                                                    <div class="card-header bg-primary text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-upload me-2"></i>Upload Prescription
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div class="mb-4">
+                                                            <label for="PrescriptionFile" class="form-label fw-semibold">Prescription File</label>
+                                                            <input type="file" class="form-control form-control-lg" id="PrescriptionFile" name="PrescriptionFile"
+                                                                   accept=".pdf,.jpg,.jpeg,.png,.heic" required />
+                                                            <div class="form-text">
+                                                                <i class="fas fa-info-circle me-1"></i>
+                                                                Accepted formats: PDF, JPG, PNG, HEIC (Max 10MB)
+                                                            </div>
+                                                        </div>
+                                                        <div class="mb-3">
+                                                            <label for="PrescriptionComments" class="form-label fw-semibold">Additional Comments (Optional)</label>
+                                                            <textarea class="form-control" id="PrescriptionComments" name="PrescriptionComments"
+                                                                      rows="4" placeholder="Any special instructions or notes about this prescription..."></textarea>
+                                                        </div>
+                                                        <div class="alert alert-light border">
+                                                            <i class="fas fa-lightbulb text-warning me-2"></i>
+                                                            <small class="text-muted">
+                                                                Upload the prescription document. It will automatically preview in the panel on the right.
+                                                            </small>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Preview Section -->
+                                            <div class="col-lg-7 mb-4">
+                                                <div class="card border-info h-100" id="prescriptionPreviewCard">
+                                                    <div class="card-header bg-info text-white">
+                                                        <h6 class="mb-0">
+                                                            <i class="fas fa-file-alt me-2"></i>Prescription Preview
+                                                        </h6>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <div id="prescriptionPreviewContent">
+                                                            <div class="text-center py-5">
+                                                                <i class="fas fa-file-upload fa-4x text-muted mb-4"></i>
+                                                                <h6 class="text-muted mb-2">Waiting for Upload</h6>
+                                                                <p class="text-muted mb-0">Select a prescription file to preview it here</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prescription Items Management -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="card shadow-sm border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="mb-0">
+                                            <i class="fas fa-prescription-bottle-alt me-2"></i>
+                                            Prescription Items Management
+                                        </h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="alert alert-success border-0 mb-4">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <strong>Instructions:</strong> Add each medication item from the prescription below.
+                                            Select the medication, specify quantity, instructions, and frequency.
+                                            <br><small class="text-muted mt-1 d-block">
+                                                <i class="fas fa-search me-1"></i><strong>Tip:</strong> Use the search functionality in dropdowns to quickly find medications when you have many options.
+                                            </small>
+                                        </div>
+
+                                        <div class="table-responsive">
+                                            <table class="table table-striped table-hover" id="prescriptionItemsTable">
+                                                <thead class="table-dark">
+                                                    <tr>
+                                                        <th class="fw-semibold"><i class="fas fa-pills me-2"></i>Medication</th>
+                                                        <th class="fw-semibold"><i class="fas fa-hashtag me-2"></i>Quantity</th>
+                                                        <th class="fw-semibold"><i class="fas fa-sticky-note me-2"></i>Instructions</th>
+                                                        <th class="fw-semibold"><i class="fas fa-clock me-2"></i>Frequency</th>
+                                                        <th class="fw-semibold"><i class="fas fa-repeat me-2"></i>Repeats</th>
+                                                        <th class="fw-semibold"><i class="fas fa-cogs me-2"></i>Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <!-- Add New Item Row -->
+                                                    <tr class="table-light" id="addItemRow">
+                                                        <td>
+                                                            <select id="medicationSelect" class="form-select form-select-sm fw-semibold" required title="Type to search medications">
+                                                                <option value="">Select Medication</option>
+                                                                @if (ViewBag.Medications != null)
+                                                                {
+                                                                    foreach (var med in ViewBag.Medications as IEnumerable<IBhayiPharmacyManagementSystem.Models.Medication>)
+                                                                    {
+                                                                        <option value="@med.MedicationId" data-price="@med.Price" data-name="@med.Name" data-stock="@med.QuantityInStock">
+                                                                            @med.Name - @($"R{med.Price:F2}") (Stock: @med.QuantityInStock)
+                                                                        </option>
+                                                                    }
+                                                                }
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" id="medicationQuantity" class="form-control form-control-sm fw-semibold" min="1" required placeholder="e.g. 30">
+                                                        </td>
+                                                        <td>
+                                                            <input type="text" id="medicationInstructions" class="form-control form-control-sm fw-semibold" required placeholder="e.g. Take with food">
+                                                        </td>
+                                                        <td>
+                                                            <select id="medicationFrequency" class="form-select form-select-sm fw-semibold" required title="Select medication frequency">
+                                                                <option value="">Select Frequency</option>
+                                                                @foreach (IBhayiPharmacyManagementSystem.Enums.DosageFrequency freq in Enum.GetValues(typeof(IBhayiPharmacyManagementSystem.Enums.DosageFrequency)))
+                                                                {
+                                                                    var fieldInfo = typeof(IBhayiPharmacyManagementSystem.Enums.DosageFrequency).GetField(freq.ToString());
+                                                                    var displayAttribute = fieldInfo?.GetCustomAttributes(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute), false)
+                                                                        .FirstOrDefault() as System.ComponentModel.DataAnnotations.DisplayAttribute;
+                                                                    <option value="@freq">@(displayAttribute?.Name ?? freq.ToString())</option>
+                                                                }
+                                                            </select>
+                                                        </td>
+                                                        <td>
+                                                            <input type="number" id="medicationRepeats" class="form-control form-control-sm fw-semibold" min="0" value="0" placeholder="Repeats">
+                                                        </td>
+                                                        <td>
+                                                            <button type="button" id="addItemBtn" class="btn btn-success btn-sm">
+                                                                <i class="fas fa-plus me-1"></i>Add Item
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <!-- Allergy Alerts Container -->
+                                        <div id="allergyAlertsContainer" class="mt-3" style="display: none;">
+                                            <div class="alert alert-danger border-danger">
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                                                    <div>
+                                                        <h5 class="alert-heading mb-2">
+                                                            <i class="fas fa-allergies me-2"></i>ALLERGY ALERTS DETECTED!
+                                                        </h5>
+                                                        <div id="allergyAlertMessages"></div>
+                                                        <hr class="my-3">
+                                                        <p class="mb-0 fw-bold text-danger">
+                                                            <i class="fas fa-info-circle me-2"></i>
+                                                            Please review these medications carefully before dispensing!
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Items Summary -->
+                                        <div class="mt-4 p-3 bg-light rounded" id="itemsSummary" style="display: none;">
+                                            <div class="row align-items-center">
+                                                <div class="col-md-6">
+                                                    <h6 class="mb-0">
+                                                        <i class="fas fa-list-check text-success me-2"></i>
+                                                        Items Added: <span id="itemCount" class="badge bg-success">0</span>
+                                                    </h6>
+                                                </div>
+                                                <div class="col-md-6 text-end">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-info-circle me-1"></i>
+                                                        All prescription items have been processed
+                                                    </small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidden Medication Display Section -->
+                        <div class="row" id="medicationSection" style="display: none;">
+                            <div class="col-12">
+                                <div class="card border-success">
+                                    <div class="card-header bg-success text-white">
+                                        <h5 class="mb-0"><i class="fas fa-pills"></i> Medication Details</h5>
+                                    </div>
+                                    <div class="card-body">
+                                        <div id="medicationContent">
+                                            <!-- Medication details will be loaded here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Prescription Submit Button -->
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <div class="d-flex justify-content-end">
+                                    <button type="submit" class="btn btn-primary btn-lg" id="submitPrescriptionBtn">
+                                        <i class="fas fa-upload me-2"></i>Submit Prescription
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Allergy Conflict Modal -->
+<div class="modal fade" id="allergyConflictModal" tabindex="-1" aria-labelledby="allergyConflictModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="allergyConflictModalLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Allergy Conflict Detected
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <h6><i class="fas fa-info-circle me-2"></i>Customer Allergy Warning</h6>
+                    <p class="mb-0">The customer has allergies to ingredients in the selected medications. Please review the conflicts below and select safe alternatives.</p>
+                </div>
+
+                <!-- Conflicting Medications Section -->
+                <div class="mb-4">
+                    <h6 class="text-danger"><i class="fas fa-ban me-2"></i>Conflicting Medications</h6>
+                    <div id="conflictingMedicationsList" class="row">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Safe Alternatives Section -->
+                <div class="mb-4">
+                    <h6 class="text-success"><i class="fas fa-shield-alt me-2"></i>Safe Alternative Medications</h6>
+                    <div id="safeAlternativesList" class="row">
+                        <!-- Will be populated by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancel
+                </button>
+                <button type="button" class="btn btn-primary" id="proceedWithMedicationBtn">
+                    <i class="fas fa-check me-1"></i>Continue Anyway
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- New Customer Modal -->
+<div class="modal fade" id="newCustomerModal" tabindex="-1" aria-labelledby="newCustomerModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="newCustomerModalLabel">
+                    <i class="fas fa-user-plus me-2"></i> Register New Walk-in Customer
+                </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="newCustomerForm" method="post" novalidate>
+                @Html.AntiForgeryToken()
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="NewCustomerName" class="form-label">First Name *</label>
+                                <input type="text" class="form-control" id="NewCustomerName" name="NewCustomerName" required />
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="NewCustomerSurname" class="form-label">Last Name *</label>
+                                <input type="text" class="form-control" id="NewCustomerSurname" name="NewCustomerSurname" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="NewCustomerIDNumber" class="form-label">ID Number *</label>
+                                <input type="text" class="form-control" id="NewCustomerIDNumber" name="NewCustomerIDNumber"
+                                       pattern="[0-9]{13}" maxlength="13" required 
+                                       data-val="true" data-val-required="ID Number is required."
+                                       data-val-length="SA ID must be 13 digits" data-val-length-min="13" data-val-length-max="13"
+                                       data-val-regex="Only numbers allowed" data-val-regex-pattern="^[0-9]*$" />
+                                <div class="form-text">13-digit South African ID number - Date of birth will be auto-filled</div>
+                                <span class="field-validation-valid text-danger" data-valmsg-for="NewCustomerIDNumber" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="NewCustomerDateOfBirth" class="form-label">Date of Birth</label>
+                                <input type="date" class="form-control" id="NewCustomerDateOfBirth" name="NewCustomerDateOfBirth" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="NewCustomerEmail" class="form-label">Email *</label>
+                                <input type="email" class="form-control" id="NewCustomerEmail" name="NewCustomerEmail" required 
+                                       data-val="true" data-val-required="Email is required."
+                                       data-val-email="Please enter a valid email address" />
+                                <span class="field-validation-valid text-danger" data-valmsg-for="NewCustomerEmail" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="NewCustomerPhone" class="form-label">Phone Number *</label>
+                                <input type="tel" class="form-control" id="NewCustomerPhone" name="NewCustomerPhone" 
+                                       pattern="[0-9]{10}" maxlength="10" required
+                                       data-val="true" data-val-required="Phone number is required."
+                                       data-val-regex="Phone number must be exactly 10 digits" data-val-regex-pattern="^[0-9]{10}$" />
+                                <span class="field-validation-valid text-danger" data-valmsg-for="NewCustomerPhone" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <!-- Allergies Section -->
+                    <div class="mb-3">
+                        <label class="form-label">
+                            <i class="fas fa-allergies text-warning me-2"></i>Allergies
+                            <small class="text-muted">(Optional - Add any known medication allergies)</small>
+                        </label>
+
+                        <!-- Quick Add Custom Allergy -->
+                        <div class="mb-3 p-3 bg-light rounded">
+                            <label class="form-label fw-bold">Quick Add Custom Allergy</label>
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="customAllergyInput"
+                                       placeholder="Type allergy name (e.g., Penicillin, Aspirin, Peanuts)" />
+                                <select class="form-select" id="customAllergySeverity" style="max-width: 150px;">
+                                    <option value="Mild">Mild</option>
+                                    <option value="Moderate" selected>Moderate</option>
+                                    <option value="Severe">Severe</option>
+                                    <option value="Life-threatening">Life-threatening</option>
+                                </select>
+                                <button type="button" class="btn btn-success" id="addCustomAllergyBtn">
+                                    <i class="fas fa-plus"></i> Add
+                                </button>
+                            </div>
+                            <small class="text-muted">Enter any allergy not listed in the dropdown below</small>
+                        </div>
+
+                        <!-- Known Allergies Dropdown -->
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Select Known Allergies</label>
+                            <div class="input-group">
+                                <select class="form-select" id="knownAllergySelect">
+                                    <option value="">-- Choose from known allergies --</option>
+                                    @foreach (var ingredient in Model.ActiveIngredients)
+                                    {
+                                        <option value="@ingredient.ActiveIngredientId" data-name="@ingredient.Name">@ingredient.Name</option>
+                                    }
+                                </select>
+                                <select class="form-select" id="knownAllergySeverity" style="max-width: 150px;">
+                                    <option value="Mild">Mild</option>
+                                    <option value="Moderate" selected>Moderate</option>
+                                    <option value="Severe">Severe</option>
+                                    <option value="Life-threatening">Life-threatening</option>
+                                </select>
+                                <button type="button" class="btn btn-primary" id="addKnownAllergyBtn">
+                                    <i class="fas fa-plus"></i> Add Known
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Allergy List Container -->
+                        <div id="allergiesContainer">
+                            <!-- Allergies will be added here dynamically -->
+                        </div>
+
+                        <!-- Summary -->
+                        <div class="mt-3 p-2 bg-info bg-opacity-10 rounded" id="allergySummary" style="display: none;">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle"></i>
+                                <span id="allergyCount">0</span> allerg<span id="allergyPlural">ies</span> added
+                            </small>
+                        </div>
+                    </div>
+
+                    <!-- Help Text -->
+                    <div class="mt-4 p-3 bg-light rounded">
+                        <h6 class="text-muted mb-2"><i class="fas fa-info-circle"></i> Registration Tips:</h6>
+                        <ul class="text-muted small mb-0">
+                            <li>Fields marked with * are required</li>
+                            <li>ID number will automatically fill the date of birth field</li>
+                            <li>Use "Quick Add" for custom allergies or select from the dropdown</li>
+                            <li>Allergies help ensure patient safety - add as many as needed</li>
+                            <li>You can mix custom and known allergies in the same registration</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="registerCustomerBtn">
+                        <i class="fas fa-save"></i> Register Customer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+
+    <style>
+        /* Step Indicator Styles */
+        .step-indicator {
+            position: relative;
+            opacity: 0.6;
+            transition: opacity 0.3s ease;
+        }
+
+        .step-indicator.active {
+            opacity: 1;
+        }
+
+        .step-indicator.completed {
+            opacity: 1;
+        }
+
+        .step-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            margin: 0 auto;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator.active .step-circle {
+            transform: scale(1.1);
+            box-shadow: 0 4px 20px rgba(0, 123, 255, 0.3);
+        }
+
+        .step-indicator.completed .step-circle {
+            animation: pulse 2s infinite;
+        }
+
+        @@keyframes pulse {
+            0% { box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3); }
+            50% { box-shadow: 0 4px 20px rgba(40, 167, 69, 0.6); }
+            100% { box-shadow: 0 4px 20px rgba(40, 167, 69, 0.3); }
+        }
+
+        .step-label {
+            margin-top: 10px;
+        }
+
+        /* Card Improvements */
+        .card {
+            border-radius: 0.75rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            transition: box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            border-radius: 0.75rem 0.75rem 0 0 !important;
+            border: none;
+            font-weight: 600;
+        }
+
+        /* Form Control Improvements */
+        .form-select-lg {
+            font-size: 1rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+        }
+
+        .form-control-lg {
+            border-radius: 0.5rem;
+        }
+
+        .btn-lg {
+            border-radius: 0.5rem;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+        }
+
+        /* Table Improvements */
+        .table th {
+            border-top: none;
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem 0.75rem;
+        }
+
+        .table td {
+            padding: 0.75rem;
+            vertical-align: middle;
+        }
+
+        .table tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
+
+        /* Alert Improvements */
+        .alert {
+            border-radius: 0.5rem;
+            border: none;
+        }
+
+        /* Responsive Improvements */
+        @@media (max-width: 768px) {
+            .step-circle {
+                width: 40px;
+                height: 40px;
+                font-size: 1rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .btn-lg {
+                padding: 0.5rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Progress indication */
+        .progress-step {
+            position: relative;
+        }
+
+        .progress-step::before {
+            content: '';
+            position: absolute;
+            top: 25px;
+            left: 50%;
+            right: 0;
+            height: 2px;
+            background: #dee2e6;
+            z-index: 0;
+        }
+
+        .progress-step.completed::before {
+            background: #28a745;
+        }
+
+        /* Custom badge styles */
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.35em 0.65em;
+        }
+
+        /* Enhanced focus states */
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Loading states */
+        .btn:disabled {
+            opacity: 0.7;
+        }
+
+        /* Success animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @@keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Select2 Customizations for Professional Look */
+        .select2-container--bootstrap-5 .select2-selection {
+            border-radius: 0.5rem;
+            border: 1px solid #ced4da;
+            min-height: 38px;
+        }
+
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection {
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__rendered {
+            color: #495057;
+            padding: 0.375rem 1rem;
+            font-weight: 500;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__placeholder {
+            color: #6c757d;
+            font-weight: 400;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__arrow {
+            right: 12px;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__clear {
+            right: 35px;
+        }
+
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border: 1px solid #ced4da;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option {
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--highlighted {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--selected {
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .select2-container--bootstrap-5 .select2-search__field {
+            border: 1px solid #ced4da;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            font-weight: 500;
+        }
+
+        .select2-container--bootstrap-5 .select2-search__field:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+        /* Custom search placeholder styling */
+        .select2-search--dropdown .select2-search__field::placeholder {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        /* Enhanced search styling for table dropdowns */
+        .table .select2-container--bootstrap-5 .select2-selection {
+            min-height: 32px;
+            font-size: 0.875rem;
+        }
+
+        .table .select2-container--bootstrap-5 .select2-selection__rendered {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <!-- Override sparkline before any other scripts load -->
+    <script>
+        // Override sparkline immediately to prevent errors
+        window.sparklineOverride = true;
+    </script>
+    
+    <!-- jQuery Validation -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.12/dist/jquery.validate.unobtrusive.min.js"></script>
+    
+    <!-- Select2 JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Override dashboard.js to prevent Sparkline errors on this page -->
+    <script>
+        // Prevent dashboard.js from running on this page
+        window.addEventListener('DOMContentLoaded', function() {
+            // Override the dashboard initialization
+            if (typeof window.dashboard !== 'undefined') {
+                window.dashboard = function() { return false; };
+            }
+            
+            // Prevent sparkline initialization
+            if (typeof $.fn.sparkline !== 'undefined') {
+                $.fn.sparkline = function() { return this; };
+            }
+        });
+        
+        // Override sparkline before it loads
+        if (typeof $ !== 'undefined') {
+            $(document).ready(function() {
+                $.fn.sparkline = function() { return this; };
+            });
+        }
+    </script>
+
+    <script>
+        // Prevent Sparkline errors from breaking the page
+        window.addEventListener('error', function(e) {
+            if (e.message && e.message.includes('innerHTML') && e.message.includes('sparkline')) {
+                console.warn('Sparkline error prevented:', e.message);
+                e.preventDefault();
+                return true;
+            }
+        });
+
+        $(document).ready(function () {
+            let allergyIndex = 1;
+            
+            // Debug: Test button functionality
+            console.log("Walk-in customer page loaded");
+
+            // Test jQuery
+            if (typeof $ !== 'undefined') {
+                console.log("jQuery is loaded");
+            } else {
+                console.log("jQuery is NOT loaded");
+            }
+
+            // Test Bootstrap
+            if (typeof $.fn.modal !== 'undefined') {
+                console.log("Bootstrap modal plugin is loaded");
+            } else {
+                console.log("Bootstrap modal plugin is NOT loaded");
+            }
+
+            // Test if button exists
+            if ($('#addCustomerBtn').length > 0) {
+                console.log("Add Customer button found");
+            } else {
+                console.log("Add Customer button NOT found");
+            }
+
+            // Test if Add Item button exists
+            if ($('#addItemBtn').length > 0) {
+                console.log("Add Item button found");
+            } else {
+                console.log("Add Item button NOT found");
+            }
+
+            // Test if modal exists
+            if ($('#newCustomerModal').length > 0) {
+                console.log("New Customer modal found");
+            } else {
+                console.log("New Customer modal NOT found");
+            }
+
+
+            // Hoisted: Global function to update medication dropdowns (defined before first use)
+            function updateMedicationDropdowns() {
+                const selectedMedications = [];
+                
+                // Collect all currently selected medication names from existing prescription items
+                $('#prescriptionItemsTable tbody tr:not(#addItemRow)').each(function() {
+                    const medicationName = $(this).find('td:first strong').text();
+                    if (medicationName) {
+                        selectedMedications.push(medicationName);
+                    }
+                });
+                
+                // Reset all options to enabled
+                $('#medicationSelect option').prop('disabled', false);
+                
+                // Disable selected medications
+                selectedMedications.forEach(function(medName) {
+                    $('#medicationSelect option').each(function() {
+                        if ($(this).text() === medName) {
+                            $(this).prop('disabled', true);
+                        }
+                    });
+                });
+            }
+
+            // Initialize Select2 dropdowns with search functionality
+            initializeSelect2Dropdowns();
+            
+            // Initialize medication dropdown state
+            updateMedicationDropdowns();
+
+            // Function to initialize Select2 dropdowns
+            function initializeSelect2Dropdowns() {
+                // Customer Selection Dropdown
+                $('#SelectedCustomerId').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: 'Search and select a customer...',
+                    allowClear: true,
+                    width: '100%',
+                    minimumInputLength: 0,
+                    language: {
+                        noResults: function() {
+                            return "No customers found. <a href='#' onclick='$(\"#addCustomerBtn\").click(); return false;' class='text-primary'>Add new customer</a>";
+                        },
+                        searching: function() {
+                            return "Searching customers...";
+                        },
+                        inputTooShort: function() {
+                            return "Type to search customers";
+                        }
+                    }
+                });
+
+                // Medication Selection Dropdown (in table)
+                $('#addItemForm select[name="MedicationId"]').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: 'Search medications...',
+                    allowClear: true,
+                    width: '100%',
+                    minimumInputLength: 1,
+                    dropdownParent: $('#prescriptionItemsTable'),
+                    language: {
+                        noResults: function() {
+                            return "No medications found matching your search";
+                        },
+                        searching: function() {
+                            return "Searching medications...";
+                        },
+                        inputTooShort: function() {
+                            return "Type at least 1 character to search medications";
+                        }
+                    }
+                });
+
+                // Call on page load
+                updateMedicationDropdowns();
+
+                // Call when medication selection changes
+                $(document).on('change', '#medicationSelect, select[name="MedicationId"]', function() {
+                    updateMedicationDropdowns();
+                });
+
+                // Call when prescription item is added
+                $(document).on('DOMSubtreeModified', function() {
+                    updateMedicationDropdowns();
+                });
+
+                // Frequency Selection Dropdown (in table)
+                $('#addItemForm select[name="Frequency"]').select2({
+                    theme: 'bootstrap-5',
+                    placeholder: 'Select frequency...',
+                    allowClear: true,
+                    width: '100%',
+                    minimumInputLength: 0,
+                    dropdownParent: $('#prescriptionItemsTable'),
+                    language: {
+                        noResults: function() {
+                            return "No frequency options found";
+                        },
+                        searching: function() {
+                            return "Searching...";
+                        }
+                    }
+                });
+
+                // Add visual indicators for search functionality
+                $('.select2-container').each(function() {
+                    const $container = $(this);
+                    if (!$container.find('.select2-search-indicator').length) {
+                        $container.find('.select2-selection__rendered').prepend('<i class="fas fa-search select2-search-indicator text-muted me-1" style="font-size: 0.8em;"></i>');
+                    }
+                });
+            }
+
+            // Helper function to show alerts
+            function showAlert(type, message) {
+                const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+                const alertHtml = `
+                    <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                        <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-triangle'}"></i>
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                `;
+
+                // Remove existing alerts
+                $('.alert').remove();
+
+                // Add new alert at the top of the container
+                $('.container-fluid').prepend(alertHtml);
+
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    $('.alert').fadeOut();
+                }, 5000);
+            }
+
+            // Helper function to get initial allergy HTML
+            function getInitialAllergyHtml() {
+                return `
+                    <div class="allergy-item border p-3 mb-3 rounded">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label">Active Ingredient</label>
+                                <select class="form-select allergy-ingredient" name="NewCustomerAllergies[0].ActiveIngredientId">
+                                    <option value="">-- Select Ingredient --</option>
+                                    @foreach (var ingredient in Model.ActiveIngredients)
+                                    {
+                                        <option value="@ingredient.ActiveIngredientId">@ingredient.Name</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Severity</label>
+                                <select class="form-select allergy-severity" name="NewCustomerAllergies[0].Severity">
+                                    <option value="">-- Select --</option>
+                                    <option value="Mild">Mild</option>
+                                    <option value="Moderate">Moderate</option>
+                                    <option value="Severe">Severe</option>
+                                    <option value="Life-threatening">Life-threatening</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">Description</label>
+                                <input type="text" class="form-control allergy-description"
+                                       name="NewCustomerAllergies[0].Description" placeholder="Additional details..." />
+                            </div>
+                            <div class="col-md-1 d-flex align-items-end">
+                                <button type="button" class="btn btn-danger btn-sm remove-allergy">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Reset modal when opened
+            $('#newCustomerModal').on('show.bs.modal', function () {
+                // Clear any previous validation errors
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
+                $('.alert').remove();
+
+                // Reset form
+                $('#newCustomerForm')[0].reset();
+
+                // Reset allergy section
+                allergyIndex = 0;
+                $('#allergiesContainer').html('');
+                $('#allergySummary').hide();
+                $('#customAllergyInput').val('');
+                $('#knownAllergySelect').val('');
+            });
+
+
+
+            // Auto-fill date of birth from ID number
+            $('#NewCustomerIDNumber').on('input', function () {
+                const idNumber = $(this).val().toString();
+
+                if (idNumber.length >= 6) {
+                    // Extract date from South African ID number (YYMMDD format)
+                    const year = idNumber.substring(0, 2);
+                    const month = idNumber.substring(2, 4);
+                    const day = idNumber.substring(4, 6);
+
+                    // Validate month (01-12)
+                    const monthNum = parseInt(month);
+                    if (monthNum < 1 || monthNum > 12) {
+                        console.log('Invalid month in ID number');
+                        return;
+                    }
+
+                    // Validate day (01-31)
+                    const dayNum = parseInt(day);
+                    if (dayNum < 1 || dayNum > 31) {
+                        console.log('Invalid day in ID number');
+                        return;
+                    }
+
+                    // Convert to full year (assuming 20th century for YY < 30, 19th for YY >= 30)
+                    const fullYear = parseInt(year) < 30 ? `20${year}` : `19${year}`;
+
+                    // Validate date
+                    const dateStr = `${fullYear}-${month}-${day}`;
+                    const date = new Date(dateStr);
+
+                    // Check if date is valid (handles invalid days like Feb 31)
+                    if (date.getFullYear() == fullYear &&
+                        date.getMonth() + 1 == monthNum &&
+                        date.getDate() == dayNum) {
+                        $('#NewCustomerDateOfBirth').val(dateStr);
+                        console.log('Date of birth auto-filled from ID number:', dateStr);
+                    } else {
+                        console.log('Invalid date in ID number');
+                    }
+                }
+            });
+
+            // Phone number validation
+            $('#NewCustomerPhone').on('input', function () {
+                const phone = $(this).val().replace(/\D/g, ''); // Remove non-digits
+                $(this).val(phone); // Update the field with only digits
+                
+                // Validate length
+                if (phone.length > 10) {
+                    $(this).val(phone.substring(0, 10)); // Limit to 10 digits
+                }
+            });
+
+            // ID number validation
+            $('#NewCustomerIDNumber').on('input', function () {
+                const idNumber = $(this).val().replace(/\D/g, ''); // Remove non-digits
+                $(this).val(idNumber); // Update the field with only digits
+                
+                // Validate length
+                if (idNumber.length > 13) {
+                    $(this).val(idNumber.substring(0, 13)); // Limit to 13 digits
+                }
+            });
+
+            // Customer selection change (works with or without Select2)
+            $('#SelectedCustomerId').on('change', function () {
+                console.log('Customer dropdown changed:', $(this).val());
+                const customerId = $(this).val();
+                if (customerId && customerId !== '') {
+                    loadCustomerDetails(customerId);
+                } else {
+                    $('#customerDetailsCard').hide();
+                }
+            });
+
+            // If Select2 is active, also listen to its events
+            if ($.fn.select2) {
+                $('#SelectedCustomerId').on('select2:select', function (e) {
+                    console.log('Select2 select event:', e.params?.data?.id);
+                    const customerId = e.params?.data?.id || $(this).val();
+                    if (customerId && customerId !== '') {
+                        loadCustomerDetails(customerId);
+                    }
+                });
+                $('#SelectedCustomerId').on('select2:clear', function () {
+                    console.log('Select2 clear event');
+                    $('#customerDetailsCard').hide();
+                });
+            }
+
+            // Load customer details via AJAX
+            function loadCustomerDetails(customerId) {
+                $.ajax({
+                    url: '@Url.Action("GetCustomerDetails", "WalkInCustomers")',
+                    type: 'GET',
+                    data: { customerId: customerId },
+                    success: function (response) {
+                        if (response.success) {
+                            displayCustomerDetails(response.customer);
+                        } else {
+                            $('#customerDetailsContent').html('<p class="text-danger">Error loading customer details</p>');
+                        }
+                    },
+                    error: function () {
+                        $('#customerDetailsContent').html('<p class="text-danger">Error loading customer details</p>');
+                    }
+                });
+            }
+
+            // Display customer details
+            function displayCustomerDetails(customer) {
+                const allergiesHtml = customer.allergies.length > 0
+                    ? customer.allergies.map(allergy =>
+                        `<li class="list-group-item d-flex justify-content-between align-items-center">
+                            ${allergy.ingredient}
+                            <span class="badge bg-${getSeverityColor(allergy.severity)} rounded-pill">${allergy.severity}</span>
+                        </li>`).join('')
+                    : '<li class="list-group-item text-muted">No allergies recorded</li>';
+
+                const html = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-user"></i> Personal Information</h6>
+                            <p><strong>Name:</strong> ${customer.name}</p>
+                            <p><strong>ID Number:</strong> ${customer.idNumber}</p>
+                            <p><strong>Email:</strong> ${customer.email}</p>
+                            <p><strong>Phone:</strong> ${customer.phone}</p>
+                            <p><strong>Registered:</strong> ${customer.dateCreated}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <h6><i class="fas fa-allergies"></i> Allergies</h6>
+                            <ul class="list-group">
+                                ${allergiesHtml}
+                            </ul>
+                        </div>
+                    </div>
+                `;
+                $('#customerDetailsContent').html(html);
+                $('#customerDetailsCard').show();
+            }
+
+            // Get severity color for badges
+            function getSeverityColor(severity) {
+                switch (severity.toLowerCase()) {
+                    case 'mild': return 'success';
+                    case 'moderate': return 'warning';
+                    case 'severe': return 'danger';
+                    case 'life-threatening': return 'dark';
+                    default: return 'secondary';
+                }
+            }
+
+            // Add custom allergy functionality
+            $('#addCustomAllergyBtn').click(function () {
+                const allergyName = $('#customAllergyInput').val().trim();
+                const severity = $('#customAllergySeverity').val();
+
+                if (!allergyName) {
+                    alert('Please enter an allergy name');
+                    return;
+                }
+
+                addAllergyToList(allergyName, severity, 0, allergyName); // Use 0 as marker for custom allergies
+
+                // Clear input
+                $('#customAllergyInput').val('');
+                updateAllergySummary();
+            });
+
+            // Add known allergy functionality
+            $('#addKnownAllergyBtn').click(function () {
+                const selectedOption = $('#knownAllergySelect option:selected');
+                const ingredientId = selectedOption.val();
+                const ingredientName = selectedOption.data('name') || selectedOption.text();
+                const severity = $('#knownAllergySeverity').val();
+
+                if (!ingredientId) {
+                    alert('Please select an allergy from the dropdown');
+                    return;
+                }
+
+                addAllergyToList(ingredientName, severity, parseInt(ingredientId), '');
+
+                // Reset dropdown
+                $('#knownAllergySelect').val('');
+                updateAllergySummary();
+            });
+
+            // Allow Enter key in custom allergy input
+            $('#customAllergyInput').keypress(function(e) {
+                if (e.which == 13) { // Enter key
+                    e.preventDefault();
+                    $('#addCustomAllergyBtn').click();
+                }
+            });
+
+            // Function to add allergy to the list
+            function addAllergyToList(name, severity, ingredientId, description) {
+                const allergyHtml = `
+                    <div class="allergy-item card mb-2 border-${getSeverityColor(severity)}">
+                        <div class="card-body p-2">
+                            <div class="row align-items-center">
+                                <div class="col-md-4">
+                                    <strong class="text-${getSeverityColor(severity)}">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>${name}
+                                    </strong>
+                                </div>
+                                <div class="col-md-3">
+                                    <span class="badge bg-${getSeverityColor(severity)}">${severity}</span>
+                                </div>
+                                <div class="col-md-4">
+                                    <small class="text-muted">${description || 'No additional details'}</small>
+                                </div>
+                                <div class="col-md-1 text-end">
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-allergy">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!-- Hidden fields for form submission -->
+                            <input type="hidden" name="NewCustomerAllergies[${allergyIndex}].ActiveIngredientId" value="${ingredientId}" />
+                            <input type="hidden" name="NewCustomerAllergies[${allergyIndex}].Severity" value="${severity}" />
+                            <input type="hidden" name="NewCustomerAllergies[${allergyIndex}].Description" value="${description || name}" />
+                        </div>
+                    </div>
+                `;
+
+                $('#allergiesContainer').append(allergyHtml);
+                allergyIndex++;
+            }
+
+            // Function to update allergy summary
+            function updateAllergySummary() {
+                const allergyCount = $('#allergiesContainer .allergy-item').length;
+                if (allergyCount > 0) {
+                    $('#allergyCount').text(allergyCount);
+                    $('#allergyPlural').text(allergyCount === 1 ? 'y' : 'ies');
+                    $('#allergySummary').show();
+                } else {
+                    $('#allergySummary').hide();
+                }
+            }
+
+            // Remove allergy
+            $(document).on('click', '.remove-allergy', function () {
+                $(this).closest('.allergy-item').remove();
+                updateAllergySummary();
+            });
+
+            // Ensure submit triggers immediately on first click
+            $('#registerCustomerBtn').on('click', function(e) {
+                e.preventDefault();
+                const form = $('#newCustomerForm');
+                // Force any in-progress edits to commit and propagate value changes
+                form.find('input, select, textarea').each(function() { this.blur(); }).trigger('change');
+                // Defer to next tick to ensure DOM values are finalized
+                setTimeout(function() {
+                    form.trigger('submit');
+                }, 0);
+            });
+
+            // Removed debug/test submit handlers
+
+            // Register new customer
+            $('#newCustomerForm').submit(function (e) {
+                e.preventDefault();
+                console.log("Form submission triggered");
+
+                // Clear previous validation errors
+                $('.is-invalid').removeClass('is-invalid');
+                $('.invalid-feedback').remove();
+
+                const formData = new FormData(this);
+                // Get the antiforgery token from the hidden input
+                const token = $('input[name="__RequestVerificationToken"]').val();
+                console.log("Antiforgery token:", token);
+
+                if (token) {
+                    formData.append('__RequestVerificationToken', token);
+                }
+
+                // Log form data for debugging
+                console.log("Form data being sent:");
+                let formDataCount = 0;
+                let allergyEntries = 0;
+                for (let [key, value] of formData.entries()) {
+                    console.log(key, value);
+                    formDataCount++;
+                    if (key.includes('NewCustomerAllergies')) {
+                        allergyEntries++;
+                    }
+                }
+                console.log("Total form data entries:", formDataCount);
+                console.log("Allergy entries found:", allergyEntries);
+
+                // Check allergy data specifically
+                const allergyData = [];
+                for (let [key, value] of formData.entries()) {
+                    if (key.includes('NewCustomerAllergies')) {
+                        allergyData.push({ key, value });
+                    }
+                }
+                console.log("Allergy data:", allergyData);
+
+                // Check if we have required fields
+                const nameValue = $('#NewCustomerName').val();
+                const surnameValue = $('#NewCustomerSurname').val();
+                const idValue = $('#NewCustomerIDNumber').val();
+                const emailValue = $('#NewCustomerEmail').val();
+                const phoneValue = $('#NewCustomerPhone').val();
+
+                console.log("Name value:", nameValue);
+                console.log("Surname value:", surnameValue);
+                console.log("ID value:", idValue);
+                console.log("Email value:", emailValue);
+                console.log("Phone value:", phoneValue);
+
+                const hasName = nameValue && nameValue.trim() !== '';
+                const hasSurname = surnameValue && surnameValue.trim() !== '';
+                const hasIDNumber = idValue && idValue.trim() !== '';
+                const hasEmail = emailValue && emailValue.trim() !== '';
+                const hasPhone = phoneValue && phoneValue.trim() !== '';
+
+                console.log("Has name:", hasName, "Has surname:", hasSurname, "Has ID:", hasIDNumber, "Has email:", hasEmail, "Has phone:", hasPhone);
+
+                if (!hasName || !hasSurname || !hasIDNumber || !hasEmail || !hasPhone) {
+                    showAlert('danger', 'Please fill in all required fields (First Name, Last Name, ID Number, Email, and Phone Number)');
+                    $('#registerCustomerBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Register Customer');
+                    return false;
+                }
+
+                // Add the basic values directly to FormData to ensure they're included
+                formData.set('NewCustomerName', nameValue);
+                formData.set('NewCustomerSurname', surnameValue);
+                formData.set('NewCustomerIDNumber', idValue);
+                formData.set('NewCustomerEmail', emailValue);
+                formData.set('NewCustomerPhone', phoneValue);
+                formData.set('NewCustomerDateOfBirth', $('#NewCustomerDateOfBirth').val() || '');
+
+                // Handle allergy data - collect manually to ensure proper structure
+                const allergyCount = $('#allergiesContainer .allergy-item').length;
+                console.log("Found", allergyCount, "allergies to process");
+
+                // Clear any existing allergy data from FormData and rebuild it
+                const allergyKeysToRemove = [];
+                for (let [key, value] of formData.entries()) {
+                    if (key.includes('NewCustomerAllergies')) {
+                        allergyKeysToRemove.push(key);
+                    }
+                }
+                allergyKeysToRemove.forEach(key => formData.delete(key));
+
+                // Add allergies manually with proper indexing
+                $('#allergiesContainer .allergy-item').each(function(index) {
+                    const allergyItem = $(this);
+                    const ingredientId = allergyItem.find('input[name*="ActiveIngredientId"]').val();
+                    const severity = allergyItem.find('input[name*="Severity"]').val();
+                    const description = allergyItem.find('input[name*="Description"]').val();
+
+                    console.log(`Processing allergy ${index}:`, { ingredientId, severity, description });
+
+                    // Ensure we have valid values
+                    const finalIngredientId = ingredientId || '1';
+                    const finalSeverity = severity || 'Moderate';
+                    const finalDescription = description || '';
+
+                    console.log(`Adding allergy ${index} with values:`, {
+                        key1: `NewCustomerAllergies[${index}].ActiveIngredientId`,
+                        val1: finalIngredientId,
+                        key2: `NewCustomerAllergies[${index}].Severity`,
+                        val2: finalSeverity,
+                        key3: `NewCustomerAllergies[${index}].Description`,
+                        val3: finalDescription
+                    });
+
+                    formData.append(`NewCustomerAllergies[${index}].ActiveIngredientId`, finalIngredientId);
+                    formData.append(`NewCustomerAllergies[${index}].Severity`, finalSeverity);
+                    formData.append(`NewCustomerAllergies[${index}].Description`, finalDescription);
+                });
+
+                // Show loading state
+                $('#registerCustomerBtn').prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Registering...');
+
+                // Debug: Log all form data being sent
+                console.log("=== JAVASCRIPT FORM DATA DEBUG ===");
+                console.log("FormData entries:");
+                for (let [key, value] of formData.entries()) {
+                    console.log(`${key}: ${value}`);
+                }
+                console.log("Total form data entries:", [...formData.entries()].length);
+                console.log("=== END JAVASCRIPT DEBUG ===");
+
+                $.ajax({
+                    url: '@Url.Action("RegisterCustomer", "WalkInCustomers")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    success: function (response) {
+                        console.log("AJAX success response:", response);
+                        if (response.success) {
+                            $('#newCustomerModal').modal('hide');
+
+                            // Show success message
+                            showAlert('success', response.message);
+
+                            // Add new customer to dropdown and select it
+                            const newOption = new Option(`${response.customerName} (New)`, response.customerId, true, true);
+                            $('#SelectedCustomerId').append(newOption).trigger('change');
+
+                            // Reset form
+                            $('#newCustomerForm')[0].reset();
+                            allergyIndex = 0;
+                            $('#allergiesContainer').html('');
+                            $('#allergySummary').hide();
+                            $('#customAllergyInput').val('');
+                            $('#knownAllergySelect').val('');
+                        } else {
+                            if (response.errors) {
+                                // Show field-specific errors
+                                Object.keys(response.errors).forEach(field => {
+                                    const input = $(`[name*="${field}"]`).first();
+                                    if (input.length) {
+                                        input.addClass('is-invalid');
+                                        input.after(`<div class="invalid-feedback">${response.errors[field][0]}</div>`);
+                                    }
+                                });
+                            } else {
+                                showAlert('danger', response.message || 'Error registering customer');
+                            }
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("AJAX error:", xhr.status, xhr.responseText, status, error);
+                        const response = xhr.responseJSON;
+                        showAlert('danger', response?.message || 'An error occurred while registering the customer');
+                    },
+                    complete: function () {
+                        // Reset button state
+                        $('#registerCustomerBtn').prop('disabled', false).html('<i class="fas fa-save"></i> Register Customer');
+                    }
+                });
+            });
+
+            // Prescription file validation and auto-preview
+            $('#PrescriptionFile').change(function () {
+                const file = this.files[0];
+                if (file) {
+                    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/jpg', 'image/png', 'image/heic'];
+                    const maxSize = 10 * 1024 * 1024; // 10MB
+
+                    if (!allowedTypes.includes(file.type)) {
+                        alert('Please select a valid file type (PDF, JPG, PNG, HEIC)');
+                        this.value = '';
+                        return;
+                    }
+
+                    if (file.size > maxSize) {
+                        alert('File size must be less than 10MB');
+                        this.value = '';
+                        return;
+                    }
+
+                    // Auto-preview the file
+                    previewPrescriptionFile(file);
+                }
+            });
+
+            // Function to preview prescription file
+            function previewPrescriptionFile(file) {
+                const reader = new FileReader();
+                const fileExtension = file.name.split('.').pop().toLowerCase();
+
+                reader.onload = function(e) {
+                    let previewHtml = '';
+
+                    if (fileExtension === 'pdf') {
+                        previewHtml = `
+                            <div class="text-center mb-3">
+                                <i class="fas fa-file-pdf fa-3x text-danger mb-3"></i>
+                                <h5 class="text-primary">${file.name}</h5>
+                                <p class="text-muted">PDF Document - ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                <div class="pdf-container border rounded p-2">
+                                    <iframe src="${e.target.result}"
+                                            style="width: 100%; height: 400px; border: none;"
+                                            title="Prescription PDF Preview">
+                                        <p>Your browser does not support PDF viewing.
+                                        <a href="${e.target.result}" target="_blank" class="btn btn-primary btn-sm">Click here to open PDF</a></p>
+                                    </iframe>
+                                </div>
+                            </div>
+                        `;
+                    } else if (['jpg', 'jpeg', 'png', 'heic'].includes(fileExtension)) {
+                        previewHtml = `
+                            <div class="text-center mb-3">
+                                <i class="fas fa-file-image fa-3x text-success mb-3"></i>
+                                <h5 class="text-primary">${file.name}</h5>
+                                <p class="text-muted">Image - ${(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                                <div class="image-preview-container">
+                                    <img src="${e.target.result}" class="img-fluid rounded border shadow-sm"
+                                         alt="Prescription preview" style="max-height: 500px;" />
+                                </div>
+                            </div>
+                        `;
+                    }
+
+                    $('#prescriptionPreviewContent').html(previewHtml);
+                };
+
+                if (fileExtension === 'pdf') {
+                    reader.readAsDataURL(file);
+                } else {
+                    reader.readAsDataURL(file);
+                }
+            }
+
+            // Store allergy conflict data for modal
+            let currentAllergyConflictData = null;
+
+            // Handle prescription item addition (local)
+            $('#addItemBtn').on('click', function(e) {
+                console.log("Add Item button clicked!");
+                e.preventDefault();
+                var submitBtn = $(this);
+
+                // Basic validation
+                const medicationId = $('#medicationSelect').val();
+                const quantity = $('#medicationQuantity').val();
+                const instructions = $('#medicationInstructions').val();
+                const frequency = $('#medicationFrequency').val();
+                const repeats = $('#medicationRepeats').val();
+
+                if (!medicationId || !quantity || !instructions || !frequency) {
+                    showAlert('danger', 'Please fill in all required fields');
+                    return;
+                }
+
+                // Check for duplicate medication
+                const medicationText = $('#medicationSelect option:selected').text();
+                let isDuplicate = false;
+                $('#prescriptionItemsTable tbody tr:not(#addItemRow)').each(function() {
+                    const existingMedication = $(this).find('td:first strong').text();
+                    if (existingMedication === medicationText) {
+                        isDuplicate = true;
+                        return false; // Break out of loop
+                    }
+                });
+
+                if (isDuplicate) {
+                    showAlert('warning', 'This medication has already been added to the prescription. Please select a different medication.');
+                    return;
+                }
+
+                // Get customer ID
+                const customerId = $('#SelectedCustomerId').val();
+                
+                // Check for allergies if customer is selected
+                if (customerId) {
+                    submitBtn.prop('disabled', true);
+                    submitBtn.html('<i class="fas fa-spinner fa-spin me-1"></i> Checking allergies...');
+
+                    // Check for allergy conflicts
+                    $.ajax({
+                        url: '@Url.Action("CheckMedicationAllergies", "WalkInCustomers")',
+                        type: 'POST',
+                        data: { 
+                            customerId: customerId, 
+                            medicationId: medicationId 
+                        },
+                        headers: {
+                            'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                        },
+                        success: function(response) {
+                            submitBtn.prop('disabled', false);
+                            submitBtn.html('<i class="fas fa-plus me-1"></i>Add Item');
+
+                            if (response.success && response.hasConflict) {
+                                // Store conflict data
+                                currentAllergyConflictData = {
+                                    medicationId: medicationId,
+                                    medicationName: response.medicationName,
+                                    medicationText: medicationText,
+                                    quantity: quantity,
+                                    instructions: instructions,
+                                    frequency: frequency,
+                                    repeats: repeats,
+                                    conflictingIngredients: response.conflictingIngredients,
+                                    safeAlternatives: response.safeAlternatives
+                                };
+
+                                // Show allergy conflict modal
+                                showAllergyConflictModal(response.medicationName, response.conflictingIngredients, response.safeAlternatives);
+                            } else {
+                                // No conflicts, add the medication
+                                addMedicationToTable(medicationText, quantity, instructions, frequency, repeats);
+                            }
+                        },
+                        error: function(xhr) {
+                            submitBtn.prop('disabled', false);
+                            submitBtn.html('<i class="fas fa-plus me-1"></i>Add Item');
+                            console.log('Allergy check error:', xhr);
+                            // If error occurs, still add the medication but log the error
+                            addMedicationToTable(medicationText, quantity, instructions, frequency, repeats);
+                        }
+                    });
+                } else {
+                    // No customer selected, proceed without checking allergies
+                    addMedicationToTable(medicationText, quantity, instructions, frequency, repeats);
+                }
+            });
+
+            // Function to add medication to table
+            function addMedicationToTable(medicationText, quantity, instructions, frequencyText, repeats) {
+                const frequencyDisplay = $('#medicationFrequency option:selected').text();
+
+                // Create new row
+                const newRow = `
+                    <tr class="fade-in">
+                        <td><strong>${medicationText}</strong></td>
+                        <td><span class="badge bg-primary">${quantity}</span></td>
+                        <td>${instructions}</td>
+                        <td><span class="badge bg-info">${frequencyDisplay}</span></td>
+                        <td><span class="badge bg-secondary">${repeats || 0}</span></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+                // Insert before the add-form row
+                $('#addItemRow').before(newRow);
+
+                // Update items count
+                updateItemsCount();
+
+                // Reset form and reinitialize Select2
+                $('#medicationSelect').val('').trigger('change.select2');
+                $('#medicationQuantity').val('');
+                $('#medicationInstructions').val('');
+                $('#medicationFrequency').val('').trigger('change.select2');
+                $('#medicationRepeats').val('0');
+
+                // Reinitialize Select2 dropdowns after reset
+                setTimeout(function() {
+                    initializeSelect2Dropdowns();
+                    updateMedicationDropdowns(); // Update dropdown to disable selected medications
+                }, 100);
+
+                showAlert('success', 'Prescription item added successfully');
+            }
+
+            // Function to show allergy conflict modal
+            function showAllergyConflictModal(medicationName, conflictingIngredients, safeAlternatives) {
+                // Populate conflicting medications
+                var conflictsHtml = `
+                    <div class="col-12 mb-3">
+                        <div class="card border-danger">
+                            <div class="card-header bg-danger text-white">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-exclamation-triangle me-2"></i>${medicationName}
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="text-danger">Conflicting Ingredients:</h6>
+                                <ul class="list-unstyled mb-0">
+                                    ${conflictingIngredients.map(function(ingredient) {
+                                        return `<li class="mb-1">
+                                            <span class="badge bg-danger me-2">${ingredient.severity}</span>
+                                            <strong>${ingredient.ingredientName}</strong>
+                                            ${ingredient.description ? `<br><small class="text-muted">${ingredient.description}</small>` : ''}
+                                        </li>`;
+                                    }).join('')}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('#conflictingMedicationsList').html(conflictsHtml);
+
+                // Populate safe alternatives
+                if (safeAlternatives && safeAlternatives.length > 0) {
+                    var alternativesHtml = '';
+                    safeAlternatives.forEach(function(medication) {
+                        alternativesHtml += `
+                            <div class="col-md-6 mb-3">
+                                <div class="card border-success h-100">
+                                    <div class="card-header bg-success text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-shield-alt me-2"></i>${medication.name}
+                                        </h6>
+                                    </div>
+                                    <div class="card-body d-flex flex-column">
+                                        <p class="card-text flex-grow-1">${medication.description || 'No description available'}</p>
+                                        <div class="mt-auto">
+                                            <div class="row text-muted small mb-2">
+                                                <div class="col-6"><strong>Form:</strong> ${medication.dosageForm}</div>
+                                                <div class="col-6"><strong>Price:</strong> R${medication.price.toFixed(2)}</div>
+                                            </div>
+                                            <div class="mb-2">
+                                                <strong class="text-success">Safe Ingredients:</strong>
+                                                <div class="mt-1">
+                                                    ${medication.activeIngredients.map(function(ingredient) {
+                                                        return `<span class="badge bg-success me-1 mb-1">${ingredient.name} (${ingredient.strength})</span>`;
+                                                    }).join('')}
+                                                </div>
+                                            </div>
+                                            <button class="btn btn-success btn-sm w-100" onclick="selectAlternativeMedication('${medication.medicationId}', '${medication.name}')">
+                                                <i class="fas fa-plus me-1"></i>Select as Alternative
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    $('#safeAlternativesList').html(alternativesHtml);
+                } else {
+                    $('#safeAlternativesList').html('<div class="col-12"><div class="alert alert-info"><i class="fas fa-info-circle me-2"></i>No safe alternatives found in the system.</div></div>');
+                }
+
+                // Show the modal
+                $('#allergyConflictModal').modal('show');
+            }
+
+            // Function to handle selecting an alternative medication
+            window.selectAlternativeMedication = function(medicationId, medicationName) {
+                // Close the modal
+                $('#allergyConflictModal').modal('hide');
+
+                // Update the medication select dropdown with the alternative
+                $('#medicationSelect option[value="' + medicationId + '"]').prop('selected', true);
+                $('#medicationSelect').trigger('change');
+
+                showAlert('success', `Selected alternative medication: ${medicationName}`);
+            };
+
+            // Handle proceeding anyway
+            $('#proceedWithMedicationBtn').on('click', function() {
+                if (currentAllergyConflictData) {
+                    // Add the medication despite the warning
+                    addMedicationToTable(
+                        currentAllergyConflictData.medicationText,
+                        currentAllergyConflictData.quantity,
+                        currentAllergyConflictData.instructions,
+                        currentAllergyConflictData.frequency,
+                        currentAllergyConflictData.repeats
+                    );
+                    
+                    // Show warning alert
+                    showAlert('warning', 'Medication added despite allergy conflicts. Please ensure customer is aware.');
+                    
+                    // Close modal
+                    $('#allergyConflictModal').modal('hide');
+                    currentAllergyConflictData = null;
+                }
+            });
+
+            // Handle delete button clicks (local removal for unsaved items)
+            $('#prescriptionItemsTable').on('click', '.remove-item', function(e) {
+                e.preventDefault();
+                var button = $(this);
+                var row = button.closest('tr');
+
+                if (confirm('Are you sure you want to delete this item?')) {
+                    row.fadeOut(300, function() {
+                        row.remove();
+                        updateItemsCount();
+                        updateMedicationDropdowns(); // Re-enable medication when item is deleted
+                    });
+                    showAlert('success', 'Item deleted successfully');
+                }
+            });
+
+            // Function to update items count
+            function updateItemsCount() {
+                const itemCount = $('#prescriptionItemsTable tbody tr').length - 1; // Subtract 1 for the form row
+                if (itemCount > 0) {
+                    $('#itemCount').text(itemCount);
+                    $('#itemsSummary').show();
+                } else {
+                    $('#itemsSummary').hide();
+                }
+            }
+
+            // Function to prepare form for submission by disabling add item row
+            function prepareFormForSubmission() {
+                console.log("=== PREPARING FORM FOR SUBMISSION ===");
+                
+                // Find add item row elements
+                var addItemElements = $('#addItemRow').find('select, input, textarea');
+                console.log("Found add item row elements:", addItemElements.length);
+                
+                // Disable and remove validation from add item row to prevent HTML5 validation errors
+                addItemElements.each(function(index) {
+                    console.log("Processing element", index, ":", this.tagName, this.name || this.id);
+                    $(this).prop('disabled', true)
+                           .removeAttr('required')
+                           .removeAttr('data-val')
+                           .removeAttr('data-val-required');
+                });
+                
+                // Hide the add item row during submission
+                console.log("Hiding add item row...");
+                $('#addItemRow').hide();
+                console.log("Add item row hidden");
+            }
+
+            // (moved) updateMedicationDropdowns defined earlier
+
+            function addItemToTable(item) {
+                var frequencyDisplay = item.frequency.replace(/([A-Z])/g, ' $1').trim();
+
+                var newRow = `
+                    <tr data-line-id="${item.lineId}">
+                        <td>
+                            <strong>${item.medicationName}</strong>
+                            ${item.dosageForm ? item.dosageForm : ''}
+                            ${item.ingredients && item.ingredients.length > 0 ? `(${item.ingredients.map(i => `${i.name} ${i.strength}`).join(', ')})` : ''}
+                        </td>
+                        <td><span class="badge bg-primary">${item.quantity}</span></td>
+                        <td>${item.instructions}</td>
+                        <td><span class="badge bg-info">${frequencyDisplay}</span></td>
+                        <td><span class="badge bg-secondary">${item.totalRepeats || 0}</span></td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+
+                // Insert the new row before the add-form row
+                $('#prescriptionItemsTable tbody tr:last').before(newRow);
+                updateItemsCount();
+            }
+
+            function displayAllergyAlerts(allergyAlerts, alertMessages) {
+                var messagesHtml = '';
+                allergyAlerts.forEach(function(alert, index) {
+                    var alertClass = alert.alertLevel === 'DANGER' ? 'text-danger' :
+                                   alert.alertLevel === 'WARNING' ? 'text-warning' : 'text-info';
+                    var iconClass = alert.alertLevel === 'DANGER' ? 'fa-exclamation-triangle' :
+                                  alert.alertLevel === 'WARNING' ? 'fa-exclamation-circle' : 'fa-info-circle';
+
+                    messagesHtml += `
+                        <div class="mb-2 p-2 border-start border-${alert.alertLevel === 'DANGER' ? 'danger' :
+                                                                    alert.alertLevel === 'WARNING' ? 'warning' : 'info'} border-3">
+                            <div class="fw-bold ${alertClass}">
+                                <i class="fas ${iconClass} me-2"></i>
+                                ${alert.medicationName} - ${alert.activeIngredientName}
+                            </div>
+                            <div class="small">
+                                <strong>Allergy Level:</strong> ${alert.allergySeverity}<br>
+                                <strong>Description:</strong> ${alert.allergyDescription}
+                            </div>
+                        </div>
+                    `;
+                });
+
+                $('#allergyAlertMessages').html(messagesHtml);
+                $('#allergyAlertsContainer').show();
+            }
+
+            function hideAllergyAlerts() {
+                $('#allergyAlertsContainer').hide();
+                $('#allergyAlertMessages').empty();
+            }
+
+            // Handle main prescription form submission
+            $('#walkInForm').on('submit', function(e) {
+                console.log("=== FORM SUBMISSION STARTED ===");
+                console.log("Event object:", e);
+                console.log("Form element:", this);
+                console.log("Form action:", $(this).attr('action'));
+                console.log("Form method:", $(this).attr('method'));
+                
+                // Validate required selections
+                const customerId = $('#SelectedCustomerId').val();
+                const prescriptionFile = $('#PrescriptionFile')[0].files[0];
+                
+                console.log("Customer ID:", customerId);
+                console.log("Prescription File:", prescriptionFile ? prescriptionFile.name : "None");
+
+                if (!customerId) {
+                    console.log("ERROR: No customer selected");
+                    showAlert('warning', 'Please select a customer first.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                if (!prescriptionFile) {
+                    console.log("ERROR: No prescription file selected");
+                    showAlert('warning', 'Please upload a prescription file.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                console.log("=== PREPARING FORM FOR SUBMISSION ===");
+                
+                // Don't prevent default - let the form submit normally
+                // But first collect all prescription items
+                var prescriptionItems = [];
+                var itemRows = $('#prescriptionItemsTable tbody tr:not(#addItemRow)');
+                
+                console.log("Number of prescription item rows:", itemRows.length);
+
+                // Prepare form for submission by disabling add item row validation
+                console.log("Calling prepareFormForSubmission()...");
+                prepareFormForSubmission();
+                console.log("prepareFormForSubmission() completed");
+
+                // Prescription items are optional - the uploaded file contains the prescription details
+                // if (itemRows.length === 0) {
+                //     showAlert('warning', 'Please add at least one prescription item before submitting.');
+                //     e.preventDefault();
+                //     return false;
+                // }
+
+                itemRows.each(function(index, row) {
+                    var $row = $(row);
+                    var medicationText = $row.find('td:first strong').text();
+                    var quantity = $row.find('.badge.bg-primary').text();
+                    var instructions = $row.find('td:nth-child(3)').text();
+                    var frequencyText = $row.find('.badge.bg-info').text();
+                    var repeats = $row.find('.badge.bg-secondary').text();
+
+                    // Find the medication ID from the text
+                    var medicationId = '';
+                    $('#medicationSelect option').each(function() {
+                        if ($(this).text() === medicationText) {
+                            medicationId = $(this).val();
+                            return false;
+                        }
+                    });
+
+                    // Find frequency enum value from text
+                    var frequency = '';
+                    $('#medicationFrequency option').each(function() {
+                        if ($(this).text() === frequencyText) {
+                            frequency = $(this).val();
+                            return false;
+                        }
+                    });
+
+                    prescriptionItems.push({
+                        MedicationId: parseInt(medicationId),
+                        Quantity: parseInt(quantity),
+                        Instructions: instructions,
+                        Frequency: frequency,
+                        Repeats: parseInt(repeats)
+                    });
+                });
+
+                // Add prescription items as JSON to hidden field
+                console.log("Prescription items collected:", prescriptionItems.length);
+                if (prescriptionItems.length > 0) {
+                    var itemsJson = JSON.stringify(prescriptionItems);
+                    var $hiddenField = $('<input type="hidden" name="PrescriptionItems" value="' + itemsJson.replace(/"/g, '&quot;') + '" />');
+                    $(this).append($hiddenField);
+                    console.log("Added prescription items to form:", itemsJson);
+                } else {
+                    console.log("No prescription items to add to form");
+                }
+
+                // Show loading state
+                console.log("Setting loading state...");
+                $('#submitPrescriptionBtn').prop('disabled', true);
+                $('#submitPrescriptionBtn').html('<i class="fas fa-spinner fa-spin me-2"></i>Submitting...');
+
+                // Show success message
+                console.log("Showing success message...");
+                showAlert('success', 'Prescription submitted successfully! Processing your request...');
+                
+                // Disable HTML5 validation to prevent browser interference
+                console.log("Disabling HTML5 validation...");
+                $(this).attr('novalidate', 'novalidate');
+                
+                console.log("=== FORM SUBMISSION HANDLER COMPLETE - FORM SHOULD NOW SUBMIT ===");
+            });
+
+            // Update step indicators based on progress
+            function updateStepIndicators() {
+                const customerSelected = $('#SelectedCustomerId').val() !== '';
+                const fileUploaded = $('#PrescriptionFile')[0].files.length > 0;
+                const hasItems = $('#prescriptionItemsTable tbody tr').length > 1; // More than just the form row
+
+                // Reset all progress steps
+                $('.progress-step').removeClass('completed');
+
+                // Step 1: Customer
+                if (customerSelected) {
+                    $('.step-indicator').eq(0).find('.step-circle').removeClass('bg-secondary bg-primary').addClass('bg-success');
+                    $('.step-indicator').eq(0).addClass('completed');
+                    $('.progress-step').eq(0).addClass('completed');
+                }
+
+                // Step 2: Upload & Review
+                if (fileUploaded) {
+                    $('.step-indicator').eq(1).find('.step-circle').removeClass('bg-secondary').addClass('bg-success');
+                    $('.step-indicator').eq(1).addClass('completed');
+                    $('.progress-step').eq(1).addClass('completed');
+                }
+
+                // Step 3: Process Items
+                if (hasItems) {
+                    $('.step-indicator').eq(2).find('.step-circle').removeClass('bg-secondary').addClass('bg-success');
+                    $('.step-indicator').eq(2).addClass('completed');
+                }
+            }
+
+            // Update step indicators on relevant changes
+            $('#SelectedCustomerId, #PrescriptionFile').change(function() {
+                updateStepIndicators();
+            });
+
+            // Initialize counts and indicators on page load
+            updateItemsCount();
+            updateStepIndicators();
+
+        });
+    </script>
+}

@@ -1,0 +1,246 @@
+﻿@model IEnumerable<IBhayiPharmacyManagementSystem.ViewModels.CustomerDetailsViewModel>
+@{
+    ViewData["Title"] = "Customer Management";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0">
+                    <i class="fas fa-users mr-2"></i>Customer Management
+                </h2>
+            </div>
+        </div>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            <i class="fas fa-check-circle mr-2"></i> @Html.Raw(TempData["SuccessMessage"])
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            <i class="fas fa-exclamation-circle mr-2"></i> @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
+
+    <div class="card shadow-sm">
+        <div class="card-header bg-light">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                        </div>
+                        <input type="text" id="searchInput" class="form-control" placeholder="Search customers...">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="d-flex justify-content-end">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-secondary filter-btn active" data-filter="all">All</button>
+                            <button type="button" class="btn btn-outline-secondary filter-btn" data-filter="registered">Registered</button>
+                            <button type="button" class="btn btn-outline-secondary filter-btn" data-filter="walkin">Walk-In</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped" id="customersTable">
+                    <thead class="thead-light">
+                        <tr>
+                            <th>
+                                <a href="#" class="sort-link" data-sort="name">
+                                    Name <i class="fas fa-sort"></i>
+                                </a>
+                            </th>
+                            <th>
+                                <a href="#" class="sort-link" data-sort="email">
+                                    Email <i class="fas fa-sort"></i>
+                                </a>
+                            </th>
+                            <th>Phone</th>
+                            <th>
+                                <a href="#" class="sort-link" data-sort="date">
+                                    Registered <i class="fas fa-sort"></i>
+                                </a>
+                            </th>
+                            <th>Status</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var customer in Model)
+                        {
+                            <tr data-customer-type="@(customer.IsWalkInCustomer ? "walkin" : "registered")">
+                                <td>@customer.FullName</td>
+                                <td>
+                                    <a href="mailto:@customer.Email" class="text-primary">
+                                        <i class="fas fa-envelope mr-1"></i> @customer.Email
+                                    </a>
+                                </td>
+                                <td>
+                                    <a href="tel:@customer.CellPhoneNumber" class="text-primary">
+                                        <i class="fas fa-phone mr-1"></i> @customer.CellPhoneNumber
+                                    </a>
+                                </td>
+                                <td>@customer.DateCreated.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    @if (customer.IsWalkInCustomer)
+                                    {
+                                        <span class="badge bg-warning text-dark">
+                                            <i class="fas fa-walking mr-1"></i> Walk-In
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-user-check mr-1"></i> Registered
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    <div class="btn-group" role="group">
+                                        <a asp-action="CustomerDetails" asp-route-id="@customer.CustomerId"
+                                           class="btn btn-sm btn-info" title="View Details">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="row mt-3">
+                <div class="col-12">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item disabled">
+                                <a class="page-link" href="#" tabindex="-1">Previous</a>
+                            </li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item">
+                                <a class="page-link" href="#">Next</a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Styles {
+    <style>
+        .card {
+            border-radius: 0.5rem;
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        }
+
+        .card-header {
+            background-color: #f8f9fa !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.5px;
+            border-top: none;
+        }
+
+        .table td {
+            vertical-align: middle;
+        }
+
+        .sort-link {
+            color: inherit;
+            text-decoration: none;
+        }
+
+            .sort-link:hover {
+                color: #007bff;
+            }
+
+        .badge {
+            font-weight: 500;
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+        }
+
+        .btn-group .btn {
+            border-radius: 0.25rem !important;
+        }
+
+        .filter-btn.active {
+            background-color: #3e2a1f;
+            color: white;
+            border-color: #3e2a1f;
+        }
+
+        #searchInput {
+            border-radius: 0.25rem;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Search functionality
+            $('#searchInput').on('keyup', function() {
+                const value = $(this).val().toLowerCase();
+                $('#customersTable tbody tr').filter(function() {
+                    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+                });
+            });
+
+            // Filter functionality
+            $('.filter-btn').click(function() {
+                $('.filter-btn').removeClass('active');
+                $(this).addClass('active');
+
+                const filter = $(this).data('filter');
+                if (filter === 'all') {
+                    $('#customersTable tbody tr').show();
+                } else {
+                    $('#customersTable tbody tr').each(function() {
+                        $(this).toggle($(this).data('customer-type') === filter);
+                    });
+                }
+            });
+
+            // Sort functionality
+            $('.sort-link').click(function(e) {
+                e.preventDefault();
+                const column = $(this).data('sort');
+                alert('Sorting by ' + column + ' would be implemented here');
+                // Actual sorting implementation would go here
+            });
+
+            // Tooltip initialization
+            $('[title]').tooltip({
+                placement: 'top',
+                trigger: 'hover'
+            });
+        });
+    </script>
+}

@@ -1,0 +1,141 @@
+@using IBhayiPharmacyManagementSystem.Enums
+@model List<IBhayiPharmacyManagementSystem.Models.Order>
+@{
+    ViewData["Title"] = "Collected Orders";
+    Layout = "_LayoutPharmacist";
+}
+
+<div class="container-fluid px-4 mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card border-0 shadow-lg">
+                <div class="card-header text-white py-3" style="background: linear-gradient(135deg, #0a1f14 0%, #1b4332 100%);">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="mb-0">
+                            <i class="fas fa-hand-holding me-2"></i>Collected Orders (@Model.Count)
+                        </h3>
+                        <a href="@Url.Action("Index", "OrderTracking")" class="btn btn-outline-light">
+                            <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+                        </a>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    @if (Model.Any())
+                    {
+                        <div class="alert alert-info border-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>@Model.Count orders</strong> have been collected by customers. These orders are marked as completed.
+                        </div>
+
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Order ID</th>
+                                        <th>Customer Details</th>
+                                        <th>Order Date</th>
+                                        <th>Collected On</th>
+                                        <th>Total Amount</th>
+                                        <th>Items</th>
+                                        <th>Collection Details</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var order in Model)
+                                    {
+                                        var collectionInfo = ExtractCollectionInfo(order);
+                                        <tr>
+                                            <td>
+                                                <strong class="text-primary">#@order.OrderId</strong>
+                                            </td>
+                                            <td>
+                                                <div>
+                                                    <strong>@order.Customer?.Name</strong>
+                                                    <br><small class="text-muted">@order.Customer?.User?.Email</small>
+                                                    @if (!string.IsNullOrEmpty(order.Customer?.CellPhoneNumber))
+                                                    {
+                                                        <br><small class="text-muted"><i class="fas fa-phone me-1"></i>@order.Customer.CellPhoneNumber</small>
+                                                    }
+                                                </div>
+                                            </td>
+                                            <td>@order.OrderDate.ToString("MMM dd, yyyy HH:mm")</td>
+                                            <td>
+                                                @if (collectionInfo.CollectedDate.HasValue)
+                                                {
+                                                    <span class="text-success">
+                                                        <i class="fas fa-calendar-check me-1"></i>@collectionInfo.CollectedDate.Value.ToString("MMM dd, yyyy")
+                                                    </span>
+                                                    <br><small class="text-muted">@collectionInfo.CollectedDate.Value.ToString("HH:mm")</small>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-muted">Unknown</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <strong class="text-success">R@(order.TotalAmount.ToString("F2"))</strong>
+                                            </td>
+                                            <td>
+                                                <span class="badge bg-primary">@order.OrderItems.Count items</span>
+                                            </td>
+                                            <td>
+                                                @if (!string.IsNullOrEmpty(collectionInfo.CollectedBy))
+                                                {
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-user me-1"></i>@collectionInfo.CollectedBy
+                                                    </small>
+                                                }
+                                                else
+                                                {
+                                                    <small class="text-muted">Unknown</small>
+                                                }
+                                            </td>
+                                            <td>
+                                                <a href="@Url.Action("Details", "OrderTracking", new { id = order.OrderId })" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye me-1"></i>View Details
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-center py-5">
+                            <i class="fas fa-hand-holding fa-4x text-muted mb-3"></i>
+                            <h4 class="text-muted">No Collected Orders</h4>
+                            <p class="text-muted">No orders have been marked as collected yet.</p>
+                            <a href="@Url.Action("ReadyForCollection", "OrderTracking")" class="btn btn-success">
+                                <i class="fas fa-check-circle me-1"></i> View Ready Orders
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@functions {
+    public (DateTime? CollectedDate, string CollectedBy) ExtractCollectionInfo(IBhayiPharmacyManagementSystem.Models.Order order)
+    {
+        if (order.OrderStatus != OrderStatusEnum.Collected || !order.CollectedDate.HasValue)
+            return (null, null);
+
+        return (order.CollectedDate.Value, "Pharmacist"); // We can enhance this later to get actual pharmacist name
+    }
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize tooltips if any
+            $('[data-bs-toggle="tooltip"]').tooltip();
+        });
+    </script>
+}

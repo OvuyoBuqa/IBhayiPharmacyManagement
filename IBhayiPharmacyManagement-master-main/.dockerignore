@@ -1,0 +1,19 @@
+# Exclude build outputs and caches
+**/bin/
+**/obj/
+**/out/
+
+# Exclude source control
+.git/
+.gitignore
+
+# Exclude IDE configurations
+.vs/
+.vscode/
+*.suo
+*.user
+
+# Exclude Docker and environment configs
+Dockerfile
+docker-compose.yml
+.env
